@@ -1579,28 +1579,36 @@ async def get_activities_and_workouts(request_data: ActivitiesAndWorkoutsRequest
                             "power": extracted_power,
                             "active_calories": active_calories,
                         },
-                        "details": json.dumps(clean_garmin_data(activity_details))
-                        if activity_details
-                        else None,
-                        "splits": json.dumps(clean_garmin_data(activity_splits))
-                        if activity_splits
-                        else None,
-                        "weather": json.dumps(clean_garmin_data(activity_weather))
-                        if activity_weather
-                        else None,
-                        "hr_in_timezones": json.dumps(
-                            clean_garmin_data(activity_hr_in_timezones)
-                        )
-                        if activity_hr_in_timezones
-                        else None,
-                        "exercise_sets": json.dumps(
-                            clean_garmin_data(activity_exercise_sets)
-                        )
-                        if activity_exercise_sets
-                        else None,
-                        "gear": json.dumps(clean_garmin_data(activity_gear))
-                        if activity_gear
-                        else None,
+                        "details": (
+                            json.dumps(clean_garmin_data(activity_details))
+                            if activity_details
+                            else None
+                        ),
+                        "splits": (
+                            json.dumps(clean_garmin_data(activity_splits))
+                            if activity_splits
+                            else None
+                        ),
+                        "weather": (
+                            json.dumps(clean_garmin_data(activity_weather))
+                            if activity_weather
+                            else None
+                        ),
+                        "hr_in_timezones": (
+                            json.dumps(clean_garmin_data(activity_hr_in_timezones))
+                            if activity_hr_in_timezones
+                            else None
+                        ),
+                        "exercise_sets": (
+                            json.dumps(clean_garmin_data(activity_exercise_sets))
+                            if activity_exercise_sets
+                            else None
+                        ),
+                        "gear": (
+                            json.dumps(clean_garmin_data(activity_gear))
+                            if activity_gear
+                            else None
+                        ),
                     }
                 )
             except Exception as e:
