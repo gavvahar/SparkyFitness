@@ -5,7 +5,11 @@ import { AppState } from 'react-native';
 export type LogStatus = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';
 
 // Threshold used by both the capture-level and view-filter settings.
-export type LogThreshold = 'all' | 'no_debug' | 'warnings_errors' | 'errors_only';
+export type LogThreshold =
+  | 'all'
+  | 'no_debug'
+  | 'warnings_errors'
+  | 'errors_only';
 
 export interface LogEntry {
   timestamp: string;
@@ -94,14 +98,17 @@ let flushPromise: Promise<void> | null = null;
 // yet written).
 let getViewPromise: Promise<LogThreshold> | null = null;
 let consecutiveFlushFailures = 0;
-let appStateSubscription: ReturnType<typeof AppState.addEventListener> | null = null;
+let appStateSubscription: ReturnType<typeof AppState.addEventListener> | null =
+  null;
 
 /**
  * Normalizes a stored log entry to the current on-disk shape. Returns
  * `changed: true` when the input required rewriting (legacy `level` field
  * or `status: 'SUCCESS'`) so callers can decide whether to write back.
  */
-const migrateLogEntry = (entry: StoredLogEntry): { entry: LogEntry; changed: boolean } => {
+const migrateLogEntry = (
+  entry: StoredLogEntry,
+): { entry: LogEntry; changed: boolean } => {
   let changed = false;
   let status: LogStatus;
 
@@ -161,8 +168,13 @@ const flushBuffer = async (): Promise<void> => {
   const doFlush = async (): Promise<void> => {
     try {
       const existingData = await AsyncStorage.getItem(LOG_KEY);
-      const existingLogs: LogEntry[] = existingData ? JSON.parse(existingData) : [];
-      const merged = [...entriesToFlush, ...existingLogs].slice(0, MAX_LOG_ENTRIES);
+      const existingLogs: LogEntry[] = existingData
+        ? JSON.parse(existingData)
+        : [];
+      const merged = [...entriesToFlush, ...existingLogs].slice(
+        0,
+        MAX_LOG_ENTRIES,
+      );
       await AsyncStorage.setItem(LOG_KEY, JSON.stringify(merged));
       consecutiveFlushFailures = 0;
     } catch (error) {
@@ -171,7 +183,10 @@ const flushBuffer = async (): Promise<void> => {
         // Restore entries to buffer for retry
         writeBuffer = [...entriesToFlush, ...writeBuffer];
       } else {
-        console.error('[LogService] Dropping buffered entries after repeated flush failures', error);
+        console.error(
+          '[LogService] Dropping buffered entries after repeated flush failures',
+          error,
+        );
       }
     }
   };
@@ -203,7 +218,7 @@ const scheduleFlush = (): void => {
 export const addLog = async (
   message: string,
   status: LogStatus = 'INFO',
-  details: string[] = []
+  details: string[] = [],
 ): Promise<void> => {
   try {
     const captureLevel = await getCaptureLevel();
@@ -244,7 +259,9 @@ export const pruneLogs = async (daysToKeep: number = 3): Promise<void> => {
     await flushBuffer();
 
     const existingLogs = await AsyncStorage.getItem(LOG_KEY);
-    const rawLogs: StoredLogEntry[] = existingLogs ? JSON.parse(existingLogs) : [];
+    const rawLogs: StoredLogEntry[] = existingLogs
+      ? JSON.parse(existingLogs)
+      : [];
 
     const migrated = rawLogs.map(migrateLogEntry);
     const didNormalize = migrated.some(m => m.changed);
@@ -262,7 +279,9 @@ export const pruneLogs = async (daysToKeep: number = 3): Promise<void> => {
     const removedCount = logs.length - filteredLogs.length;
     if (removedCount !== 0 || didNormalize) {
       await AsyncStorage.setItem(LOG_KEY, JSON.stringify(filteredLogs));
-      console.log(`[LogService] Pruned logs: removed ${removedCount} old entries${didNormalize ? ' and normalized legacy entries' : ''}.`);
+      console.log(
+        `[LogService] Pruned logs: removed ${removedCount} old entries${didNormalize ? ' and normalized legacy entries' : ''}.`,
+      );
     }
   } catch (error) {
     console.error('[LogService] Failed to prune logs', error);
@@ -276,7 +295,7 @@ export const pruneLogs = async (daysToKeep: number = 3): Promise<void> => {
 export const getLogs = async (
   offset: number = 0,
   limit: number = 30,
-  filter: LogThreshold | null = null
+  filter: LogThreshold | null = null,
 ): Promise<LogEntry[]> => {
   try {
     await flushBuffer();
@@ -286,11 +305,12 @@ export const getLogs = async (
       ? normalizeLogs(JSON.parse(existingLogs) as StoredLogEntry[])
       : [];
 
-    const viewFilter = filter || await getViewFilter();
+    const viewFilter = filter || (await getViewFilter());
     const viewThreshold = THRESHOLD_LEVEL[viewFilter];
 
     logs = logs.filter(log => {
-      const statusSeverity = STATUS_SEVERITY[log.status] ?? STATUS_SEVERITY['INFO'];
+      const statusSeverity =
+        STATUS_SEVERITY[log.status] ?? STATUS_SEVERITY['INFO'];
       return statusSeverity <= viewThreshold;
     });
 
@@ -403,7 +423,10 @@ export const getViewFilter = async (): Promise<LogThreshold> => {
       // 2) Old combined `log_filter` — users set this expecting it to
       // control what they *saw*, so it migrates into the view filter.
       const oldFilter = await AsyncStorage.getItem(OLD_LOG_FILTER_KEY);
-      if (oldFilter && THRESHOLD_LEVEL[oldFilter as LogThreshold] !== undefined) {
+      if (
+        oldFilter &&
+        THRESHOLD_LEVEL[oldFilter as LogThreshold] !== undefined
+      ) {
         await AsyncStorage.setItem(LOG_VIEW_FILTER_KEY, oldFilter);
         await AsyncStorage.removeItem(OLD_LOG_FILTER_KEY);
         cachedViewFilter = oldFilter as LogThreshold;
@@ -462,13 +485,20 @@ export const getViewSelectedStatuses = async (): Promise<LogStatus[]> => {
     const stored = await AsyncStorage.getItem(LOG_VIEW_SELECTED_STATUSES_KEY);
     if (stored) {
       const parsed: unknown = JSON.parse(stored);
-      cachedSelectedStatuses = Array.isArray(parsed) ? parsed.filter(isLogStatus) : [];
+      cachedSelectedStatuses = Array.isArray(parsed)
+        ? parsed.filter(isLogStatus)
+        : [];
       return cachedSelectedStatuses;
     }
 
     const legacyThreshold = await AsyncStorage.getItem(LOG_VIEW_FILTER_KEY);
-    if (legacyThreshold && THRESHOLD_LEVEL[legacyThreshold as LogThreshold] !== undefined) {
-      cachedSelectedStatuses = [...THRESHOLD_TO_STATUSES[legacyThreshold as LogThreshold]];
+    if (
+      legacyThreshold &&
+      THRESHOLD_LEVEL[legacyThreshold as LogThreshold] !== undefined
+    ) {
+      cachedSelectedStatuses = [
+        ...THRESHOLD_TO_STATUSES[legacyThreshold as LogThreshold],
+      ];
       return cachedSelectedStatuses;
     }
 
@@ -487,7 +517,7 @@ export const getViewSelectedStatuses = async (): Promise<LogStatus[]> => {
  * corrupt storage.
  */
 export const setViewSelectedStatuses = async (
-  statuses: LogStatus[]
+  statuses: LogStatus[],
 ): Promise<void> => {
   try {
     const sanitized = statuses.filter(isLogStatus);
@@ -507,7 +537,7 @@ export const setViewSelectedStatuses = async (
  * reflects what the log list is showing.
  */
 export const getLogSummary = async (
-  filter: LogThreshold | null = null
+  filter: LogThreshold | null = null,
 ): Promise<LogSummary> => {
   try {
     await flushBuffer();
@@ -524,7 +554,7 @@ export const getLogSummary = async (
       ERROR: 0,
     };
 
-    const viewFilter = filter || await getViewFilter();
+    const viewFilter = filter || (await getViewFilter());
     const viewThreshold = THRESHOLD_LEVEL[viewFilter];
 
     // Filter logs for today
@@ -532,7 +562,8 @@ export const getLogSummary = async (
     today.setHours(0, 0, 0, 0);
 
     logs.forEach(log => {
-      const statusSeverity = STATUS_SEVERITY[log.status] ?? STATUS_SEVERITY['INFO'];
+      const statusSeverity =
+        STATUS_SEVERITY[log.status] ?? STATUS_SEVERITY['INFO'];
       if (statusSeverity > viewThreshold) {
         return;
       }
@@ -562,7 +593,7 @@ export const initLogService = async (): Promise<void> => {
   await pruneLogs();
 
   appStateSubscription?.remove();
-  appStateSubscription = AppState.addEventListener('change', (nextState) => {
+  appStateSubscription = AppState.addEventListener('change', nextState => {
     if (nextState === 'background' || nextState === 'inactive') {
       flushBuffer().catch(error => {
         console.error('[LogService] Background flush failed:', error);

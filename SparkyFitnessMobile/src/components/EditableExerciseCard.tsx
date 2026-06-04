@@ -24,11 +24,19 @@ interface EditableExerciseCardProps {
   eligibleForPrefill?: boolean;
   onActivateSet: (setKey: string, field: 'weight' | 'reps') => void;
   onDeactivateSet: () => void;
-  onUpdateSetField: (exerciseClientId: string, setClientId: string, field: 'weight' | 'reps', value: string) => void;
+  onUpdateSetField: (
+    exerciseClientId: string,
+    setClientId: string,
+    field: 'weight' | 'reps',
+    value: string,
+  ) => void;
   onRemoveSet: (exerciseClientId: string, setClientId: string) => void;
   onAddSet: (exerciseClientId: string) => void;
   onRemove: (exercise: WorkoutDraftExercise) => void;
-  onOpenRestSheet: (exerciseClientId: string, currentRest: number | null | undefined) => void;
+  onOpenRestSheet: (
+    exerciseClientId: string,
+    currentRest: number | null | undefined,
+  ) => void;
 }
 
 function EditableExerciseCard({
@@ -56,7 +64,10 @@ function EditableExerciseCard({
     () => (imagePath ? getImageSource(imagePath) : null),
     [getImageSource, imagePath],
   );
-  const exerciseIcon = (exercise.exerciseCategory && CATEGORY_ICON_MAP[exercise.exerciseCategory]) || 'exercise-weights';
+  const exerciseIcon =
+    (exercise.exerciseCategory &&
+      CATEGORY_ICON_MAP[exercise.exerciseCategory]) ||
+    'exercise-weights';
   const firstSet = exercise.sets[0];
   const firstSetRest = firstSet?.restTime;
 
@@ -88,21 +99,36 @@ function EditableExerciseCard({
     // Deps reference the stable identifiers + `stats?.lastSet` so typing into
     // the row (which mutates firstSet.weight/reps) doesn't re-trigger this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stats?.lastSet, eligibleForPrefill, exercise.clientId, firstSet?.clientId, weightUnit, onUpdateSetField]);
+  }, [
+    stats?.lastSet,
+    eligibleForPrefill,
+    exercise.clientId,
+    firstSet?.clientId,
+    weightUnit,
+    onUpdateSetField,
+  ]);
 
   return (
     <View className="py-4">
       <View className="flex-row items-start">
-        <View className="mr-3 items-center justify-center" style={{ width: 48, height: 48, marginTop: 2 }}>
+        <View
+          className="mr-3 items-center justify-center"
+          style={{ width: 48, height: 48, marginTop: 2 }}
+        >
           <SafeImage
             source={imageSource}
             style={{ width: 48, height: 48, borderRadius: 8, opacity: 0.8 }}
-            fallback={<Icon name={exerciseIcon} size={28} color={accentPrimary} />}
+            fallback={
+              <Icon name={exerciseIcon} size={28} color={accentPrimary} />
+            }
           />
         </View>
         <View className="flex-1">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-text-primary flex-1 mr-2" numberOfLines={1}>
+            <Text
+              className="text-base font-semibold text-text-primary flex-1 mr-2"
+              numberOfLines={1}
+            >
               {exercise.exerciseName}
             </Text>
             <Button
@@ -126,7 +152,9 @@ function EditableExerciseCard({
               <View className="flex-row self-start mt-1.5">
                 <RestPeriodChip
                   value={firstSetRest}
-                  onPress={() => onOpenRestSheet(exercise.clientId, firstSetRest)}
+                  onPress={() =>
+                    onOpenRestSheet(exercise.clientId, firstSetRest)
+                  }
                 />
               </View>
             </View>

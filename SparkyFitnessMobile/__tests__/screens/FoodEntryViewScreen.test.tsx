@@ -13,7 +13,12 @@ import { useProfile } from '../../src/hooks/useProfile';
 
 jest.mock('../../src/hooks', () => ({
   useMealTypes: jest.fn(),
-  usePreferences: jest.fn(() => ({ preferences: undefined, isLoading: false, isError: false, refetch: jest.fn() })),
+  usePreferences: jest.fn(() => ({
+    preferences: undefined,
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  })),
 }));
 
 jest.mock('../../src/hooks/useFoodVariants', () => ({
@@ -113,7 +118,9 @@ jest.mock('../../src/components/FoodUnitSelectorSheet', () => {
   const { View } = require('react-native');
   return {
     __esModule: true,
-    default: ({ renderTrigger }: any) => <View>{renderTrigger?.({ onPress: () => {} })}</View>,
+    default: ({ renderTrigger }: any) => (
+      <View>{renderTrigger?.({ onPress: () => {} })}</View>
+    ),
   };
 });
 
@@ -131,14 +138,21 @@ jest.mock('../../src/components/CalendarSheet', () => {
   };
 });
 
-const mockUseMealTypes = useMealTypes as jest.MockedFunction<typeof useMealTypes>;
-const mockUseFoodVariants = useFoodVariants as jest.MockedFunction<typeof useFoodVariants>;
-const mockUseCreateFoodVariant =
-  useCreateFoodVariant as jest.MockedFunction<typeof useCreateFoodVariant>;
-const mockUseDeleteFoodEntry =
-  useDeleteFoodEntry as jest.MockedFunction<typeof useDeleteFoodEntry>;
-const mockUseUpdateFoodEntry =
-  useUpdateFoodEntry as jest.MockedFunction<typeof useUpdateFoodEntry>;
+const mockUseMealTypes = useMealTypes as jest.MockedFunction<
+  typeof useMealTypes
+>;
+const mockUseFoodVariants = useFoodVariants as jest.MockedFunction<
+  typeof useFoodVariants
+>;
+const mockUseCreateFoodVariant = useCreateFoodVariant as jest.MockedFunction<
+  typeof useCreateFoodVariant
+>;
+const mockUseDeleteFoodEntry = useDeleteFoodEntry as jest.MockedFunction<
+  typeof useDeleteFoodEntry
+>;
+const mockUseUpdateFoodEntry = useUpdateFoodEntry as jest.MockedFunction<
+  typeof useUpdateFoodEntry
+>;
 const mockUseProfile = useProfile as jest.MockedFunction<typeof useProfile>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -179,11 +193,13 @@ describe('FoodEntryViewScreen', () => {
       <SafeAreaProvider initialMetrics={{ insets, frame }}>
         <FoodEntryViewScreen
           navigation={navigation}
-          route={{
-            key: 'FoodEntryView-key',
-            name: 'FoodEntryView',
-            params: { entry: baseEntry, ...params },
-          } as any}
+          route={
+            {
+              key: 'FoodEntryView-key',
+              name: 'FoodEntryView',
+              params: { entry: baseEntry, ...params },
+            } as any
+          }
         />
       </SafeAreaProvider>,
     );
@@ -191,7 +207,9 @@ describe('FoodEntryViewScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseMealTypes.mockReturnValue({
-      mealTypes: [{ id: 'meal-1', name: 'breakfast', is_visible: true, sort_order: 1 }] as any,
+      mealTypes: [
+        { id: 'meal-1', name: 'breakfast', is_visible: true, sort_order: 1 },
+      ] as any,
       defaultMealTypeId: 'meal-1',
       isLoading: false,
       isError: false,

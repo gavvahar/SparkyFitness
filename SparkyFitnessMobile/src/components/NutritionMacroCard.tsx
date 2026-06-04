@@ -102,7 +102,9 @@ const NutritionMacroCard: React.FC<NutritionMacroCardProps> = ({
   return (
     <View className="bg-surface rounded-xl p-4 gap-4">
       {heading ? (
-        <Text className="text-text-secondary text-sm font-medium">{heading}</Text>
+        <Text className="text-text-secondary text-sm font-medium">
+          {heading}
+        </Text>
       ) : null}
 
       {showGoalProgress ? (
@@ -120,13 +122,16 @@ const NutritionMacroCard: React.FC<NutritionMacroCardProps> = ({
           </View>
 
           <View className="flex-2 gap-3">
-            {macros.map((macro) => {
+            {macros.map(macro => {
               const goalPct = macro.goalPercent;
-              const fillPct = goalPct != null ? Math.max(0, Math.min(goalPct, 100)) : 0;
+              const fillPct =
+                goalPct != null ? Math.max(0, Math.min(goalPct, 100)) : 0;
               return (
                 <View key={macro.key}>
                   <View className="flex-row justify-between mb-1">
-                    <Text className="text-text-secondary text-sm">{macro.label}</Text>
+                    <Text className="text-text-secondary text-sm">
+                      {macro.label}
+                    </Text>
                     <Text className="text-text-primary text-sm font-medium">
                       {Math.round(macro.value)}g
                     </Text>
@@ -162,19 +167,25 @@ const NutritionMacroCard: React.FC<NutritionMacroCardProps> = ({
               size={RING_SIZE}
               strokeWidth={RING_STROKE}
               shares={shares}
-              colors={{ protein: proteinColor, carbs: carbsColor, fat: fatColor }}
+              colors={{
+                protein: proteinColor,
+                carbs: carbsColor,
+                fat: fatColor,
+              }}
               trackColor={trackColor}
             />
             <View className="absolute items-center justify-center">
               <Text className="text-text-primary text-3xl font-medium">
                 {Math.round(calories)}
               </Text>
-              <Text className="text-text-secondary text-xs mt-0.5">calories</Text>
+              <Text className="text-text-secondary text-xs mt-0.5">
+                calories
+              </Text>
             </View>
           </View>
 
           <View className="flex-1 gap-3 pl-5">
-            {macros.map((macro) => (
+            {macros.map(macro => (
               <View key={macro.key} className="flex-row items-center gap-2">
                 <View
                   style={{
@@ -184,7 +195,9 @@ const NutritionMacroCard: React.FC<NutritionMacroCardProps> = ({
                     backgroundColor: macro.color,
                   }}
                 />
-                <Text className="text-text-secondary text-sm flex-1">{macro.label}</Text>
+                <Text className="text-text-secondary text-sm flex-1">
+                  {macro.label}
+                </Text>
                 <Text className="text-text-primary text-sm font-medium">
                   {Math.round(macro.value)}g
                 </Text>

@@ -26,16 +26,19 @@ const capitalize = (value: string) =>
 
 const formatList = (items: string[]) =>
   items
-    .filter((value) => value && value.trim().length > 0)
+    .filter(value => value && value.trim().length > 0)
     .map(capitalize)
     .join(', ');
 
 const cleanSteps = (steps: string[] | undefined) =>
   (steps ?? [])
-    .map((step) => step?.trim())
+    .map(step => step?.trim())
     .filter((step): step is string => Boolean(step && step.length > 0));
 
-const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation, route }) => {
+const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { item, updatedItem } = route.params;
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
@@ -52,19 +55,21 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
     profile?.id === exercise.userId
   );
 
-  const { confirmAndDelete, isPending: isDeletePending } = useDeleteExerciseLibrary({
-    exerciseId: exercise.id,
-    onSuccess: () => {
-      Toast.show({ type: 'success', text1: 'Exercise deleted' });
-      navigation.goBack();
-    },
-  });
+  const { confirmAndDelete, isPending: isDeletePending } =
+    useDeleteExerciseLibrary({
+      exerciseId: exercise.id,
+      onSuccess: () => {
+        Toast.show({ type: 'success', text1: 'Exercise deleted' });
+        navigation.goBack();
+      },
+    });
 
   const imageSources = useMemo(() => {
     return (exercise.images ?? [])
-      .map((path) => (path ? getImageSource(path) : null))
-      .filter((source): source is { uri: string; headers: Record<string, string> } =>
-        source !== null,
+      .map(path => (path ? getImageSource(path) : null))
+      .filter(
+        (source): source is { uri: string; headers: Record<string, string> } =>
+          source !== null,
       );
   }, [exercise.images, getImageSource]);
 
@@ -76,7 +81,9 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
   const forceText = exercise.force ? capitalize(exercise.force) : '';
   const mechanicText = exercise.mechanic ? capitalize(exercise.mechanic) : '';
   const sourceText = exercise.source ?? '';
-  const hasDetails = Boolean(levelText || forceText || mechanicText || sourceText);
+  const hasDetails = Boolean(
+    levelText || forceText || mechanicText || sourceText,
+  );
   const instructionSteps = cleanSteps(exercise.instructions);
 
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
@@ -92,7 +99,8 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
   );
 
   const descriptionIsLong = description.length > DESCRIPTION_PREVIEW_THRESHOLD;
-  const instructionsHasMore = instructionSteps.length > INSTRUCTIONS_PREVIEW_COUNT;
+  const instructionsHasMore =
+    instructionSteps.length > INSTRUCTIONS_PREVIEW_COUNT;
   const visibleSteps =
     instructionsExpanded || !instructionsHasMore
       ? instructionSteps
@@ -146,9 +154,13 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
         }}
       >
         <View className="bg-surface rounded-xl p-4">
-          <Text className="text-2xl font-bold text-text-primary">{exercise.name}</Text>
+          <Text className="text-2xl font-bold text-text-primary">
+            {exercise.name}
+          </Text>
           {exercise.category ? (
-            <Text className="text-text-secondary text-base mt-1">{exercise.category}</Text>
+            <Text className="text-text-secondary text-base mt-1">
+              {exercise.category}
+            </Text>
           ) : null}
         </View>
 
@@ -187,7 +199,9 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
                 <View
                   key={`dot-${source.uri}-${index}`}
                   className={`w-2 h-2 rounded-full mx-1 ${
-                    index === activeImageIndex ? 'bg-accent-primary' : 'bg-border'
+                    index === activeImageIndex
+                      ? 'bg-accent-primary'
+                      : 'bg-border'
                   }`}
                 />
               ))}
@@ -204,8 +218,6 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
           </View>
         ) : null}
 
-
-
         {equipmentText.length > 0 ||
         primaryMusclesText.length > 0 ||
         secondaryMusclesText.length > 0 ? (
@@ -220,7 +232,9 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
             ) : null}
             {primaryMusclesText.length > 0 ? (
               <View className={equipmentText.length > 0 ? 'mt-3' : ''}>
-                <Text className="text-text-secondary text-sm">Primary muscles</Text>
+                <Text className="text-text-secondary text-sm">
+                  Primary muscles
+                </Text>
                 <Text className="text-text-primary text-base font-medium mt-1">
                   {primaryMusclesText}
                 </Text>
@@ -234,7 +248,9 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
                     : ''
                 }
               >
-                <Text className="text-text-secondary text-sm">Secondary muscles</Text>
+                <Text className="text-text-secondary text-sm">
+                  Secondary muscles
+                </Text>
                 <Text className="text-text-primary text-base font-medium mt-1">
                   {secondaryMusclesText}
                 </Text>
@@ -245,7 +261,7 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
         {hasDetails ? (
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setDetailsExpanded((prev) => !prev)}
+            onPress={() => setDetailsExpanded(prev => !prev)}
             className="bg-surface rounded-xl p-4"
           >
             <View className="flex-row items-center justify-between">
@@ -278,14 +294,20 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
                 ) : null}
                 {mechanicText ? (
                   <View className={levelText || forceText ? 'mt-3' : ''}>
-                    <Text className="text-text-secondary text-sm">Mechanic</Text>
+                    <Text className="text-text-secondary text-sm">
+                      Mechanic
+                    </Text>
                     <Text className="text-text-primary text-base font-medium mt-1">
                       {mechanicText}
                     </Text>
                   </View>
                 ) : null}
                 {sourceText ? (
-                  <View className={levelText || forceText || mechanicText ? 'mt-3' : ''}>
+                  <View
+                    className={
+                      levelText || forceText || mechanicText ? 'mt-3' : ''
+                    }
+                  >
                     <Text className="text-text-secondary text-sm">Source</Text>
                     <Text className="text-text-primary text-base font-medium mt-1">
                       {sourceText}
@@ -301,12 +323,14 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
             activeOpacity={instructionsHasMore ? 0.7 : 1}
             onPress={
               instructionsHasMore
-                ? () => setInstructionsExpanded((prev) => !prev)
+                ? () => setInstructionsExpanded(prev => !prev)
                 : undefined
             }
             className="bg-surface rounded-xl p-4"
           >
-            <Text className="text-text-secondary text-sm mb-2">Instructions</Text>
+            <Text className="text-text-secondary text-sm mb-2">
+              Instructions
+            </Text>
             {visibleSteps.map((step, index) => (
               <View
                 key={`${index}-${step.slice(0, 12)}`}
@@ -335,7 +359,7 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
             activeOpacity={descriptionIsLong ? 0.7 : 1}
             onPress={
               descriptionIsLong
-                ? () => setDescriptionExpanded((prev) => !prev)
+                ? () => setDescriptionExpanded(prev => !prev)
                 : undefined
             }
             className="bg-surface rounded-xl p-4"
@@ -360,7 +384,9 @@ const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({ navigation,
         ) : null}
 
         <Button variant="primary" onPress={handleLog}>
-          <Text className="text-white text-base font-semibold">Log Exercise</Text>
+          <Text className="text-white text-base font-semibold">
+            Log Exercise
+          </Text>
         </Button>
 
         {canManageExercise && (

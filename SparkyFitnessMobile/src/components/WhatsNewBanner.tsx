@@ -21,7 +21,7 @@ const FAB_CLEARANCE = 20;
 type Phase = 'evaluating' | 'eligible' | 'dismissed' | 'ineligible';
 
 const WhatsNewBanner: React.FC = () => {
-  const workoutActive = useActiveWorkoutStore((s) => s.sessionId !== null);
+  const workoutActive = useActiveWorkoutStore(s => s.sessionId !== null);
   const [phase, setPhase] = useState<Phase>('evaluating');
   const [resetTick, setResetTick] = useState(0);
   const currentVersion = Constants.expoConfig?.version ?? null;
@@ -30,7 +30,7 @@ const WhatsNewBanner: React.FC = () => {
   // evaluation effect below re-runs and the banner can re-appear without
   // restarting the app.
   useEffect(
-    () => subscribeToWhatsNewBannerReset(() => setResetTick((t) => t + 1)),
+    () => subscribeToWhatsNewBannerReset(() => setResetTick(t => t + 1)),
     [],
   );
 

@@ -1,5 +1,8 @@
 import { addLog } from '../LogService';
-import type { PermissionRequest, HealthMetricStates } from '../../types/healthRecords';
+import type {
+  PermissionRequest,
+  HealthMetricStates,
+} from '../../types/healthRecords';
 
 const REQUIRED_HEALTH_PERMISSION_VERSION = 2;
 const REQUIRED_HEALTH_PERMISSION_VERSION_KEY = 'healthPermissionsVersion';
@@ -14,7 +17,9 @@ interface MigrateEnabledMetricPermissionsParams {
   metrics: PermissionedMetric[];
   loadHealthPreference: <T>(key: string) => Promise<T | null>;
   saveHealthPreference: <T>(key: string, value: T) => Promise<void>;
-  requestHealthPermissions: (permissions: PermissionRequest[]) => Promise<boolean>;
+  requestHealthPermissions: (
+    permissions: PermissionRequest[],
+  ) => Promise<boolean>;
   logTag: string;
 }
 
@@ -26,7 +31,9 @@ export const migrateEnabledMetricPermissionsIfNeeded = async ({
   requestHealthPermissions,
   logTag,
 }: MigrateEnabledMetricPermissionsParams): Promise<boolean> => {
-  const storedVersion = await loadHealthPreference<number>(REQUIRED_HEALTH_PERMISSION_VERSION_KEY);
+  const storedVersion = await loadHealthPreference<number>(
+    REQUIRED_HEALTH_PERMISSION_VERSION_KEY,
+  );
   if (storedVersion === REQUIRED_HEALTH_PERMISSION_VERSION) {
     return true;
   }
@@ -36,7 +43,10 @@ export const migrateEnabledMetricPermissionsIfNeeded = async ({
     .flatMap(metric => metric.permissions);
 
   if (enabledPermissions.length === 0) {
-    await saveHealthPreference(REQUIRED_HEALTH_PERMISSION_VERSION_KEY, REQUIRED_HEALTH_PERMISSION_VERSION);
+    await saveHealthPreference(
+      REQUIRED_HEALTH_PERMISSION_VERSION_KEY,
+      REQUIRED_HEALTH_PERMISSION_VERSION,
+    );
     return true;
   }
 
@@ -50,7 +60,10 @@ export const migrateEnabledMetricPermissionsIfNeeded = async ({
       return false;
     }
 
-    await saveHealthPreference(REQUIRED_HEALTH_PERMISSION_VERSION_KEY, REQUIRED_HEALTH_PERMISSION_VERSION);
+    await saveHealthPreference(
+      REQUIRED_HEALTH_PERMISSION_VERSION_KEY,
+      REQUIRED_HEALTH_PERMISSION_VERSION,
+    );
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

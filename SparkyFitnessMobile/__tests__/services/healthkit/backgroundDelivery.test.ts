@@ -19,7 +19,8 @@ jest.mock('../../../src/services/LogService', () => ({
 
 const mockLoadHealthPreference = jest.fn();
 jest.mock('../../../src/services/healthkit/preferences', () => ({
-  loadHealthPreference: (...args: unknown[]) => mockLoadHealthPreference(...args),
+  loadHealthPreference: (...args: unknown[]) =>
+    mockLoadHealthPreference(...args),
 }));
 
 const mockEnableBgDelivery = hkEnableBackgroundDelivery as jest.Mock;
@@ -194,7 +195,9 @@ describe('rebuildSubscriptions race condition', () => {
   it('discards a stale rebuild when a newer one is triggered', async () => {
     // First rebuild: slow — preferences resolve after a delay
     let resolveFirst!: () => void;
-    const firstPromise = new Promise<void>(r => { resolveFirst = r; });
+    const firstPromise = new Promise<void>(r => {
+      resolveFirst = r;
+    });
 
     mockLoadHealthPreference.mockImplementation((key: string) => {
       if (key === 'syncStepsEnabled') {

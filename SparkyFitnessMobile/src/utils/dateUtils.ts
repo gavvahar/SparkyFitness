@@ -17,7 +17,10 @@ export const getDeviceTimezone = (): string =>
  * Used for Health Connect records that carry per-record zone offsets, so the day
  * bucket reflects where the record was created rather than the current device timezone.
  */
-export const toDateStringWithOffset = (timestamp: string | Date, offsetMinutes: number): string => {
+export const toDateStringWithOffset = (
+  timestamp: string | Date,
+  offsetMinutes: number,
+): string => {
   const utcMs = new Date(timestamp).getTime();
   const localMs = utcMs + offsetMinutes * 60 * 1000;
   const d = new Date(localMs);
@@ -45,13 +48,18 @@ export const addDays = (dateString: string, days: number): string => {
 };
 
 // Strip any time/timezone suffix from a date string, returning just YYYY-MM-DD
-export const normalizeDate = (dateString: string): string => dateString.split('T')[0];
+export const normalizeDate = (dateString: string): string =>
+  dateString.split('T')[0];
 
 // Format a YYYY-MM-DD date for display ("Mon, Jan 6")
 export const formatDate = (dateString: string): string => {
   const [year, month, day] = dateString.split('-').map(Number);
   const date = new Date(year, month - 1, day);
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
 // Format a YYYY-MM-DD date for display ("Today", "Yesterday", or "Mon, Jan 6")

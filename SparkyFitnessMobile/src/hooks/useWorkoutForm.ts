@@ -5,11 +5,19 @@ import { getTodayDate, normalizeDate } from '../utils/dateUtils';
 import { weightFromKg } from '../utils/unitConversions';
 import { buildExercisesPayload } from '../utils/workoutSession';
 import type { Exercise } from '../types/exercise';
-import type { WorkoutDraft, WorkoutDraftExercise, WorkoutDraftSet } from '../types/drafts';
+import type {
+  WorkoutDraft,
+  WorkoutDraftExercise,
+  WorkoutDraftSet,
+} from '../types/drafts';
 import type { PresetSessionResponse } from '@workspace/shared';
 import type { WorkoutPreset } from '../types/workoutPresets';
 
-export type { WorkoutDraft, WorkoutDraftExercise, WorkoutDraftSet } from '../types/drafts';
+export type {
+  WorkoutDraft,
+  WorkoutDraftExercise,
+  WorkoutDraftSet,
+} from '../types/drafts';
 
 // --- Helpers ---
 
@@ -51,7 +59,9 @@ export function getWorkoutDraftSubmission(
   state: WorkoutDraft,
   weightUnit: 'kg' | 'lbs',
 ): WorkoutDraftSubmission {
-  const exercisesWithSets = state.exercises.filter(exercise => exercise.sets.length > 0);
+  const exercisesWithSets = state.exercises.filter(
+    exercise => exercise.sets.length > 0,
+  );
 
   return {
     name: state.name.trim() || 'Workout',
@@ -65,20 +75,38 @@ export function getWorkoutDraftSubmission(
 
 // --- Reducer ---
 
-export type PresetClientIds = { exerciseClientId: string; setClientIds: string[] }[];
+export type PresetClientIds = {
+  exerciseClientId: string;
+  setClientIds: string[];
+}[];
 
 type WorkoutFormAction =
   | { type: 'RESTORE_DRAFT'; draft: WorkoutDraft }
   | { type: 'SET_DATE'; date: string }
   | { type: 'SET_NAME'; name: string }
-  | { type: 'ADD_EXERCISE'; exercise: Exercise; exerciseClientId: string; setClientId: string }
+  | {
+      type: 'ADD_EXERCISE';
+      exercise: Exercise;
+      exerciseClientId: string;
+      setClientId: string;
+    }
   | { type: 'REMOVE_EXERCISE'; clientId: string }
   | { type: 'ADD_SET'; exerciseClientId: string; setClientId: string }
   | { type: 'REMOVE_SET'; exerciseClientId: string; setClientId: string }
-  | { type: 'UPDATE_SET_FIELD'; exerciseClientId: string; setClientId: string; field: 'weight' | 'reps'; value: string }
+  | {
+      type: 'UPDATE_SET_FIELD';
+      exerciseClientId: string;
+      setClientId: string;
+      field: 'weight' | 'reps';
+      value: string;
+    }
   | { type: 'SET_EXERCISE_REST'; exerciseClientId: string; seconds: number }
   | { type: 'RESET' }
-  | { type: 'POPULATE'; session: PresetSessionResponse; weightUnit: 'kg' | 'lbs' }
+  | {
+      type: 'POPULATE';
+      session: PresetSessionResponse;
+      weightUnit: 'kg' | 'lbs';
+    }
   | {
       type: 'POPULATE_FROM_PRESET';
       preset: WorkoutPreset;
@@ -87,13 +115,19 @@ type WorkoutFormAction =
       clientIds: PresetClientIds;
     };
 
-export function workoutFormReducer(state: WorkoutDraft, action: WorkoutFormAction): WorkoutDraft {
+export function workoutFormReducer(
+  state: WorkoutDraft,
+  action: WorkoutFormAction,
+): WorkoutDraft {
   switch (action.type) {
     case 'RESTORE_DRAFT':
       return {
         ...action.draft,
         nameManuallySet: action.draft.nameManuallySet ?? true,
-        exercises: action.draft.exercises.map(e => ({ ...e, images: e.images ?? [] })),
+        exercises: action.draft.exercises.map(e => ({
+          ...e,
+          images: e.images ?? [],
+        })),
       };
 
     case 'SET_DATE': {
@@ -118,7 +152,14 @@ export function workoutFormReducer(state: WorkoutDraft, action: WorkoutFormActio
             exerciseName: action.exercise.name,
             exerciseCategory: action.exercise.category,
             images: action.exercise.images ?? [],
-            sets: [{ clientId: action.setClientId, weight: '', reps: '', restTime: 90 }],
+            sets: [
+              {
+                clientId: action.setClientId,
+                weight: '',
+                reps: '',
+                restTime: 90,
+              },
+            ],
           },
         ],
       };
@@ -183,7 +224,10 @@ export function workoutFormReducer(state: WorkoutDraft, action: WorkoutFormActio
           if (exercise.clientId !== action.exerciseClientId) return exercise;
           return {
             ...exercise,
-            sets: exercise.sets.map(set => ({ ...set, restTime: action.seconds })),
+            sets: exercise.sets.map(set => ({
+              ...set,
+              restTime: action.seconds,
+            })),
           };
         }),
       };
@@ -197,7 +241,9 @@ export function workoutFormReducer(state: WorkoutDraft, action: WorkoutFormActio
         type: 'workout',
         name: action.session.name,
         nameManuallySet: true,
-        entryDate: action.session.entry_date ? normalizeDate(action.session.entry_date) : getTodayDate(),
+        entryDate: action.session.entry_date
+          ? normalizeDate(action.session.entry_date)
+          : getTodayDate(),
         exercises: action.session.exercises.map(exercise => ({
           clientId: generateClientId(),
           serverId: exercise.id,
@@ -210,9 +256,14 @@ export function workoutFormReducer(state: WorkoutDraft, action: WorkoutFormActio
             clientId: generateClientId(),
             serverId: set.id,
             restTime: set.rest_time,
-            weight: set.weight != null
-              ? String(parseFloat(weightFromKg(set.weight, action.weightUnit).toFixed(1)))
-              : '',
+            weight:
+              set.weight != null
+                ? String(
+                    parseFloat(
+                      weightFromKg(set.weight, action.weightUnit).toFixed(1),
+                    ),
+                  )
+                : '',
             reps: set.reps != null ? String(set.reps) : '',
           })),
         })),
@@ -233,9 +284,14 @@ export function workoutFormReducer(state: WorkoutDraft, action: WorkoutFormActio
           sets: exercise.sets.map((set, setIdx) => ({
             clientId: action.clientIds[exerciseIdx].setClientIds[setIdx],
             restTime: set.rest_time,
-            weight: set.weight != null
-              ? String(parseFloat(weightFromKg(set.weight, action.weightUnit).toFixed(1)))
-              : '',
+            weight:
+              set.weight != null
+                ? String(
+                    parseFloat(
+                      weightFromKg(set.weight, action.weightUnit).toFixed(1),
+                    ),
+                  )
+                : '',
             reps: set.reps != null ? String(set.reps) : '',
           })),
         })),
@@ -258,7 +314,11 @@ export function useWorkoutForm(options?: UseWorkoutFormOptions) {
   const isEditMode = options?.isEditMode ?? false;
   const skipDraftLoad = options?.skipDraftLoad ?? false;
   const initialDate = options?.initialDate;
-  const [state, dispatch] = useReducer(workoutFormReducer, undefined, createEmptyDraft);
+  const [state, dispatch] = useReducer(
+    workoutFormReducer,
+    undefined,
+    createEmptyDraft,
+  );
   const exercisesModifiedRef = useRef(false);
 
   const { clearPersistedDraft } = useDraftPersistence({
@@ -266,17 +326,27 @@ export function useWorkoutForm(options?: UseWorkoutFormOptions) {
     draftType: 'workout',
     isEditMode,
     skipDraftLoad,
-    onDraftLoaded: (draft) => dispatch({ type: 'RESTORE_DRAFT', draft }),
-    onInitialDate: initialDate ? () => dispatch({ type: 'SET_DATE', date: initialDate }) : undefined,
+    onDraftLoaded: draft => dispatch({ type: 'RESTORE_DRAFT', draft }),
+    onInitialDate: initialDate
+      ? () => dispatch({ type: 'SET_DATE', date: initialDate })
+      : undefined,
   });
 
-  const addExercise = useCallback((exercise: Exercise): { exerciseClientId: string; setClientId: string } => {
-    exercisesModifiedRef.current = true;
-    const exerciseClientId = generateClientId();
-    const setClientId = generateClientId();
-    dispatch({ type: 'ADD_EXERCISE', exercise, exerciseClientId, setClientId });
-    return { exerciseClientId, setClientId };
-  }, []);
+  const addExercise = useCallback(
+    (exercise: Exercise): { exerciseClientId: string; setClientId: string } => {
+      exercisesModifiedRef.current = true;
+      const exerciseClientId = generateClientId();
+      const setClientId = generateClientId();
+      dispatch({
+        type: 'ADD_EXERCISE',
+        exercise,
+        exerciseClientId,
+        setClientId,
+      });
+      return { exerciseClientId, setClientId };
+    },
+    [],
+  );
 
   const removeExercise = useCallback((clientId: string) => {
     exercisesModifiedRef.current = true;
@@ -290,23 +360,40 @@ export function useWorkoutForm(options?: UseWorkoutFormOptions) {
     return setClientId;
   }, []);
 
-  const removeSet = useCallback((exerciseClientId: string, setClientId: string) => {
-    exercisesModifiedRef.current = true;
-    dispatch({ type: 'REMOVE_SET', exerciseClientId, setClientId });
-  }, []);
-
-  const updateSetField = useCallback(
-    (exerciseClientId: string, setClientId: string, field: 'weight' | 'reps', value: string) => {
+  const removeSet = useCallback(
+    (exerciseClientId: string, setClientId: string) => {
       exercisesModifiedRef.current = true;
-      dispatch({ type: 'UPDATE_SET_FIELD', exerciseClientId, setClientId, field, value });
+      dispatch({ type: 'REMOVE_SET', exerciseClientId, setClientId });
     },
     [],
   );
 
-  const setExerciseRest = useCallback((exerciseClientId: string, seconds: number) => {
-    exercisesModifiedRef.current = true;
-    dispatch({ type: 'SET_EXERCISE_REST', exerciseClientId, seconds });
-  }, []);
+  const updateSetField = useCallback(
+    (
+      exerciseClientId: string,
+      setClientId: string,
+      field: 'weight' | 'reps',
+      value: string,
+    ) => {
+      exercisesModifiedRef.current = true;
+      dispatch({
+        type: 'UPDATE_SET_FIELD',
+        exerciseClientId,
+        setClientId,
+        field,
+        value,
+      });
+    },
+    [],
+  );
+
+  const setExerciseRest = useCallback(
+    (exerciseClientId: string, seconds: number) => {
+      exercisesModifiedRef.current = true;
+      dispatch({ type: 'SET_EXERCISE_REST', exerciseClientId, seconds });
+    },
+    [],
+  );
 
   const setName = useCallback((name: string) => {
     dispatch({ type: 'SET_NAME', name });
@@ -329,19 +416,32 @@ export function useWorkoutForm(options?: UseWorkoutFormOptions) {
     }
   }, [clearPersistedDraft, isEditMode]);
 
-  const populate = useCallback((session: PresetSessionResponse, weightUnit: 'kg' | 'lbs') => {
-    exercisesModifiedRef.current = false;
-    dispatch({ type: 'POPULATE', session, weightUnit });
-  }, []);
+  const populate = useCallback(
+    (session: PresetSessionResponse, weightUnit: 'kg' | 'lbs') => {
+      exercisesModifiedRef.current = false;
+      dispatch({ type: 'POPULATE', session, weightUnit });
+    },
+    [],
+  );
 
   const populateFromPreset = useCallback(
-    (preset: WorkoutPreset, weightUnit: 'kg' | 'lbs', date?: string): string[] => {
+    (
+      preset: WorkoutPreset,
+      weightUnit: 'kg' | 'lbs',
+      date?: string,
+    ): string[] => {
       const clientIds: PresetClientIds = preset.exercises.map(e => ({
         exerciseClientId: generateClientId(),
         setClientIds: e.sets.map(() => generateClientId()),
       }));
       exercisesModifiedRef.current = false;
-      dispatch({ type: 'POPULATE_FROM_PRESET', preset, weightUnit, date, clientIds });
+      dispatch({
+        type: 'POPULATE_FROM_PRESET',
+        preset,
+        weightUnit,
+        date,
+        clientIds,
+      });
       return clientIds.map(c => c.exerciseClientId);
     },
     [],

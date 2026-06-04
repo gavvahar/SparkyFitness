@@ -25,7 +25,11 @@ function getImageSourceSignature(
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1500;
 
-const SafeImage: React.FC<SafeImageProps> = ({ source, style, fallback = null }) => {
+const SafeImage: React.FC<SafeImageProps> = ({
+  source,
+  style,
+  fallback = null,
+}) => {
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const sourceSignature = getImageSourceSignature(source);
@@ -37,10 +41,13 @@ const SafeImage: React.FC<SafeImageProps> = ({ source, style, fallback = null })
 
   useEffect(() => {
     if (!error || attempt >= MAX_RETRIES) return;
-    const timer = setTimeout(() => {
-      setError(false);
-      setAttempt((a) => a + 1);
-    }, RETRY_DELAY_MS * (attempt + 1));
+    const timer = setTimeout(
+      () => {
+        setError(false);
+        setAttempt(a => a + 1);
+      },
+      RETRY_DELAY_MS * (attempt + 1),
+    );
     return () => clearTimeout(timer);
   }, [error, attempt]);
 

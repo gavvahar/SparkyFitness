@@ -81,10 +81,10 @@ const MfaForm: React.FC<MfaFormProps> = ({
       {/* MFA Method Toggle */}
       {mfaFactors.mfaTotpEnabled && mfaFactors.mfaEmailEnabled && (
         <View className="flex-row mb-4 rounded-lg overflow-hidden border border-border-subtle">
-          {([
+          {[
             { method: 'totp' as const, label: 'Authenticator App' },
             { method: 'email' as const, label: 'Email Code' },
-          ]).map(({ method, label }) => (
+          ].map(({ method, label }) => (
             <TouchableOpacity
               key={method}
               className={`flex-1 py-2.5 items-center ${
@@ -117,7 +117,11 @@ const MfaForm: React.FC<MfaFormProps> = ({
       {/* Send Email OTP Button */}
       {mfaMethod === 'email' && !emailOtpSent && (
         <View className="mb-3">
-          <PrimaryButton label="Send Code" onPress={onSendEmailOtp} loading={loading} />
+          <PrimaryButton
+            label="Send Code"
+            onPress={onSendEmailOtp}
+            loading={loading}
+          />
         </View>
       )}
 
@@ -130,7 +134,9 @@ const MfaForm: React.FC<MfaFormProps> = ({
               placeholder="000000"
               placeholderTextColor={textMuted}
               value={mfaCode}
-              onChangeText={(text) => onMfaCodeChange(text.replace(/[^0-9]/g, '').slice(0, 6))}
+              onChangeText={text =>
+                onMfaCodeChange(text.replace(/[^0-9]/g, '').slice(0, 6))
+              }
               keyboardType="number-pad"
               maxLength={6}
               autoFocus
@@ -149,7 +155,9 @@ const MfaForm: React.FC<MfaFormProps> = ({
       )}
 
       {/* Error (shown when email OTP not yet sent) */}
-      {mfaMethod === 'email' && !emailOtpSent && <ErrorBanner message={error} />}
+      {mfaMethod === 'email' && !emailOtpSent && (
+        <ErrorBanner message={error} />
+      )}
 
       {/* Resend email code */}
       {mfaMethod === 'email' && emailOtpSent && (

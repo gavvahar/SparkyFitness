@@ -19,7 +19,8 @@ interface MeasurementsSummaryProps {
   onPress?: () => void;
 }
 
-const formatNumber = (value: number): string => String(Math.round(value * 10) / 10);
+const formatNumber = (value: number): string =>
+  String(Math.round(value * 10) / 10);
 
 const formatWeight = (kg: number, mode: 'kg' | 'lbs' | 'st_lbs'): string => {
   if (mode === 'st_lbs') {
@@ -59,7 +60,11 @@ const MeasurementsSummary: React.FC<MeasurementsSummaryProps> = ({
 
   const rows: { kind: MeasurementKind; label: string; value: string }[] = [];
   if (measurements.weight != null) {
-    rows.push({ kind: 'weight', label: 'Weight', value: formatWeight(measurements.weight, weightMode) });
+    rows.push({
+      kind: 'weight',
+      label: 'Weight',
+      value: formatWeight(measurements.weight, weightMode),
+    });
   }
   if (measurements.body_fat_percentage != null) {
     rows.push({
@@ -69,38 +74,67 @@ const MeasurementsSummary: React.FC<MeasurementsSummaryProps> = ({
     });
   }
   if (measurements.height != null) {
-    rows.push({ kind: 'height', label: 'Height', value: formatHeight(measurements.height, heightMode) });
+    rows.push({
+      kind: 'height',
+      label: 'Height',
+      value: formatHeight(measurements.height, heightMode),
+    });
   }
   if (measurements.neck != null) {
-    rows.push({ kind: 'neck', label: 'Neck', value: formatBodyLength(measurements.neck, bodyUnit) });
+    rows.push({
+      kind: 'neck',
+      label: 'Neck',
+      value: formatBodyLength(measurements.neck, bodyUnit),
+    });
   }
   if (measurements.waist != null) {
-    rows.push({ kind: 'waist', label: 'Waist', value: formatBodyLength(measurements.waist, bodyUnit) });
+    rows.push({
+      kind: 'waist',
+      label: 'Waist',
+      value: formatBodyLength(measurements.waist, bodyUnit),
+    });
   }
   if (measurements.hips != null) {
-    rows.push({ kind: 'hips', label: 'Hips', value: formatBodyLength(measurements.hips, bodyUnit) });
+    rows.push({
+      kind: 'hips',
+      label: 'Hips',
+      value: formatBodyLength(measurements.hips, bodyUnit),
+    });
   }
   if (measurements.steps != null) {
-    rows.push({ kind: 'steps', label: 'Steps', value: String(measurements.steps) });
+    rows.push({
+      kind: 'steps',
+      label: 'Steps',
+      value: String(measurements.steps),
+    });
   }
 
   if (rows.length === 0) return null;
 
   const header = (
     <View className="flex-row items-center gap-2 mb-2 px-1">
-      <Text className="text-base font-bold text-text-secondary flex-1">Measurements</Text>
+      <Text className="text-base font-bold text-text-secondary flex-1">
+        Measurements
+      </Text>
       {onPress && <Icon name="add" size={14} color={accentPrimary} />}
     </View>
   );
 
-  const tiles = rows.map((row) => {
+  const tiles = rows.map(row => {
     const IconComponent = MeasurementIcons[row.kind];
     return (
       <View key={row.kind} className="w-[48%] mb-2">
         <View className="bg-surface rounded-xl py-3 px-3 shadow-sm flex-row items-center">
-          <IconComponent size={56} color={iconColor} accentColor={accentPrimary} />
+          <IconComponent
+            size={56}
+            color={iconColor}
+            accentColor={accentPrimary}
+          />
           <View className="flex-1 ml-2 items-center">
-            <Text className="text-lg font-bold text-text-primary" numberOfLines={1}>
+            <Text
+              className="text-lg font-bold text-text-primary"
+              numberOfLines={1}
+            >
               {row.value}
             </Text>
             <Text className="text-sm text-text-secondary" numberOfLines={1}>

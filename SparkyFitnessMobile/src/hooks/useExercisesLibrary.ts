@@ -28,13 +28,13 @@ export function useExercisesLibrary(
       }),
     enabled,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: lastPage =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     staleTime: 1000 * 60 * 5,
   });
 
   const exercises = useMemo(
-    () => query.data?.pages.flatMap((page) => page.exercises) ?? [],
+    () => query.data?.pages.flatMap(page => page.exercises) ?? [],
     [query.data?.pages],
   );
 

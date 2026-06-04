@@ -26,7 +26,10 @@ function toRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
-function readNumber(record: Record<string, unknown>, keys: string[]): number | null {
+function readNumber(
+  record: Record<string, unknown>,
+  keys: string[],
+): number | null {
   for (const key of keys) {
     const value = record[key];
     if (typeof value === 'number') {
@@ -36,7 +39,9 @@ function readNumber(record: Record<string, unknown>, keys: string[]): number | n
   return null;
 }
 
-export function extractActivitySummary(details: ActivityDetailResponse[]): ActivitySummaryItem[] {
+export function extractActivitySummary(
+  details: ActivityDetailResponse[],
+): ActivitySummaryItem[] {
   const items: ActivitySummaryItem[] = [];
 
   for (const detail of details) {
@@ -102,13 +107,20 @@ export function extractActivitySummary(details: ActivityDetailResponse[]): Activ
 
           const zoneNumber = zoneRecord.zoneNumber;
           const secondsInZone = zoneRecord.secsInZone;
-          if (typeof zoneNumber !== 'number' || typeof secondsInZone !== 'number' || secondsInZone <= 0) {
+          if (
+            typeof zoneNumber !== 'number' ||
+            typeof secondsInZone !== 'number' ||
+            secondsInZone <= 0
+          ) {
             continue;
           }
 
           const mins = Math.floor(secondsInZone / 60);
           const secs = secondsInZone % 60;
-          items.push({ label: `Zone ${zoneNumber}`, value: `${mins}m ${secs}s` });
+          items.push({
+            label: `Zone ${zoneNumber}`,
+            value: `${mins}m ${secs}s`,
+          });
         }
       }
 

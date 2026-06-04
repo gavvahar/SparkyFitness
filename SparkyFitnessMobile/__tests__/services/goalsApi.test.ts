@@ -1,9 +1,13 @@
 import { fetchDailyGoals } from '../../src/services/api/goalsApi';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({
@@ -41,7 +45,7 @@ describe('goalsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(fetchDailyGoals(testDate)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
 
@@ -63,7 +67,7 @@ describe('goalsApi', () => {
 
             'X-Meal-Model-Version': '2',
           },
-        })
+        }),
       );
     });
 
@@ -81,12 +85,18 @@ describe('goalsApi', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/goals/for-date?date=2024-06-15',
-        expect.anything()
+        expect.anything(),
       );
     });
 
     test('returns parsed JSON response on success', async () => {
-      const responseData = { calories: 2000, protein: 150, carbs: 200, fat: 60, dietary_fiber: 30 };
+      const responseData = {
+        calories: 2000,
+        protein: 150,
+        carbs: 200,
+        fat: 60,
+        dietary_fiber: 30,
+      };
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -107,7 +117,7 @@ describe('goalsApi', () => {
       });
 
       await expect(fetchDailyGoals(testDate)).rejects.toThrow(
-        'Server error: 500 - Internal Server Error'
+        'Server error: 500 - Internal Server Error',
       );
     });
 
@@ -116,7 +126,7 @@ describe('goalsApi', () => {
       mockFetch.mockRejectedValue(new Error('Network request failed'));
 
       await expect(fetchDailyGoals(testDate)).rejects.toThrow(
-        'Network request failed'
+        'Network request failed',
       );
     });
   });

@@ -1,8 +1,15 @@
 import { useMemo, useCallback, useEffect, useRef } from 'react';
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { ExerciseSessionResponse } from '@workspace/shared';
 import { fetchExerciseHistory } from '../services/api/exerciseApi';
-import { exerciseHistoryQueryKey, exerciseHistoryResetQueryKey } from './queryKeys';
+import {
+  exerciseHistoryQueryKey,
+  exerciseHistoryResetQueryKey,
+} from './queryKeys';
 import { useRefetchOnFocus } from './useRefetchOnFocus';
 
 interface UseExerciseHistoryOptions {
@@ -32,7 +39,7 @@ export function useExerciseHistory(
     queryFn: ({ pageParam }) => fetchExerciseHistory(pageParam),
     enabled,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: lastPage =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
   });
 
@@ -53,12 +60,18 @@ export function useExerciseHistory(
     if (resetToken === lastResetTokenRef.current) return;
 
     lastResetTokenRef.current = resetToken;
-    void queryClient.resetQueries({ queryKey: exerciseHistoryQueryKey, exact: true });
+    void queryClient.resetQueries({
+      queryKey: exerciseHistoryQueryKey,
+      exact: true,
+    });
   }, [queryClient, resetTokenQuery.data]);
 
   const refetch = useCallback(async () => {
     try {
-      await queryClient.resetQueries({ queryKey: exerciseHistoryQueryKey, exact: true });
+      await queryClient.resetQueries({
+        queryKey: exerciseHistoryQueryKey,
+        exact: true,
+      });
     } catch {
       // Error state is captured by the useQuery hook — no need to rethrow.
       // Swallowing here prevents unhandled rejections from pull-to-refresh
@@ -70,7 +83,7 @@ export function useExerciseHistory(
     if (query.hasNextPage && !query.isFetching) {
       void query.fetchNextPage();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- spreading `query` causes infinite re-renders; stable sub-properties are sufficient
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- spreading `query` causes infinite re-renders; stable sub-properties are sufficient
   }, [query.fetchNextPage, query.hasNextPage, query.isFetching]);
 
   useRefetchOnFocus(refetch, enabled);

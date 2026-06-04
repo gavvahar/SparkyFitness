@@ -61,7 +61,7 @@ export async function resetWhatsNewBanner(): Promise<void> {
     );
     return;
   }
-  resetSubscribers.forEach((cb) => {
+  resetSubscribers.forEach(cb => {
     try {
       cb();
     } catch {

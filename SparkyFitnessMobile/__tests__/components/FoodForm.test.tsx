@@ -39,9 +39,7 @@ jest.mock('../../src/components/FoodUnitSelectorSheet', () => {
       return (
         <View>
           {props.renderTrigger?.({ onPress: () => {} })}
-          <Pressable
-            onPress={() => props.onSelect(mockUnitSelectionPayload)}
-          >
+          <Pressable onPress={() => props.onSelect(mockUnitSelectionPayload)}>
             <Text>Use Converted Unit</Text>
           </Pressable>
         </View>
@@ -210,7 +208,11 @@ describe('FoodForm', () => {
     );
 
     fireEvent.changeText(screen.getByDisplayValue('100'), '150');
-    fireEvent(screen.getByLabelText('Auto Scale Nutrition'), 'valueChange', true);
+    fireEvent(
+      screen.getByLabelText('Auto Scale Nutrition'),
+      'valueChange',
+      true,
+    );
     fireEvent.changeText(screen.getByDisplayValue('150'), '200');
 
     expect(screen.getByDisplayValue('160')).toBeTruthy();
@@ -259,7 +261,11 @@ describe('FoodForm', () => {
     fireEvent.changeText(screen.getByDisplayValue('100'), '150');
     expect(screen.getByDisplayValue('180')).toBeTruthy();
 
-    fireEvent(screen.getByLabelText('Auto Scale Nutrition'), 'valueChange', false);
+    fireEvent(
+      screen.getByLabelText('Auto Scale Nutrition'),
+      'valueChange',
+      false,
+    );
     fireEvent.changeText(screen.getByDisplayValue('150'), '200');
 
     expect(screen.getByDisplayValue('180')).toBeTruthy();
@@ -287,8 +293,14 @@ describe('FoodForm', () => {
 
     expect(servingUnitPickerCall?.[0].sections).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ title: 'Weight', options: expect.any(Array) }),
-        expect.objectContaining({ title: 'Volume', options: expect.any(Array) }),
+        expect.objectContaining({
+          title: 'Weight',
+          options: expect.any(Array),
+        }),
+        expect.objectContaining({
+          title: 'Volume',
+          options: expect.any(Array),
+        }),
         expect.objectContaining({
           title: 'Quantity',
           options: expect.arrayContaining([
@@ -300,7 +312,7 @@ describe('FoodForm', () => {
   });
 
   it('uses the unit selector sheet when conversion options are provided', async () => {
-    const onUnitSelectionChange = jest.fn((selection) => ({
+    const onUnitSelectionChange = jest.fn(selection => ({
       kind: 'existing',
       variant: {
         ...selection.variant,
@@ -370,8 +382,12 @@ describe('FoodForm', () => {
     });
     expect(screen.getByText('oz')).toBeTruthy();
     expect(mockFoodUnitSelectorSheet).toHaveBeenCalled();
-    expect(mockFoodUnitSelectorSheet.mock.calls[0]?.[0]?.title).toBe('Select Unit');
-    expect(mockFoodUnitSelectorSheet.mock.calls[0]?.[0]?.selectedSelection).toEqual({
+    expect(mockFoodUnitSelectorSheet.mock.calls[0]?.[0]?.title).toBe(
+      'Select Unit',
+    );
+    expect(
+      mockFoodUnitSelectorSheet.mock.calls[0]?.[0]?.selectedSelection,
+    ).toEqual({
       kind: 'existing',
       variant: {
         id: 'variant-1',
@@ -526,7 +542,9 @@ describe('FoodForm', () => {
     expect(screen.getByDisplayValue('4')).toBeTruthy();
 
     const latestSelectorProps =
-      mockFoodUnitSelectorSheet.mock.calls[mockFoodUnitSelectorSheet.mock.calls.length - 1]?.[0];
+      mockFoodUnitSelectorSheet.mock.calls[
+        mockFoodUnitSelectorSheet.mock.calls.length - 1
+      ]?.[0];
     expect(latestSelectorProps?.variants).toEqual([
       expect.objectContaining({
         id: 'variant-1',
@@ -663,7 +681,9 @@ describe('FoodForm', () => {
     fireEvent.press(screen.getByText('Use Converted Unit'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(false);
+      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(
+        false,
+      );
     });
   });
 
@@ -732,7 +752,9 @@ describe('FoodForm', () => {
     fireEvent.press(screen.getByText('Use Converted Unit'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(true);
+      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(
+        true,
+      );
       expect(screen.getByText('Convert with AI')).toBeTruthy();
     });
   });
@@ -810,7 +832,9 @@ describe('FoodForm', () => {
     fireEvent.press(screen.getByText('Use Converted Unit'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(true);
+      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(
+        true,
+      );
     });
   });
 
@@ -874,7 +898,9 @@ describe('FoodForm', () => {
           "Can't convert between units. Update nutrition values manually.",
         ),
       ).toBeTruthy();
-      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(false);
+      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(
+        false,
+      );
     });
     expect(screen.queryByText('Convert with AI')).toBeNull();
   });
@@ -944,7 +970,9 @@ describe('FoodForm', () => {
           "Can't convert between units. Update nutrition values manually.",
         ),
       ).toBeTruthy();
-      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(true);
+      expect(screen.getByLabelText('Auto Scale Nutrition').props.value).toBe(
+        true,
+      );
       expect(screen.getByText('Convert with AI')).toBeTruthy();
     });
   });
@@ -1006,7 +1034,9 @@ describe('FoodForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
 
     const buttons = (Alert.alert as jest.Mock).mock.calls[0][2];
-    const saveAnyway = buttons.find((button: { text: string }) => button.text === 'Save Anyway');
+    const saveAnyway = buttons.find(
+      (button: { text: string }) => button.text === 'Save Anyway',
+    );
     saveAnyway?.onPress?.();
 
     expect(onSubmit).toHaveBeenCalled();

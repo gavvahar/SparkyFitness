@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import Button from '../components/ui/Button';
@@ -14,7 +20,9 @@ import type { RootStackScreenProps } from '../types/navigation';
 
 type ExercisesLibraryScreenProps = RootStackScreenProps<'ExercisesLibrary'>;
 
-const ExercisesLibraryScreen: React.FC<ExercisesLibraryScreenProps> = ({ navigation }) => {
+const ExercisesLibraryScreen: React.FC<ExercisesLibraryScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentColor, textSecondary] = useCSSVariable([
@@ -62,7 +70,9 @@ const ExercisesLibraryScreen: React.FC<ExercisesLibraryScreenProps> = ({ navigat
   const renderEmpty = () => (
     <View className="px-6 py-10 items-center">
       <Text className="text-text-primary text-base font-medium text-center">
-        {searchText.trim().length > 0 ? 'No matching exercises found' : 'No exercises found'}
+        {searchText.trim().length > 0
+          ? 'No matching exercises found'
+          : 'No exercises found'}
       </Text>
       <Text className="text-text-secondary text-sm mt-2 text-center">
         {searchText.trim().length > 0
@@ -78,7 +88,9 @@ const ExercisesLibraryScreen: React.FC<ExercisesLibraryScreenProps> = ({ navigat
       activeOpacity={0.7}
       onPress={() => handleExercisePress(item)}
     >
-      <Text className="text-text-primary text-base font-medium">{item.name}</Text>
+      <Text className="text-text-primary text-base font-medium">
+        {item.name}
+      </Text>
       {item.category ? (
         <Text className="text-sm mt-0.5" style={{ color: textSecondary }}>
           {item.category}
@@ -131,7 +143,7 @@ const ExercisesLibraryScreen: React.FC<ExercisesLibraryScreenProps> = ({ navigat
     return (
       <FlatList
         data={exercises}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderRow}
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={
@@ -156,7 +168,10 @@ const ExercisesLibraryScreen: React.FC<ExercisesLibraryScreenProps> = ({ navigat
             tintColor={accentColor}
           />
         }
-        contentContainerStyle={{ paddingBottom: scrollBottomPadding, flexGrow: 1 }}
+        contentContainerStyle={{
+          paddingBottom: scrollBottomPadding,
+          flexGrow: 1,
+        }}
       />
     );
   };

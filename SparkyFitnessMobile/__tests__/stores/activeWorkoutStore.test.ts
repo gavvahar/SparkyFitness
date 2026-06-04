@@ -28,7 +28,9 @@ const mockHaptic = fireRestCompleteHaptic as jest.MockedFunction<
 
 const FIXED_NOW = 1_700_000_000_000;
 
-function makeSession(overrides?: Partial<PresetSessionResponse>): PresetSessionResponse {
+function makeSession(
+  overrides?: Partial<PresetSessionResponse>,
+): PresetSessionResponse {
   return {
     type: 'preset',
     id: 'session-1',
@@ -150,7 +152,7 @@ describe('activeWorkoutStore', () => {
       const { steps, sessionId } = useActiveWorkoutStore.getState();
       expect(sessionId).toBe('session-1');
       expect(steps).toHaveLength(3);
-      expect(steps.map((s) => s.setId)).toEqual(['101', '102', '201']);
+      expect(steps.map(s => s.setId)).toEqual(['101', '102', '201']);
       expect(steps[0].exerciseId).toBe('ex-uuid-1');
       expect(steps[2].exerciseId).toBe('ex-uuid-2');
     });
@@ -275,7 +277,9 @@ describe('activeWorkoutStore', () => {
       mockSchedule.mockResolvedValueOnce('notif-1');
       useActiveWorkoutStore.getState().completeActiveSet();
       await flushPromises();
-      expect(useActiveWorkoutStore.getState().rest.scheduledNotificationId).toBe('notif-1');
+      expect(
+        useActiveWorkoutStore.getState().rest.scheduledNotificationId,
+      ).toBe('notif-1');
     });
 
     it('cancels the prior rest notification when completing a second set', async () => {
@@ -310,7 +314,11 @@ describe('activeWorkoutStore', () => {
       useActiveWorkoutStore.getState().completeActiveSet();
       const state = useActiveWorkoutStore.getState();
 
-      expect(state.completedSetIds).toEqual({ '101': true, '102': true, '201': true });
+      expect(state.completedSetIds).toEqual({
+        '101': true,
+        '102': true,
+        '201': true,
+      });
       expect(state.activeSetId).toBeNull();
       expect(state.rest.state).toBe('ready');
       // Session snapshot + steps stay put — the user still has to hit X.
@@ -338,7 +346,7 @@ describe('activeWorkoutStore', () => {
       let resolveSchedule: (id: string) => void = () => {};
       mockSchedule.mockImplementationOnce(
         () =>
-          new Promise((resolve) => {
+          new Promise(resolve => {
             resolveSchedule = resolve;
           }),
       );
@@ -349,14 +357,16 @@ describe('activeWorkoutStore', () => {
       await flushPromises();
 
       expect(mockCancel).toHaveBeenCalledWith('late-notif');
-      expect(useActiveWorkoutStore.getState().rest.scheduledNotificationId).toBeNull();
+      expect(
+        useActiveWorkoutStore.getState().rest.scheduledNotificationId,
+      ).toBeNull();
     });
 
     it('late-schedule-after-clear cancels the late-arriving ID', async () => {
       let resolveSchedule: (id: string) => void = () => {};
       mockSchedule.mockImplementationOnce(
         () =>
-          new Promise((resolve) => {
+          new Promise(resolve => {
             resolveSchedule = resolve;
           }),
       );
@@ -373,7 +383,7 @@ describe('activeWorkoutStore', () => {
       let resolveSchedule: (id: string) => void = () => {};
       mockSchedule.mockImplementationOnce(
         () =>
-          new Promise((resolve) => {
+          new Promise(resolve => {
             resolveSchedule = resolve;
           }),
       );
@@ -390,7 +400,7 @@ describe('activeWorkoutStore', () => {
       let resolveA: (id: string) => void = () => {};
       mockSchedule.mockImplementationOnce(
         () =>
-          new Promise((resolve) => {
+          new Promise(resolve => {
             resolveA = resolve;
           }),
       );
@@ -405,7 +415,9 @@ describe('activeWorkoutStore', () => {
       await flushPromises();
 
       expect(mockCancel).toHaveBeenCalledWith('notif-A-late');
-      expect(useActiveWorkoutStore.getState().rest.scheduledNotificationId).toBe('notif-B');
+      expect(
+        useActiveWorkoutStore.getState().rest.scheduledNotificationId,
+      ).toBe('notif-B');
     });
 
     it('is a no-op when there is no active set', () => {
@@ -490,7 +502,9 @@ describe('activeWorkoutStore', () => {
 
       // Uncheck the last set, then recheck it.
       useActiveWorkoutStore.getState().uncompleteSet('201');
-      expect(useActiveWorkoutStore.getState().completedSetIds['201']).toBeUndefined();
+      expect(
+        useActiveWorkoutStore.getState().completedSetIds['201'],
+      ).toBeUndefined();
       useActiveWorkoutStore.getState().recompleteSet('201');
       const state = useActiveWorkoutStore.getState();
       expect(state.completedSetIds['201']).toBe(true);
@@ -588,9 +602,9 @@ describe('activeWorkoutStore', () => {
       // Rest is before the active set, which is now set 102 (Bench Press).
       expect(mockSchedule).toHaveBeenLastCalledWith('Bench Press', 50);
       await flushPromises();
-      expect(useActiveWorkoutStore.getState().rest.scheduledNotificationId).toBe(
-        'notif-resumed',
-      );
+      expect(
+        useActiveWorkoutStore.getState().rest.scheduledNotificationId,
+      ).toBe('notif-resumed');
     });
 
     it('resumeRest is a no-op when not paused', () => {
@@ -608,7 +622,9 @@ describe('activeWorkoutStore', () => {
       jest.setSystemTime(new Date(FIXED_NOW + 1_000_000));
       mockSchedule.mockResolvedValueOnce('notif-resumed');
       useActiveWorkoutStore.getState().resumeRest();
-      expect(useActiveWorkoutStore.getState().rest.endsAt).toBe(FIXED_NOW + 1_040_000);
+      expect(useActiveWorkoutStore.getState().rest.endsAt).toBe(
+        FIXED_NOW + 1_040_000,
+      );
       await flushPromises();
     });
   });
@@ -737,7 +753,9 @@ describe('activeWorkoutStore', () => {
       updated.exercises[0].sets[0].weight = 65; // editing weight
       useActiveWorkoutStore.getState().reconcileWithSession(updated);
 
-      expect(useActiveWorkoutStore.getState().completedSetIds['101']).toBe(true);
+      expect(useActiveWorkoutStore.getState().completedSetIds['101']).toBe(
+        true,
+      );
       expect(useActiveWorkoutStore.getState().activeSetId).toBe('102');
     });
 
@@ -752,7 +770,9 @@ describe('activeWorkoutStore', () => {
       updated.exercises[0].sets = [updated.exercises[0].sets[0]]; // drop set 102
       useActiveWorkoutStore.getState().reconcileWithSession(updated);
 
-      expect(useActiveWorkoutStore.getState().completedSetIds['102']).toBeUndefined();
+      expect(
+        useActiveWorkoutStore.getState().completedSetIds['102'],
+      ).toBeUndefined();
     });
 
     it('falls back to first uncompleted step when active set is removed', async () => {
@@ -799,9 +819,9 @@ describe('activeWorkoutStore', () => {
       useActiveWorkoutStore.getState().reconcileWithSession(updated);
 
       expect(useActiveWorkoutStore.getState().rest.state).toBe('resting');
-      expect(useActiveWorkoutStore.getState().rest.scheduledNotificationId).toBe(
-        'notif-keep',
-      );
+      expect(
+        useActiveWorkoutStore.getState().rest.scheduledNotificationId,
+      ).toBe('notif-keep');
       expect(useActiveWorkoutStore.getState().activeSetId).toBe('102');
     });
 
@@ -824,7 +844,7 @@ describe('activeWorkoutStore', () => {
 
       useActiveWorkoutStore.getState().reconcileWithSession(updated);
       const { steps, completedSetIds } = useActiveWorkoutStore.getState();
-      expect(steps.find((s) => s.setId === '103')).toBeDefined();
+      expect(steps.find(s => s.setId === '103')).toBeDefined();
       expect(completedSetIds['101']).toBe(true);
     });
 
@@ -844,7 +864,7 @@ describe('activeWorkoutStore', () => {
       updated.exercises = [updated.exercises[1], updated.exercises[0]];
       useActiveWorkoutStore.getState().reconcileWithSession(updated);
       const { steps } = useActiveWorkoutStore.getState();
-      expect(steps.map((s) => s.setId)).toEqual(['201', '101', '102']);
+      expect(steps.map(s => s.setId)).toEqual(['201', '101', '102']);
     });
   });
 
@@ -878,7 +898,10 @@ describe('activeWorkoutStore', () => {
         version: 2,
       };
       mockHaptic.mockClear();
-      await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+      await AsyncStorage.setItem(
+        '@SparkyFitness/active-workout',
+        JSON.stringify(persisted),
+      );
       await useActiveWorkoutStore.persist.rehydrate();
       const rest = useActiveWorkoutStore.getState().rest;
       expect(rest.state).toBe('ready');
@@ -907,7 +930,10 @@ describe('activeWorkoutStore', () => {
         },
         version: 2,
       };
-      await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+      await AsyncStorage.setItem(
+        '@SparkyFitness/active-workout',
+        JSON.stringify(persisted),
+      );
       await useActiveWorkoutStore.persist.rehydrate();
       const rest = useActiveWorkoutStore.getState().rest;
       expect(rest.state).toBe('resting');
@@ -915,7 +941,10 @@ describe('activeWorkoutStore', () => {
     });
 
     describe('v1 → v2 migration', () => {
-      function buildV1Payload(activeRest: unknown, extras: Record<string, unknown> = {}) {
+      function buildV1Payload(
+        activeRest: unknown,
+        extras: Record<string, unknown> = {},
+      ) {
         return {
           state: {
             sessionId: 'session-1',
@@ -963,7 +992,10 @@ describe('activeWorkoutStore', () => {
           scheduledNotificationId: 'notif-carried-over',
           instanceToken: 7,
         });
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         expect(state.sessionId).toBe('session-1');
@@ -986,7 +1018,10 @@ describe('activeWorkoutStore', () => {
           scheduledNotificationId: null,
           instanceToken: 3,
         });
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         expect(state.activeSetId).toBe('102');
@@ -1006,7 +1041,10 @@ describe('activeWorkoutStore', () => {
           scheduledNotificationId: null,
           instanceToken: 5,
         });
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         expect(state.activeSetId).toBe('102');
@@ -1017,7 +1055,10 @@ describe('activeWorkoutStore', () => {
       it('collapses null activeRest to ready', async () => {
         jest.useRealTimers();
         const persisted = buildV1Payload(null);
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         expect(state.activeSetId).toBe('102');
@@ -1029,7 +1070,10 @@ describe('activeWorkoutStore', () => {
         const persisted = buildV1Payload(null, {
           completedSetIds: { '101': true, '102': true, '201': true },
         });
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         expect(state.activeSetId).toBeNull();
@@ -1053,7 +1097,10 @@ describe('activeWorkoutStore', () => {
           },
           { completedSetIds: { '101': true, '102': true, '201': true } },
         );
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         expect(state.activeSetId).toBeNull();
@@ -1074,7 +1121,10 @@ describe('activeWorkoutStore', () => {
           instanceToken: 1,
         });
         mockHaptic.mockClear();
-        await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+        await AsyncStorage.setItem(
+          '@SparkyFitness/active-workout',
+          JSON.stringify(persisted),
+        );
         await useActiveWorkoutStore.persist.rehydrate();
         const state = useActiveWorkoutStore.getState();
         // migrate produces rest={state:'resting',endsAt:past}, then merge snaps to ready.
@@ -1103,7 +1153,10 @@ describe('activeWorkoutStore', () => {
         },
         version: 2,
       };
-      await AsyncStorage.setItem('@SparkyFitness/active-workout', JSON.stringify(persisted));
+      await AsyncStorage.setItem(
+        '@SparkyFitness/active-workout',
+        JSON.stringify(persisted),
+      );
       await useActiveWorkoutStore.persist.rehydrate();
       const rest = useActiveWorkoutStore.getState().rest;
       expect(rest.state).toBe('paused');

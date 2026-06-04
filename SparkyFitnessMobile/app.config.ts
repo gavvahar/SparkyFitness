@@ -1,4 +1,4 @@
-import "tsx/cjs";
+import 'tsx/cjs';
 import { ExpoConfig, ConfigContext } from 'expo/config';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { getIosAppGroup } = require('./app.identifiers.js');
@@ -9,7 +9,9 @@ const ANDROID_PROD_BUNDLE_IDENTIFIER = 'com.SparkyApps.SparkyFitnessMobile';
 const IOS_PROD_BUNDLE_IDENTIFIER = 'com.SparkyApps.SparkyFitnessMobile';
 const DEV_APPLE_TEAM_ID = process.env.EXPO_DEV_APPLE_TEAM_ID || '';
 const PROD_APPLE_TEAM_ID = process.env.EXPO_PROD_APPLE_TEAM_ID || '';
-const DEV_BUNDLE_IDENTIFIER = process.env.EXPO_DEV_BUNDLE_IDENTIFIER || 'org.SparkyApps.SparkyFitnessMobile.dev';
+const DEV_BUNDLE_IDENTIFIER =
+  process.env.EXPO_DEV_BUNDLE_IDENTIFIER ||
+  'org.SparkyApps.SparkyFitnessMobile.dev';
 
 const DEV_PACKAGE = DEV_BUNDLE_IDENTIFIER;
 const PROD_PACKAGE = ANDROID_PROD_BUNDLE_IDENTIFIER;
@@ -99,9 +101,7 @@ export default ({ config }: ConfigContext): Partial<ExpoConfig> => {
   }
 
   // Plugins only included in production builds
-  const prodPlugins = [
-    './plugins/withNetworkSecurityConfig',
-  ];
+  const prodPlugins = ['./plugins/withNetworkSecurityConfig'];
 
   return {
     ...config,
@@ -125,14 +125,12 @@ export default ({ config }: ConfigContext): Partial<ExpoConfig> => {
       icon: './assets/icons/appicon.icon',
     },
     android: {
-      package: isDev
-        ? DEV_PACKAGE
-        : PROD_PACKAGE,
+      package: isDev ? DEV_PACKAGE : PROD_PACKAGE,
       permissions: androidPermissions,
       adaptiveIcon: {
         foregroundImage: './assets/icons/adaptiveicon.png',
         backgroundColor: '#FFFFFF',
-      }
+      },
     },
     androidNavigationBar: {
       enforceContrast: false,
@@ -148,7 +146,7 @@ export default ({ config }: ConfigContext): Partial<ExpoConfig> => {
       APP_VARIANT: environment,
       iosAppGroup: getIosAppGroup(),
       eas: {
-        projectId: "498a86c5-344f-4d2c-9033-dfd720e4a383",
+        projectId: '498a86c5-344f-4d2c-9033-dfd720e4a383',
       },
     },
   };

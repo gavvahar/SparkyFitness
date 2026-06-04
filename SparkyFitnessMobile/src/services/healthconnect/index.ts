@@ -23,44 +23,55 @@ export const initHealthConnect = async (): Promise<boolean> => {
     return isInitialized;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[HealthConnectService] Failed to initialize Health Connect: ${message}`);
+    addLog(
+      `[HealthConnectService] Failed to initialize Health Connect: ${message}`,
+    );
     return false;
   }
 };
 
 export const requestHealthPermissions = async (
-  permissionsToRequest: PermissionRequest[]
+  permissionsToRequest: PermissionRequest[],
 ): Promise<boolean> => {
   try {
-    const uniquePermissions = permissionsToRequest.filter((permission, index, allPermissions) =>
-      allPermissions.findIndex(candidate =>
-        candidate.recordType === permission.recordType &&
-        candidate.accessType === permission.accessType
-      ) === index
+    const uniquePermissions = permissionsToRequest.filter(
+      (permission, index, allPermissions) =>
+        allPermissions.findIndex(
+          candidate =>
+            candidate.recordType === permission.recordType &&
+            candidate.accessType === permission.accessType,
+        ) === index,
     );
 
     // Cast to library's Permission type - our PermissionRequest interface is compatible
-    const grantedPermissions = await requestPermission(
-      uniquePermissions as Parameters<typeof requestPermission>[0]
-    ) as GrantedPermission[];
+    const grantedPermissions = (await requestPermission(
+      uniquePermissions as Parameters<typeof requestPermission>[0],
+    )) as GrantedPermission[];
 
     const allGranted = uniquePermissions.every(requestedPerm =>
-      grantedPermissions.some(grantedPerm =>
-        grantedPerm.recordType === requestedPerm.recordType &&
-        grantedPerm.accessType === requestedPerm.accessType
-      )
+      grantedPermissions.some(
+        grantedPerm =>
+          grantedPerm.recordType === requestedPerm.recordType &&
+          grantedPerm.accessType === requestedPerm.accessType,
+      ),
     );
 
     if (allGranted) {
       console.log('[HealthConnectService] All requested permissions granted.');
       return true;
     } else {
-      console.log('[HealthConnectService] Not all requested permissions granted.', { requested: permissionsToRequest, granted: grantedPermissions });
+      console.log(
+        '[HealthConnectService] Not all requested permissions granted.',
+        { requested: permissionsToRequest, granted: grantedPermissions },
+      );
       return false;
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[HealthConnectService] Failed to request health permissions: ${message}`, 'ERROR');
+    addLog(
+      `[HealthConnectService] Failed to request health permissions: ${message}`,
+      'ERROR',
+    );
     throw error;
   }
 };
@@ -78,7 +89,7 @@ const QUOTA_ERROR_PATTERNS = [/quota exceeded/i, /api call quota/i];
 
 export const isQuotaExceededError = (error: unknown): boolean => {
   const message = error instanceof Error ? error.message : String(error ?? '');
-  return QUOTA_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+  return QUOTA_ERROR_PATTERNS.some(pattern => pattern.test(message));
 };
 
 interface ReadRecordsOptions {
@@ -148,12 +159,21 @@ const buildFallbackWindows = (
 const readHealthRecordsOnce = async (
   recordType: string,
   startDate: Date,
-  endDate: Date
-): Promise<HealthConnectReadResult & { failedOnFirstPage: boolean; quotaExceeded?: boolean }> => {
+  endDate: Date,
+): Promise<
+  HealthConnectReadResult & {
+    failedOnFirstPage: boolean;
+    quotaExceeded?: boolean;
+  }
+> => {
   const allRecords: unknown[] = [];
   let pageToken: string | undefined;
   let page = 0;
-  const windowError = getWindowError(`read for ${recordType}`, startDate, endDate);
+  const windowError = getWindowError(
+    `read for ${recordType}`,
+    startDate,
+    endDate,
+  );
   if (windowError) {
     addLog(`[HealthConnectService] ${windowError}`, 'WARNING');
     return { records: [], error: windowError, failedOnFirstPage: true };
@@ -176,7 +196,7 @@ const readHealthRecordsOnce = async (
 
       const result = await readRecords(
         recordType as Parameters<typeof readRecords>[0],
-        options as unknown as Parameters<typeof readRecords>[1]
+        options as unknown as Parameters<typeof readRecords>[1],
       );
 
       const records = result.records || [];
@@ -185,7 +205,9 @@ const readHealthRecordsOnce = async (
     } while (pageToken && page < MAX_PAGES);
 
     if (page > 1) {
-      addLog(`[HealthConnectService] Read ${allRecords.length} ${recordType} records across ${page} pages`);
+      addLog(
+        `[HealthConnectService] Read ${allRecords.length} ${recordType} records across ${page} pages`,
+      );
     }
     if (pageToken && page >= MAX_PAGES) {
       const error = `Hit max page limit (${MAX_PAGES}) for ${recordType}; returning ${allRecords.length} records collected so far.`;
@@ -199,7 +221,7 @@ const readHealthRecordsOnce = async (
     const quotaExceeded = isQuotaExceededError(error);
     addLog(
       `[HealthConnectService] Failed reading ${recordType} on page ${page}: ${message}. Returning ${allRecords.length} records collected so far.`,
-      'ERROR'
+      'ERROR',
     );
     return {
       records: allRecords,
@@ -217,7 +239,11 @@ const readHealthRecordsFallback = async (
 ): Promise<HealthConnectReadResult> => {
   const records: unknown[] = [];
   const errors: string[] = [];
-  const dayWindows = buildFallbackWindows(startDate, endDate, FALLBACK_DAY_WINDOW_MS);
+  const dayWindows = buildFallbackWindows(
+    startDate,
+    endDate,
+    FALLBACK_DAY_WINDOW_MS,
+  );
 
   addLog(
     `[HealthConnectService] Retrying ${recordType} read in ${dayWindows.length} day window(s) after a page-1 failure.`,
@@ -225,7 +251,11 @@ const readHealthRecordsFallback = async (
   );
 
   for (const dayWindow of dayWindows) {
-    const dayResult = await readHealthRecordsOnce(recordType, dayWindow.start, dayWindow.end);
+    const dayResult = await readHealthRecordsOnce(
+      recordType,
+      dayWindow.start,
+      dayWindow.end,
+    );
     if (!dayResult.error) {
       records.push(...dayResult.records);
       continue;
@@ -233,9 +263,17 @@ const readHealthRecordsFallback = async (
 
     const durationMs = dayWindow.end.getTime() - dayWindow.start.getTime();
     if (dayResult.failedOnFirstPage && durationMs > FALLBACK_HOUR_WINDOW_MS) {
-      const hourWindows = buildFallbackWindows(dayWindow.start, dayWindow.end, FALLBACK_HOUR_WINDOW_MS);
+      const hourWindows = buildFallbackWindows(
+        dayWindow.start,
+        dayWindow.end,
+        FALLBACK_HOUR_WINDOW_MS,
+      );
       for (const hourWindow of hourWindows) {
-        const hourResult = await readHealthRecordsOnce(recordType, hourWindow.start, hourWindow.end);
+        const hourResult = await readHealthRecordsOnce(
+          recordType,
+          hourWindow.start,
+          hourWindow.end,
+        );
         records.push(...hourResult.records);
         if (hourResult.error) {
           errors.push(
@@ -253,7 +291,10 @@ const readHealthRecordsFallback = async (
   }
 
   if (errors.length === 0) {
-    addLog(`[HealthConnectService] Recovered ${records.length} ${recordType} records using fallback windows.`, 'WARNING');
+    addLog(
+      `[HealthConnectService] Recovered ${records.length} ${recordType} records using fallback windows.`,
+      'WARNING',
+    );
     return { records };
   }
 
@@ -265,7 +306,7 @@ const readHealthRecordsFallback = async (
 export const readHealthRecordsDetailed = async (
   recordType: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<HealthConnectReadResult> => {
   const result = await readHealthRecordsOnce(recordType, startDate, endDate);
 
@@ -294,9 +335,13 @@ export const readHealthRecordsDetailed = async (
 export const readHealthRecords = async (
   recordType: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<unknown[]> => {
-  const result = await readHealthRecordsDetailed(recordType, startDate, endDate);
+  const result = await readHealthRecordsDetailed(
+    recordType,
+    startDate,
+    endDate,
+  );
   return result.records;
 };
 
@@ -374,7 +419,10 @@ const readZoneOffsetForRange = async (
         pageSize: 1,
       } as unknown as Parameters<typeof readRecords>[1],
     );
-    type OffsetRecord = { startZoneOffset?: HCZoneOffset; endZoneOffset?: HCZoneOffset };
+    type OffsetRecord = {
+      startZoneOffset?: HCZoneOffset;
+      endZoneOffset?: HCZoneOffset;
+    };
     const record = (result.records as OffsetRecord[])[0];
     const offset = record?.endZoneOffset ?? record?.startZoneOffset;
     if (offset?.totalSeconds != null) {
@@ -394,7 +442,11 @@ export const aggregateCumulativeMetricByDayDetailed = async (
   endDate: Date,
 ): Promise<HealthConnectAggregateResult> => {
   try {
-    const rangeError = getWindowError(`aggregate for ${spec.recordType}`, startDate, endDate);
+    const rangeError = getWindowError(
+      `aggregate for ${spec.recordType}`,
+      startDate,
+      endDate,
+    );
     if (rangeError) {
       addLog(`[HealthConnectService] ${rangeError}`, 'WARNING');
       return { records: [], error: rangeError };
@@ -404,7 +456,9 @@ export const aggregateCumulativeMetricByDayDetailed = async (
     let buckets: PeriodBucket[];
     try {
       buckets = (await aggregateGroupByPeriod({
-        recordType: spec.recordType as Parameters<typeof aggregateGroupByPeriod>[0]['recordType'],
+        recordType: spec.recordType as Parameters<
+          typeof aggregateGroupByPeriod
+        >[0]['recordType'],
         timeRangeFilter: {
           operator: 'between',
           startTime: startDate.toISOString(),
@@ -421,7 +475,11 @@ export const aggregateCumulativeMetricByDayDetailed = async (
       return { records: [], error: message };
     }
 
-    const rangeOffset = await readZoneOffsetForRange(spec.recordType, startDate, endDate);
+    const rangeOffset = await readZoneOffsetForRange(
+      spec.recordType,
+      startDate,
+      endDate,
+    );
     const results: AggregatedHealthRecord[] = [];
 
     for (const bucket of buckets) {
@@ -440,11 +498,17 @@ export const aggregateCumulativeMetricByDayDetailed = async (
       results.push(rec);
     }
 
-    addLog(`[HealthConnectService] ${spec.recordType} aggregation: ${results.length} days`, 'DEBUG');
+    addLog(
+      `[HealthConnectService] ${spec.recordType} aggregation: ${results.length} days`,
+      'DEBUG',
+    );
     return { records: results };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[HealthConnectService] Error aggregating ${spec.recordType}: ${message}`, 'ERROR');
+    addLog(
+      `[HealthConnectService] Error aggregating ${spec.recordType}: ${message}`,
+      'ERROR',
+    );
     return { records: [], error: message };
   }
 };
@@ -454,7 +518,11 @@ export const aggregateCumulativeMetricByDay = async (
   startDate: Date,
   endDate: Date,
 ): Promise<AggregatedHealthRecord[]> => {
-  const result = await aggregateCumulativeMetricByDayDetailed(spec, startDate, endDate);
+  const result = await aggregateCumulativeMetricByDayDetailed(
+    spec,
+    startDate,
+    endDate,
+  );
   return result.records;
 };
 
@@ -466,7 +534,7 @@ export const getAggregatedStepsByDateDetailed = (
     {
       recordType: 'Steps',
       outputType: 'step',
-      extractValue: (r) => (r as { COUNT_TOTAL?: number }).COUNT_TOTAL ?? 0,
+      extractValue: r => (r as { COUNT_TOTAL?: number }).COUNT_TOTAL ?? 0,
     },
     startDate,
     endDate,
@@ -476,7 +544,9 @@ export const getAggregatedStepsByDate = (
   startDate: Date,
   endDate: Date,
 ): Promise<AggregatedHealthRecord[]> =>
-  getAggregatedStepsByDateDetailed(startDate, endDate).then(result => result.records);
+  getAggregatedStepsByDateDetailed(startDate, endDate).then(
+    result => result.records,
+  );
 
 export const getAggregatedActiveCaloriesByDateDetailed = (
   startDate: Date,
@@ -486,7 +556,9 @@ export const getAggregatedActiveCaloriesByDateDetailed = (
     {
       recordType: 'ActiveCaloriesBurned',
       outputType: 'active_calories',
-      extractValue: (r) => (r as { ACTIVE_CALORIES_TOTAL?: { inKilocalories?: number } }).ACTIVE_CALORIES_TOTAL?.inKilocalories ?? 0,
+      extractValue: r =>
+        (r as { ACTIVE_CALORIES_TOTAL?: { inKilocalories?: number } })
+          .ACTIVE_CALORIES_TOTAL?.inKilocalories ?? 0,
       round: true,
     },
     startDate,
@@ -497,7 +569,9 @@ export const getAggregatedActiveCaloriesByDate = (
   startDate: Date,
   endDate: Date,
 ): Promise<AggregatedHealthRecord[]> =>
-  getAggregatedActiveCaloriesByDateDetailed(startDate, endDate).then(result => result.records);
+  getAggregatedActiveCaloriesByDateDetailed(startDate, endDate).then(
+    result => result.records,
+  );
 
 // Distance plausibility floor: drop tiny distance aggregates on long sessions —
 // Health Sync writes a few dozen meters of passive step-distance over the
@@ -550,7 +624,10 @@ export const selectSessionCalories = (
  * Distance is plausible unless the session is long enough that a real workout
  * would have covered more than a token amount.
  */
-export const isPlausibleSessionDistance = (meters: number, durationMs: number): boolean => {
+export const isPlausibleSessionDistance = (
+  meters: number,
+  durationMs: number,
+): boolean => {
   if (durationMs <= MIN_DURATION_FOR_DISTANCE_CHECK_MS) return true;
   return meters >= MIN_DISTANCE_FOR_LONG_SESSION_M;
 };
@@ -561,78 +638,101 @@ export const isPlausibleSessionDistance = (meters: number, durationMs: number): 
  * ActiveCaloriesBurned, TotalCaloriesBurned, and Distance aggregated over
  * each session's time range and apply plausibility checks (see #593, #1296).
  */
-export const enrichExerciseSessions = async (records: unknown[]): Promise<unknown[]> => {
+export const enrichExerciseSessions = async (
+  records: unknown[],
+): Promise<unknown[]> => {
   if (records.length === 0) return records;
 
-  addLog(`[HealthConnectService] Enriching ${records.length} exercise session(s) with calories/distance`, 'DEBUG');
+  addLog(
+    `[HealthConnectService] Enriching ${records.length} exercise session(s) with calories/distance`,
+    'DEBUG',
+  );
 
-  const enriched = await Promise.all(records.map(async (record) => {
-    const rec = record as Record<string, unknown>;
-    const startTime = rec.startTime as string | undefined;
-    const endTime = rec.endTime as string | undefined;
-    if (!startTime || !endTime) return record;
+  const enriched = await Promise.all(
+    records.map(async record => {
+      const rec = record as Record<string, unknown>;
+      const startTime = rec.startTime as string | undefined;
+      const endTime = rec.endTime as string | undefined;
+      if (!startTime || !endTime) return record;
 
-    const metadata = rec.metadata as { dataOrigin?: string } | undefined;
-    const dataOriginFilter = metadata?.dataOrigin ? [metadata.dataOrigin] : undefined;
+      const metadata = rec.metadata as { dataOrigin?: string } | undefined;
+      const dataOriginFilter = metadata?.dataOrigin
+        ? [metadata.dataOrigin]
+        : undefined;
 
-    const timeRangeFilter = {
-      operator: 'between' as const,
-      startTime,
-      endTime,
-    };
+      const timeRangeFilter = {
+        operator: 'between' as const,
+        startTime,
+        endTime,
+      };
 
-    const durationMs = new Date(endTime).getTime() - new Date(startTime).getTime();
-    if (!Number.isFinite(durationMs) || durationMs <= 0) {
-      return record;
-    }
-
-    const [activeCaloriesResult, totalCaloriesResult, distanceResult] = await Promise.allSettled([
-      aggregateRecord({
-        recordType: 'ActiveCaloriesBurned',
-        timeRangeFilter,
-        dataOriginFilter,
-      }),
-      aggregateRecord({
-        recordType: 'TotalCaloriesBurned',
-        timeRangeFilter,
-        dataOriginFilter,
-      }),
-      aggregateRecord({
-        recordType: 'Distance',
-        timeRangeFilter,
-        dataOriginFilter,
-      }),
-    ]);
-
-    // Only attach enriched values when an aggregate call succeeded and returned
-    // a plausible value. Leave the record untouched otherwise so we don't
-    // overwrite potentially valid data with a synthetic zero.
-    const enrichedFields: Record<string, unknown> = {};
-
-    const active = activeCaloriesResult.status === 'fulfilled'
-      ? (activeCaloriesResult.value as { ACTIVE_CALORIES_TOTAL?: { inKilocalories?: number } }).ACTIVE_CALORIES_TOTAL?.inKilocalories
-      : undefined;
-    const total = totalCaloriesResult.status === 'fulfilled'
-      ? (totalCaloriesResult.value as { ENERGY_TOTAL?: { inKilocalories?: number } }).ENERGY_TOTAL?.inKilocalories
-      : undefined;
-
-    const kcal = selectSessionCalories(active, total, durationMs);
-    if (kcal != null) {
-      enrichedFields.energy = { inKilocalories: kcal };
-    }
-
-    if (distanceResult.status === 'fulfilled') {
-      const result = distanceResult.value as { DISTANCE?: { inMeters?: number } };
-      const meters = result.DISTANCE?.inMeters;
-      if (meters != null && isPlausibleSessionDistance(meters, durationMs)) {
-        enrichedFields.distance = { inMeters: meters };
+      const durationMs =
+        new Date(endTime).getTime() - new Date(startTime).getTime();
+      if (!Number.isFinite(durationMs) || durationMs <= 0) {
+        return record;
       }
-    }
 
-    return Object.keys(enrichedFields).length > 0
-      ? { ...rec, ...enrichedFields }
-      : record;
-  }));
+      const [activeCaloriesResult, totalCaloriesResult, distanceResult] =
+        await Promise.allSettled([
+          aggregateRecord({
+            recordType: 'ActiveCaloriesBurned',
+            timeRangeFilter,
+            dataOriginFilter,
+          }),
+          aggregateRecord({
+            recordType: 'TotalCaloriesBurned',
+            timeRangeFilter,
+            dataOriginFilter,
+          }),
+          aggregateRecord({
+            recordType: 'Distance',
+            timeRangeFilter,
+            dataOriginFilter,
+          }),
+        ]);
+
+      // Only attach enriched values when an aggregate call succeeded and returned
+      // a plausible value. Leave the record untouched otherwise so we don't
+      // overwrite potentially valid data with a synthetic zero.
+      const enrichedFields: Record<string, unknown> = {};
+
+      const active =
+        activeCaloriesResult.status === 'fulfilled'
+          ? (
+              activeCaloriesResult.value as {
+                ACTIVE_CALORIES_TOTAL?: { inKilocalories?: number };
+              }
+            ).ACTIVE_CALORIES_TOTAL?.inKilocalories
+          : undefined;
+      const total =
+        totalCaloriesResult.status === 'fulfilled'
+          ? (
+              totalCaloriesResult.value as {
+                ENERGY_TOTAL?: { inKilocalories?: number };
+              }
+            ).ENERGY_TOTAL?.inKilocalories
+          : undefined;
+
+      const kcal = selectSessionCalories(active, total, durationMs);
+      if (kcal != null) {
+        enrichedFields.energy = { inKilocalories: kcal };
+      }
+
+      if (distanceResult.status === 'fulfilled') {
+        const result = distanceResult.value as {
+          DISTANCE?: { inMeters?: number };
+        };
+        const meters = result.DISTANCE?.inMeters;
+        if (meters != null && isPlausibleSessionDistance(meters, durationMs)) {
+          enrichedFields.distance = { inMeters: meters };
+        }
+      }
+
+      return Object.keys(enrichedFields).length > 0
+        ? { ...rec, ...enrichedFields }
+        : record;
+    }),
+  );
 
   return enriched;
 };

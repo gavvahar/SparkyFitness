@@ -11,7 +11,11 @@ interface UseDeleteFoodEntryOptions {
   onSuccess?: () => void;
 }
 
-export function useDeleteFoodEntry({ entryId, entryDate, onSuccess }: UseDeleteFoodEntryOptions) {
+export function useDeleteFoodEntry({
+  entryId,
+  entryDate,
+  onSuccess,
+}: UseDeleteFoodEntryOptions) {
   const queryClient = useQueryClient();
   const normalizedDate = normalizeDate(entryDate);
 
@@ -21,21 +25,35 @@ export function useDeleteFoodEntry({ entryId, entryDate, onSuccess }: UseDeleteF
       onSuccess?.();
     },
     onError: () => {
-      Toast.show({ type: 'error', text1: 'Failed to delete', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to delete',
+        text2: 'Please try again.',
+      });
     },
   });
 
   const confirmAndDelete = () => {
-    Alert.alert('Delete Entry', 'Are you sure you want to delete this food entry?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => mutation.mutate() },
-    ]);
+    Alert.alert(
+      'Delete Entry',
+      'Are you sure you want to delete this food entry?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => mutation.mutate(),
+        },
+      ],
+    );
   };
 
   const deleteEntry = () => mutation.mutate();
 
   const invalidateCache = () => {
-    queryClient.invalidateQueries({ queryKey: dailySummaryQueryKey(normalizedDate) });
+    queryClient.invalidateQueries({
+      queryKey: dailySummaryQueryKey(normalizedDate),
+    });
   };
 
   return {

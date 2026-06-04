@@ -10,13 +10,12 @@ import {
   sendEmailOtp,
   verifyEmailOtp,
 } from '../../src/services/api/authService';
-import {
-  saveServerConfig,
-} from '../../src/services/storage';
+import { saveServerConfig } from '../../src/services/storage';
 
 jest.mock('../../src/services/api/authService', () => ({
   login: jest.fn(),
-  LoginError: jest.requireActual('../../src/services/api/authService').LoginError,
+  LoginError: jest.requireActual('../../src/services/api/authService')
+    .LoginError,
   clearAuthCookies: jest.fn().mockResolvedValue(undefined),
   fetchMfaFactors: jest.fn(),
   verifyTotp: jest.fn(),
@@ -28,7 +27,8 @@ jest.mock('../../src/services/api/authService', () => ({
 
 jest.mock('../../src/services/storage', () => ({
   saveServerConfig: jest.fn().mockResolvedValue(undefined),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({
@@ -44,12 +44,22 @@ jest.mock('../../src/components/Icon', () => {
 });
 
 const mockLogin = login as jest.MockedFunction<typeof login>;
-const mockClearAuthCookies = clearAuthCookies as jest.MockedFunction<typeof clearAuthCookies>;
-const mockFetchMfaFactors = fetchMfaFactors as jest.MockedFunction<typeof fetchMfaFactors>;
+const mockClearAuthCookies = clearAuthCookies as jest.MockedFunction<
+  typeof clearAuthCookies
+>;
+const mockFetchMfaFactors = fetchMfaFactors as jest.MockedFunction<
+  typeof fetchMfaFactors
+>;
 const mockVerifyTotp = verifyTotp as jest.MockedFunction<typeof verifyTotp>;
-const mockSendEmailOtp = sendEmailOtp as jest.MockedFunction<typeof sendEmailOtp>;
-const mockVerifyEmailOtp = verifyEmailOtp as jest.MockedFunction<typeof verifyEmailOtp>;
-const mockSaveServerConfig = saveServerConfig as jest.MockedFunction<typeof saveServerConfig>;
+const mockSendEmailOtp = sendEmailOtp as jest.MockedFunction<
+  typeof sendEmailOtp
+>;
+const mockVerifyEmailOtp = verifyEmailOtp as jest.MockedFunction<
+  typeof verifyEmailOtp
+>;
+const mockSaveServerConfig = saveServerConfig as jest.MockedFunction<
+  typeof saveServerConfig
+>;
 
 const defaultProps = {
   visible: true,
@@ -58,13 +68,17 @@ const defaultProps = {
   onDismiss: jest.fn(),
 };
 
-function renderModal(props: Partial<React.ComponentProps<typeof ServerConfigModal>> = {}) {
+function renderModal(
+  props: Partial<React.ComponentProps<typeof ServerConfigModal>> = {},
+) {
   return render(<ServerConfigModal {...defaultProps} {...props} />);
 }
 
 async function waitForForm(result: ReturnType<typeof renderModal>) {
   await waitFor(() =>
-    expect(result.getByPlaceholderText('https://your-server-url.com')).toBeTruthy(),
+    expect(
+      result.getByPlaceholderText('https://your-server-url.com'),
+    ).toBeTruthy(),
   );
 }
 
@@ -84,7 +98,9 @@ describe('ServerConfigModal', () => {
       const result = renderModal();
       await waitForForm(result);
 
-      expect(result.getByPlaceholderText('https://your-server-url.com')).toBeTruthy();
+      expect(
+        result.getByPlaceholderText('https://your-server-url.com'),
+      ).toBeTruthy();
       expect(result.getByPlaceholderText('email@example.com')).toBeTruthy();
       expect(result.getByPlaceholderText('Password')).toBeTruthy();
       expect(result.getByText('Sign In')).toBeTruthy();
@@ -237,7 +253,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('email@example.com'),
         'user@example.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('Password'), 'password123');
+      fireEvent.changeText(
+        result.getByPlaceholderText('Password'),
+        'password123',
+      );
 
       await act(async () => {
         pressConnectButton(result);
@@ -272,7 +291,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com/',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -304,7 +326,10 @@ describe('ServerConfigModal', () => {
       });
       await waitForForm(result);
 
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'user@example.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'user@example.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -334,7 +359,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'wrong');
 
       await act(async () => {
@@ -354,7 +382,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -362,7 +393,9 @@ describe('ServerConfigModal', () => {
       });
 
       expect(
-        result.getByText('Could not connect to server. Check the URL and try again.'),
+        result.getByText(
+          'Could not connect to server. Check the URL and try again.',
+        ),
       ).toBeTruthy();
     });
   });
@@ -400,7 +433,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('Uds3d8i...'), 'my-api-key');
+      fireEvent.changeText(
+        result.getByPlaceholderText('Uds3d8i...'),
+        'my-api-key',
+      );
 
       await act(async () => {
         pressConnectButton(result);
@@ -439,18 +475,25 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('Uds3d8i...'), 'bad-key');
+      fireEvent.changeText(
+        result.getByPlaceholderText('Uds3d8i...'),
+        'bad-key',
+      );
 
       await act(async () => {
         pressConnectButton(result);
       });
 
-      expect(result.getByText('Invalid API key. Please check and try again.')).toBeTruthy();
+      expect(
+        result.getByText('Invalid API key. Please check and try again.'),
+      ).toBeTruthy();
       expect(mockSaveServerConfig).not.toHaveBeenCalled();
     });
 
     it('shows error on connection failure', async () => {
-      global.fetch = jest.fn().mockRejectedValue(new Error('Network error')) as jest.Mock;
+      global.fetch = jest
+        .fn()
+        .mockRejectedValue(new Error('Network error')) as jest.Mock;
 
       const result = renderModal();
       await waitForForm(result);
@@ -487,7 +530,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'user@test.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'user@test.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -521,7 +567,10 @@ describe('ServerConfigModal', () => {
         fireEvent.press(result.getByText('Verify'));
       });
 
-      expect(mockVerifyTotp).toHaveBeenCalledWith('https://my-server.com', '123456');
+      expect(mockVerifyTotp).toHaveBeenCalledWith(
+        'https://my-server.com',
+        '123456',
+      );
       expect(mockSaveServerConfig).toHaveBeenCalledWith(
         expect.objectContaining({
           authType: 'session',
@@ -571,7 +620,9 @@ describe('ServerConfigModal', () => {
       });
 
       expect(mockSendEmailOtp).toHaveBeenCalled();
-      expect(result.getByText('Enter the code sent to your email.')).toBeTruthy();
+      expect(
+        result.getByText('Enter the code sent to your email.'),
+      ).toBeTruthy();
       expect(result.getByText('Resend Code')).toBeTruthy();
 
       fireEvent.changeText(result.getByPlaceholderText('000000'), '654321');
@@ -616,7 +667,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -625,9 +679,7 @@ describe('ServerConfigModal', () => {
     }
 
     it('shows invalid code error', async () => {
-      mockVerifyTotp.mockRejectedValue(
-        new LoginError('invalid code', 400),
-      );
+      mockVerifyTotp.mockRejectedValue(new LoginError('invalid code', 400));
 
       const result = renderModal();
       await setupMfaForm(result);
@@ -656,7 +708,9 @@ describe('ServerConfigModal', () => {
       });
 
       expect(
-        result.getByText('Too many attempts. Please wait a moment and try again.'),
+        result.getByText(
+          'Too many attempts. Please wait a moment and try again.',
+        ),
       ).toBeTruthy();
     });
 
@@ -713,7 +767,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -751,7 +808,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'wrong');
 
       await act(async () => {
@@ -765,7 +825,9 @@ describe('ServerConfigModal', () => {
       result.rerender(<ServerConfigModal {...defaultProps} visible={true} />);
 
       await waitFor(() => {
-        expect(result.getByPlaceholderText('email@example.com').props.value).toBe('');
+        expect(
+          result.getByPlaceholderText('email@example.com').props.value,
+        ).toBe('');
         expect(result.getByPlaceholderText('Password').props.value).toBe('');
       });
     });
@@ -849,7 +911,10 @@ describe('ServerConfigModal', () => {
 
       // Switch to API Key tab and enter a key
       fireEvent.press(result.getByText('API Key'));
-      fireEvent.changeText(result.getByPlaceholderText('Uds3d8i...'), 'new-api-key');
+      fireEvent.changeText(
+        result.getByPlaceholderText('Uds3d8i...'),
+        'new-api-key',
+      );
 
       await act(async () => {
         fireEvent.press(result.getByText('Save'));
@@ -909,7 +974,10 @@ describe('ServerConfigModal', () => {
       });
       await waitForForm(result);
 
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'user@example.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'user@example.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {
@@ -939,7 +1007,10 @@ describe('ServerConfigModal', () => {
         result.getByPlaceholderText('https://your-server-url.com'),
         'https://my-server.com',
       );
-      fireEvent.changeText(result.getByPlaceholderText('email@example.com'), 'a@b.com');
+      fireEvent.changeText(
+        result.getByPlaceholderText('email@example.com'),
+        'a@b.com',
+      );
       fireEvent.changeText(result.getByPlaceholderText('Password'), 'pass');
 
       await act(async () => {

@@ -57,7 +57,11 @@ function StepperInput({
   const fontSize = compact ? 16 : 20;
 
   const borderColor = isFocused ? accentColor : borderSubtle;
-  const { onFocus: externalOnFocus, onBlur: externalOnBlur, ...restInputProps } = inputProps ?? {};
+  const {
+    onFocus: externalOnFocus,
+    onBlur: externalOnBlur,
+    ...restInputProps
+  } = inputProps ?? {};
 
   return (
     <View
@@ -66,7 +70,12 @@ function StepperInput({
     >
       <TouchableOpacity
         onPress={onDecrement}
-        style={{ width: size, height: size, borderRightWidth: 1, borderRightColor: borderColor }}
+        style={{
+          width: size,
+          height: size,
+          borderRightWidth: 1,
+          borderRightColor: borderColor,
+        }}
         className="items-center justify-center"
         activeOpacity={0.7}
       >
@@ -89,12 +98,23 @@ function StepperInput({
         placeholder={placeholder}
         selectTextOnFocus={selectTextOnFocus}
         className="text-text-primary text-base text-center"
-        style={{ width: inputWidth, height: size, fontSize, lineHeight: fontSize + 2, padding: 0 }}
+        style={{
+          width: inputWidth,
+          height: size,
+          fontSize,
+          lineHeight: fontSize + 2,
+          padding: 0,
+        }}
         {...restInputProps}
       />
       <TouchableOpacity
         onPress={onIncrement}
-        style={{ width: size, height: size, borderLeftWidth: 1, borderLeftColor: borderColor }}
+        style={{
+          width: size,
+          height: size,
+          borderLeftWidth: 1,
+          borderLeftColor: borderColor,
+        }}
         className="items-center justify-center"
         activeOpacity={0.7}
       >

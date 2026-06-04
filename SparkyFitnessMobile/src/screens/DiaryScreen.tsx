@@ -1,7 +1,24 @@
-import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, RefreshControl, Platform } from 'react-native';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  useEffect,
+} from 'react';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  RefreshControl,
+  Platform,
+} from 'react-native';
 import Button from '../components/ui/Button';
-import { Gesture, GestureDetector, Directions } from 'react-native-gesture-handler';
+import {
+  Gesture,
+  GestureDetector,
+  Directions,
+} from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
@@ -11,8 +28,12 @@ import FoodSummary from '../components/FoodSummary';
 import ExerciseSummary from '../components/ExerciseSummary';
 import MeasurementsSummary from '../components/MeasurementsSummary';
 import { addSheetRef } from '../components/AddSheet';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
-import ServingAdjustSheet, { type ServingAdjustSheetRef } from '../components/ServingAdjustSheet';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
+import ServingAdjustSheet, {
+  type ServingAdjustSheetRef,
+} from '../components/ServingAdjustSheet';
 import EmptyDayIllustration from '../components/EmptyDayIllustration';
 import StatusView from '../components/StatusView';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
@@ -46,31 +67,54 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
         lastKnownToday.current = today;
         setSelectedDate(today);
       }
-    }, [])
+    }, []),
   );
 
   useEffect(() => {
     navigation.setParams({ selectedDate });
   }, [navigation, selectedDate]);
 
-  const goToPreviousDay = useCallback(() => setSelectedDate(prev => addDays(prev, -1)), []);
-  const goToNextDay = useCallback(() => setSelectedDate(prev => addDays(prev, 1)), []);
+  const goToPreviousDay = useCallback(
+    () => setSelectedDate(prev => addDays(prev, -1)),
+    [],
+  );
+  const goToNextDay = useCallback(
+    () => setSelectedDate(prev => addDays(prev, 1)),
+    [],
+  );
   const goToToday = useCallback(() => setSelectedDate(getTodayDate()), []);
 
-  const swipeGesture = useMemo(() => Gesture.Race(
-    Gesture.Fling().direction(Directions.RIGHT).onEnd(goToPreviousDay).runOnJS(true),
-    Gesture.Fling().direction(Directions.LEFT).onEnd(goToNextDay).runOnJS(true),
-  ), [goToPreviousDay, goToNextDay]);
+  const swipeGesture = useMemo(
+    () =>
+      Gesture.Race(
+        Gesture.Fling()
+          .direction(Directions.RIGHT)
+          .onEnd(goToPreviousDay)
+          .runOnJS(true),
+        Gesture.Fling()
+          .direction(Directions.LEFT)
+          .onEnd(goToNextDay)
+          .runOnJS(true),
+      ),
+    [goToPreviousDay, goToNextDay],
+  );
 
   const openCalendar = useCallback(() => calendarRef.current?.present(), []);
-  const handleCalendarSelect = useCallback((date: string) => setSelectedDate(date), []);
-  const openMealTypeDetail = useCallback((mealType: MealTypeKey) => {
-    navigation.navigate('MealTypeDetail', { date: selectedDate, mealType });
-  }, [navigation, selectedDate]);
+  const handleCalendarSelect = useCallback(
+    (date: string) => setSelectedDate(date),
+    [],
+  );
+  const openMealTypeDetail = useCallback(
+    (mealType: MealTypeKey) => {
+      navigation.navigate('MealTypeDetail', { date: selectedDate, mealType });
+    },
+    [navigation, selectedDate],
+  );
 
   const { preferences } = usePreferences();
   const weightUnit = (preferences?.default_weight_unit as 'kg' | 'lbs') ?? 'kg';
-  const distanceUnit = (preferences?.default_distance_unit as 'km' | 'miles') ?? 'km';
+  const distanceUnit =
+    (preferences?.default_distance_unit as 'km' | 'miles') ?? 'km';
   const weightMode = preferences?.default_weight_unit ?? 'kg';
   const bodyUnit: 'cm' | 'inches' =
     preferences?.default_measurement_unit === 'inches' ? 'inches' : 'cm';
@@ -103,7 +147,8 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding();
-  const topSafeAreaStyle = Platform.OS === 'ios' ? { paddingTop: insets.top } : undefined;
+  const topSafeAreaStyle =
+    Platform.OS === 'ios' ? { paddingTop: insets.top } : undefined;
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([refetch(), refetchMeasurements()]);
@@ -119,7 +164,11 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
           iconSize={64}
           title="No server configured"
           subtitle="Configure your server connection in Settings to view your diary."
-          action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Settings'), variant: 'primary' }}
+          action={{
+            label: 'Go to Settings',
+            onPress: () => navigation.navigate('Settings'),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -128,7 +177,9 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
       return (
         <View className="flex-1 items-center justify-center p-8 shadow-sm">
           <ActivityIndicator size="large" color="#3B82F6" />
-          <Text className="text-text-muted text-base mt-4">Loading diary...</Text>
+          <Text className="text-text-muted text-base mt-4">
+            Loading diary...
+          </Text>
         </View>
       );
     }
@@ -160,20 +211,32 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
 
     return (
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingTop: 0, paddingBottom: 80 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          padding: 16,
+          paddingTop: 0,
+          paddingBottom: 80 + activeWorkoutBarPadding,
+        }}
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="never"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={accentColor}
+          />
         }
       >
-        {summary.foodEntries.length === 0 && summary.exerciseEntries.length === 0 && !hasAnyMeasurement ? (
+        {summary.foodEntries.length === 0 &&
+        summary.exerciseEntries.length === 0 &&
+        !hasAnyMeasurement ? (
           <>
             <EmptyDayIllustration />
             <Button
               variant="primary"
               className="px-6 mt-4 self-center"
-              onPress={() => navigation.navigate('FoodSearch', { date: selectedDate })}
+              onPress={() =>
+                navigation.navigate('FoodSearch', { date: selectedDate })
+              }
             >
               Add Food
             </Button>
@@ -182,8 +245,10 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
           <>
             <FoodSummary
               foodEntries={summary.foodEntries}
-              onAddFood={() => navigation.navigate('FoodSearch', { date: selectedDate })}
-              onAdjustServing={(entry) => servingSheetRef.current?.present(entry)}
+              onAddFood={() =>
+                navigation.navigate('FoodSearch', { date: selectedDate })
+              }
+              onAdjustServing={entry => servingSheetRef.current?.present(entry)}
               onPressMealType={openMealTypeDetail}
             />
             <ExerciseSummary
@@ -192,8 +257,10 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
               getImageSource={getImageSource}
               weightUnit={weightUnit}
               distanceUnit={distanceUnit}
-              onAddExercise={() => addSheetRef.current?.present({ initialMenu: 'exercise' })}
-              onPressWorkout={(session) => {
+              onAddExercise={() =>
+                addSheetRef.current?.present({ initialMenu: 'exercise' })
+              }
+              onPressWorkout={session => {
                 if (session.type === 'preset') {
                   navigation.navigate('WorkoutDetail', { session });
                 } else {
@@ -206,7 +273,9 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
               weightMode={weightMode}
               bodyUnit={bodyUnit}
               heightMode={heightMode}
-              onPress={() => navigation.navigate('MeasurementsAdd', { date: selectedDate })}
+              onPress={() =>
+                navigation.navigate('MeasurementsAdd', { date: selectedDate })
+              }
             />
           </>
         )}
@@ -228,14 +297,25 @@ const DiaryScreen: React.FC<DiaryScreenProps> = ({ navigation }) => {
             showDateAlways
             skipSafeAreaTop
           />
-        ) : !isConnectionLoading && (
-          <View className="px-4 pt-4 pb-5">
-            <Text className="text-2xl font-bold text-text-primary">Diary</Text>
-          </View>
+        ) : (
+          !isConnectionLoading && (
+            <View className="px-4 pt-4 pb-5">
+              <Text className="text-2xl font-bold text-text-primary">
+                Diary
+              </Text>
+            </View>
+          )
         )}
         {renderContent()}
-        <CalendarSheet ref={calendarRef} selectedDate={selectedDate} onSelectDate={handleCalendarSelect} />
-        <ServingAdjustSheet ref={servingSheetRef} onViewEntry={(entry) => navigation.navigate('FoodEntryView', { entry })} />
+        <CalendarSheet
+          ref={calendarRef}
+          selectedDate={selectedDate}
+          onSelectDate={handleCalendarSelect}
+        />
+        <ServingAdjustSheet
+          ref={servingSheetRef}
+          onViewEntry={entry => navigation.navigate('FoodEntryView', { entry })}
+        />
       </View>
     </GestureDetector>
   );

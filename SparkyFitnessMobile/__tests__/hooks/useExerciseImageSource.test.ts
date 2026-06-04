@@ -1,6 +1,9 @@
 import { renderHook, act } from '@testing-library/react-native';
 import { useExerciseImageSource } from '../../src/hooks/useExerciseImageSource';
-import { getActiveServerConfig, proxyHeadersToRecord } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  proxyHeadersToRecord,
+} from '../../src/services/storage';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
@@ -59,7 +62,9 @@ describe('useExerciseImageSource', () => {
 
     await act(async () => {});
 
-    const source = result.current.getImageSource('https://cdn.example.com/image.jpg');
+    const source = result.current.getImageSource(
+      'https://cdn.example.com/image.jpg',
+    );
     expect(source).toEqual({
       uri: 'https://cdn.example.com/image.jpg',
       headers: {},
@@ -77,7 +82,9 @@ describe('useExerciseImageSource', () => {
 
     await act(async () => {});
 
-    const source = result.current.getImageSource('http://example.com/image.jpg');
+    const source = result.current.getImageSource(
+      'http://example.com/image.jpg',
+    );
     expect(source).toEqual({
       uri: 'http://example.com/image.jpg',
       headers: {},

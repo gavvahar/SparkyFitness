@@ -5,7 +5,10 @@ import type { ToastConfig } from 'react-native-toast-message';
 
 type ToastVariant = 'success' | 'error' | 'info';
 
-const variantTokens: Record<ToastVariant, { bg: string; text: string; border: string }> = {
+const variantTokens: Record<
+  ToastVariant,
+  { bg: string; text: string; border: string }
+> = {
   success: {
     bg: '--color-bg-success',
     text: '--color-text-success',
@@ -33,10 +36,10 @@ function ToastContent({
   text2?: string;
 }) {
   const tokens = variantTokens[variant];
-  const [bgColor, textColor] = useCSSVariable([
-    tokens.bg,
-    tokens.text,
-  ]) as [string, string];
+  const [bgColor, textColor] = useCSSVariable([tokens.bg, tokens.text]) as [
+    string,
+    string,
+  ];
 
   return (
     <View
@@ -50,7 +53,7 @@ function ToastContent({
         shadowOpacity: 0.15,
         shadowRadius: 4,
         elevation: 4,
-        borderRadius: 8
+        borderRadius: 8,
       }}
     >
       {text1 ? (
@@ -59,7 +62,14 @@ function ToastContent({
         </Text>
       ) : null}
       {text2 ? (
-        <Text style={{ color: textColor, fontSize: 13, marginTop: 2, opacity: 0.85 }}>
+        <Text
+          style={{
+            color: textColor,
+            fontSize: 13,
+            marginTop: 2,
+            opacity: 0.85,
+          }}
+        >
           {text2}
         </Text>
       ) : null}

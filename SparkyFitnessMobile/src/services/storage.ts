@@ -25,7 +25,15 @@ interface StoredServerConfig {
   authType?: 'apiKey' | 'session';
 }
 
-export type TimeRange = 'today' | '24h' | '3d' | '7d' | '30d' | '90d' | '180d' | '365d';
+export type TimeRange =
+  | 'today'
+  | '24h'
+  | '3d'
+  | '7d'
+  | '30d'
+  | '90d'
+  | '180d'
+  | '365d';
 
 const SERVER_CONFIGS_KEY = 'serverConfigs';
 const ACTIVE_SERVER_CONFIG_ID_KEY = 'activeServerConfigId';
@@ -36,11 +44,17 @@ const SYNC_ON_OPEN_ENABLED_KEY = 'syncOnOpenEnabled';
 const PENDING_HEALTH_SYNC_CACHE_REFRESH_KEY = 'pendingHealthSyncCacheRefresh';
 
 const secureStoreKey = (configId: string) => `apiKey_${configId}`;
-const sessionTokenSecureStoreKey = (configId: string) => `sessionToken_${configId}`;
-const proxyHeadersSecureStoreKey = (configId: string) => `proxyHeaders_${configId}`;
-const secureStoreOptions = { keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK };
+const sessionTokenSecureStoreKey = (configId: string) =>
+  `sessionToken_${configId}`;
+const proxyHeadersSecureStoreKey = (configId: string) =>
+  `proxyHeaders_${configId}`;
+const secureStoreOptions = {
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK,
+};
 
-export const proxyHeadersToRecord = (headers?: ProxyHeader[]): Record<string, string> => {
+export const proxyHeadersToRecord = (
+  headers?: ProxyHeader[],
+): Record<string, string> => {
   if (!headers?.length) return {};
   return Object.fromEntries(headers.map(h => [h.name, h.value]));
 };
@@ -84,18 +98,32 @@ export const saveServerConfig = async (config: ServerConfig): Promise<void> => {
       stored.push(stripped);
     }
 
-    await SecureStore.setItemAsync(secureStoreKey(config.id), config.apiKey, secureStoreOptions);
+    await SecureStore.setItemAsync(
+      secureStoreKey(config.id),
+      config.apiKey,
+      secureStoreOptions,
+    );
 
     if (config.sessionToken !== undefined) {
       if (config.sessionToken) {
-        await SecureStore.setItemAsync(sessionTokenSecureStoreKey(config.id), config.sessionToken, secureStoreOptions);
+        await SecureStore.setItemAsync(
+          sessionTokenSecureStoreKey(config.id),
+          config.sessionToken,
+          secureStoreOptions,
+        );
       } else {
-        await SecureStore.deleteItemAsync(sessionTokenSecureStoreKey(config.id));
+        await SecureStore.deleteItemAsync(
+          sessionTokenSecureStoreKey(config.id),
+        );
       }
     }
 
     if (config.proxyHeaders?.length) {
-      await SecureStore.setItemAsync(proxyHeadersSecureStoreKey(config.id), JSON.stringify(config.proxyHeaders), secureStoreOptions);
+      await SecureStore.setItemAsync(
+        proxyHeadersSecureStoreKey(config.id),
+        JSON.stringify(config.proxyHeaders),
+        secureStoreOptions,
+      );
     } else {
       await SecureStore.deleteItemAsync(proxyHeadersSecureStoreKey(config.id));
     }
@@ -135,7 +163,10 @@ export const getActiveServerConfig = async (): Promise<ServerConfig | null> => {
     return result;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    addLog(`[Storage] Failed to retrieve active server config: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to retrieve active server config: ${message}`,
+      'ERROR',
+    );
     throw e;
   }
 };
@@ -150,14 +181,28 @@ export const getAllServerConfigs = async (): Promise<ServerConfig[]> => {
     let migrated = false;
 
     const configs: ServerConfig[] = await Promise.all(
-      stored.map(async (entry) => {
-        const secureKey = await SecureStore.getItemAsync(secureStoreKey(entry.id), secureStoreOptions);
-        const sessionToken = await SecureStore.getItemAsync(sessionTokenSecureStoreKey(entry.id), secureStoreOptions);
-        const proxyHeadersJson = await SecureStore.getItemAsync(proxyHeadersSecureStoreKey(entry.id), secureStoreOptions);
+      stored.map(async entry => {
+        const secureKey = await SecureStore.getItemAsync(
+          secureStoreKey(entry.id),
+          secureStoreOptions,
+        );
+        const sessionToken = await SecureStore.getItemAsync(
+          sessionTokenSecureStoreKey(entry.id),
+          secureStoreOptions,
+        );
+        const proxyHeadersJson = await SecureStore.getItemAsync(
+          proxyHeadersSecureStoreKey(entry.id),
+          secureStoreOptions,
+        );
         let proxyHeaders: ProxyHeader[] | undefined;
         if (proxyHeadersJson) {
-          try { proxyHeaders = JSON.parse(proxyHeadersJson); } catch {
-            addLog(`Failed to parse proxy headers for config ${entry.id}.`, 'ERROR');
+          try {
+            proxyHeaders = JSON.parse(proxyHeadersJson);
+          } catch {
+            addLog(
+              `Failed to parse proxy headers for config ${entry.id}.`,
+              'ERROR',
+            );
           }
         }
 
@@ -176,7 +221,11 @@ export const getAllServerConfigs = async (): Promise<ServerConfig[]> => {
 
         // Legacy migration: key still in AsyncStorage
         if (entry.apiKey) {
-          await SecureStore.setItemAsync(secureStoreKey(entry.id), entry.apiKey, secureStoreOptions);
+          await SecureStore.setItemAsync(
+            secureStoreKey(entry.id),
+            entry.apiKey,
+            secureStoreOptions,
+          );
           migrated = true;
           return { ...base, apiKey: entry.apiKey };
         }
@@ -200,7 +249,10 @@ export const getAllServerConfigs = async (): Promise<ServerConfig[]> => {
     return configs;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    addLog(`[Storage] Failed to retrieve all server configs: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to retrieve all server configs: ${message}`,
+      'ERROR',
+    );
     return [];
   }
 };
@@ -208,7 +260,9 @@ export const getAllServerConfigs = async (): Promise<ServerConfig[]> => {
 /**
  * Sets a specific server configuration as the active one.
  */
-export const setActiveServerConfig = async (configId: string): Promise<void> => {
+export const setActiveServerConfig = async (
+  configId: string,
+): Promise<void> => {
   try {
     await AsyncStorage.setItem(ACTIVE_SERVER_CONFIG_ID_KEY, configId);
     activeServerConfigCache = undefined;
@@ -294,12 +348,20 @@ export const saveLastSyncedTime = async (): Promise<string | null> => {
   }
 };
 
-export const saveBackgroundSyncEnabled = async (enabled: boolean): Promise<void> => {
+export const saveBackgroundSyncEnabled = async (
+  enabled: boolean,
+): Promise<void> => {
   try {
-    await AsyncStorage.setItem(BACKGROUND_SYNC_ENABLED_KEY, JSON.stringify(enabled));
+    await AsyncStorage.setItem(
+      BACKGROUND_SYNC_ENABLED_KEY,
+      JSON.stringify(enabled),
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to save background sync enabled preference: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to save background sync enabled preference: ${message}`,
+      'ERROR',
+    );
   }
 };
 
@@ -310,17 +372,28 @@ export const loadBackgroundSyncEnabled = async (): Promise<boolean> => {
     return JSON.parse(value) as boolean;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to load background sync enabled preference: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to load background sync enabled preference: ${message}`,
+      'ERROR',
+    );
     return false;
   }
 };
 
-export const saveSyncOnOpenEnabled = async (enabled: boolean): Promise<void> => {
+export const saveSyncOnOpenEnabled = async (
+  enabled: boolean,
+): Promise<void> => {
   try {
-    await AsyncStorage.setItem(SYNC_ON_OPEN_ENABLED_KEY, JSON.stringify(enabled));
+    await AsyncStorage.setItem(
+      SYNC_ON_OPEN_ENABLED_KEY,
+      JSON.stringify(enabled),
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to save sync on open preference: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to save sync on open preference: ${message}`,
+      'ERROR',
+    );
   }
 };
 
@@ -331,7 +404,10 @@ export const loadSyncOnOpenEnabled = async (): Promise<boolean> => {
     return JSON.parse(value) as boolean;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to load sync on open preference: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to load sync on open preference: ${message}`,
+      'ERROR',
+    );
     return false;
   }
 };
@@ -341,34 +417,51 @@ export const savePendingHealthSyncCacheRefresh = async (): Promise<void> => {
     await AsyncStorage.setItem(PENDING_HEALTH_SYNC_CACHE_REFRESH_KEY, 'true');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to save pending health sync cache refresh: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to save pending health sync cache refresh: ${message}`,
+      'ERROR',
+    );
   }
 };
 
-export const consumePendingHealthSyncCacheRefresh = async (): Promise<boolean> => {
-  try {
-    const value = await AsyncStorage.getItem(PENDING_HEALTH_SYNC_CACHE_REFRESH_KEY);
-    if (value !== 'true') {
+export const consumePendingHealthSyncCacheRefresh =
+  async (): Promise<boolean> => {
+    try {
+      const value = await AsyncStorage.getItem(
+        PENDING_HEALTH_SYNC_CACHE_REFRESH_KEY,
+      );
+      if (value !== 'true') {
+        return false;
+      }
+
+      await AsyncStorage.removeItem(PENDING_HEALTH_SYNC_CACHE_REFRESH_KEY);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      addLog(
+        `[Storage] Failed to consume pending health sync cache refresh: ${message}`,
+        'ERROR',
+      );
       return false;
     }
-
-    await AsyncStorage.removeItem(PENDING_HEALTH_SYNC_CACHE_REFRESH_KEY);
-    return true;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to consume pending health sync cache refresh: ${message}`, 'ERROR');
-    return false;
-  }
-};
+  };
 
 const COLLAPSED_CATEGORIES_KEY = '@HealthMetrics:collapsedCategories';
 
-export const saveCollapsedCategories = async (categories: string[]): Promise<void> => {
+export const saveCollapsedCategories = async (
+  categories: string[],
+): Promise<void> => {
   try {
-    await AsyncStorage.setItem(COLLAPSED_CATEGORIES_KEY, JSON.stringify(categories));
+    await AsyncStorage.setItem(
+      COLLAPSED_CATEGORIES_KEY,
+      JSON.stringify(categories),
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to save collapsed categories: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to save collapsed categories: ${message}`,
+      'ERROR',
+    );
   }
 };
 
@@ -380,7 +473,10 @@ export const loadCollapsedCategories = async (): Promise<string[]> => {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Storage] Failed to load collapsed categories: ${message}`, 'ERROR');
+    addLog(
+      `[Storage] Failed to load collapsed categories: ${message}`,
+      'ERROR',
+    );
   }
   // Default: all categories except Common are collapsed
   return CATEGORY_ORDER.filter(c => c !== 'Common');

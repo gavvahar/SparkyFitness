@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { View, Text, Pressable, LayoutAnimation } from 'react-native';
 import {
   BottomSheetModal,
@@ -34,7 +40,18 @@ interface ActionCard {
 }
 
 const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
-  ({ onAddFood, onAddWorkout, onAddActivity, onAddFromPreset, onSyncHealthData, onBarcodeScan, onAddMeasurements }, ref) => {
+  (
+    {
+      onAddFood,
+      onAddWorkout,
+      onAddActivity,
+      onAddFromPreset,
+      onSyncHealthData,
+      onBarcodeScan,
+      onAddMeasurements,
+    },
+    ref,
+  ) => {
     const bottomSheetRef = useRef<BottomSheetModal>(null);
     const isDismissingRef = useRef(false);
     const isOpenRef = useRef(false);
@@ -71,34 +88,38 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
       });
     }, [clearScheduledPresent]);
 
-    useImperativeHandle(ref, () => ({
-      present: (options) => {
-        const initialMenu = options?.initialMenu ?? null;
-        if (isDismissingRef.current) {
-          pendingPresentRef.current = true;
-          pendingInitialMenuRef.current = initialMenu;
+    useImperativeHandle(
+      ref,
+      () => ({
+        present: options => {
+          const initialMenu = options?.initialMenu ?? null;
+          if (isDismissingRef.current) {
+            pendingPresentRef.current = true;
+            pendingInitialMenuRef.current = initialMenu;
+            setShowExerciseMenu(initialMenu === 'exercise');
+            return;
+          }
+
+          if (isOpenRef.current || isPresentingRef.current) {
+            return;
+          }
+
+          pendingPresentRef.current = false;
+          pendingInitialMenuRef.current = null;
           setShowExerciseMenu(initialMenu === 'exercise');
-          return;
-        }
-
-        if (isOpenRef.current || isPresentingRef.current) {
-          return;
-        }
-
-        pendingPresentRef.current = false;
-        pendingInitialMenuRef.current = null;
-        setShowExerciseMenu(initialMenu === 'exercise');
-        schedulePresent();
-      },
-      dismiss: () => {
-        pendingPresentRef.current = false;
-        pendingInitialMenuRef.current = null;
-        isPresentingRef.current = false;
-        isDismissingRef.current = true;
-        clearScheduledPresent();
-        bottomSheetRef.current?.dismiss();
-      },
-    }), [clearScheduledPresent, schedulePresent]);
+          schedulePresent();
+        },
+        dismiss: () => {
+          pendingPresentRef.current = false;
+          pendingInitialMenuRef.current = null;
+          isPresentingRef.current = false;
+          isDismissingRef.current = true;
+          clearScheduledPresent();
+          bottomSheetRef.current?.dismiss();
+        },
+      }),
+      [clearScheduledPresent, schedulePresent],
+    );
 
     useEffect(() => {
       const sheetRef = bottomSheetRef.current;
@@ -117,18 +138,21 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
           appearsOnIndex={0}
         />
       ),
-      [isDarkMode]
+      [isDarkMode],
     );
 
-    const handleAction = useCallback((action?: () => void) => {
-      pendingPresentRef.current = false;
-      pendingInitialMenuRef.current = null;
-      isPresentingRef.current = false;
-      isDismissingRef.current = true;
-      clearScheduledPresent();
-      bottomSheetRef.current?.dismiss();
-      action?.();
-    }, [clearScheduledPresent]);
+    const handleAction = useCallback(
+      (action?: () => void) => {
+        pendingPresentRef.current = false;
+        pendingInitialMenuRef.current = null;
+        isPresentingRef.current = false;
+        isDismissingRef.current = true;
+        clearScheduledPresent();
+        bottomSheetRef.current?.dismiss();
+        action?.();
+      },
+      [clearScheduledPresent],
+    );
 
     const handleDismiss = useCallback(() => {
       isDismissingRef.current = false;
@@ -145,28 +169,35 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
       }
     }, [schedulePresent]);
 
-    const handleAnimate = useCallback((fromIndex: number, toIndex: number) => {
-      if (fromIndex >= 0 && toIndex === -1) {
-        isDismissingRef.current = true;
-        isOpenRef.current = false;
-        isPresentingRef.current = false;
-        return;
-      }
+    const handleAnimate = useCallback(
+      (fromIndex: number, toIndex: number) => {
+        if (fromIndex >= 0 && toIndex === -1) {
+          isDismissingRef.current = true;
+          isOpenRef.current = false;
+          isPresentingRef.current = false;
+          return;
+        }
 
-      if (toIndex >= 0) {
-        isDismissingRef.current = false;
-        isOpenRef.current = true;
-        isPresentingRef.current = false;
-        pendingPresentRef.current = false;
-        pendingInitialMenuRef.current = null;
-        clearScheduledPresent();
-      }
-    }, [clearScheduledPresent]);
+        if (toIndex >= 0) {
+          isDismissingRef.current = false;
+          isOpenRef.current = true;
+          isPresentingRef.current = false;
+          pendingPresentRef.current = false;
+          pendingInitialMenuRef.current = null;
+          clearScheduledPresent();
+        }
+      },
+      [clearScheduledPresent],
+    );
 
     const cards: ActionCard[] = [
       { label: 'Food', icon: 'food', onPress: onAddFood },
       { label: 'Exercise', icon: 'exercise-weights' },
-      { label: 'Measurements', icon: 'measurements', onPress: onAddMeasurements },
+      {
+        label: 'Measurements',
+        icon: 'measurements',
+        onPress: onAddMeasurements,
+      },
       { label: 'Scan Food', icon: 'scan', onPress: onBarcodeScan },
     ];
 
@@ -180,7 +211,9 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
           if (card.onPress) {
             handleAction(card.onPress);
           } else {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+            LayoutAnimation.configureNext(
+              LayoutAnimation.Presets.easeInEaseOut,
+            );
             setShowExerciseMenu(true);
           }
         }}
@@ -192,7 +225,11 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
       </Button>
     );
 
-    const renderSecondaryRow = (label: string, icon: IconName, onPress: () => void) => (
+    const renderSecondaryRow = (
+      label: string,
+      icon: IconName,
+      onPress: () => void,
+    ) => (
       <Button
         variant="primary"
         className="flex-row items-center justify-center py-3 mx-1.5 mt-3"
@@ -225,7 +262,11 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
         <Text className="text-text-primary text-sm font-medium mt-2">
           {label}
         </Text>
-        <Text className="text-xs mt-1 text-center" numberOfLines={2} style={{ color: textSecondary, minHeight: 32 }}>
+        <Text
+          className="text-xs mt-1 text-center"
+          numberOfLines={2}
+          style={{ color: textSecondary, minHeight: 32 }}
+        >
           {subtitle}
         </Text>
       </Button>
@@ -247,19 +288,39 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
               <Pressable
                 className="flex-row items-center mb-3 px-1.5"
                 onPress={() => {
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.Presets.easeInEaseOut,
+                  );
                   setShowExerciseMenu(false);
                 }}
               >
                 <Icon name="chevron-back" size={20} color={accentPrimary} />
-                <Text className="text-sm font-medium ml-1" style={{ color: accentPrimary }}>
+                <Text
+                  className="text-sm font-medium ml-1"
+                  style={{ color: accentPrimary }}
+                >
                   Back
                 </Text>
               </Pressable>
               <View className="flex-row">
-                {renderExerciseOption('Workout', 'Sets & reps', 'exercise-weights', onAddWorkout)}
-                {renderExerciseOption('Activity', 'Duration & distance', 'exercise-running-filled', onAddActivity)}
-                {renderExerciseOption('Preset', 'Use a template', 'bookmark-filled', onAddFromPreset)}
+                {renderExerciseOption(
+                  'Workout',
+                  'Sets & reps',
+                  'exercise-weights',
+                  onAddWorkout,
+                )}
+                {renderExerciseOption(
+                  'Activity',
+                  'Duration & distance',
+                  'exercise-running-filled',
+                  onAddActivity,
+                )}
+                {renderExerciseOption(
+                  'Preset',
+                  'Use a template',
+                  'bookmark-filled',
+                  onAddFromPreset,
+                )}
               </View>
             </>
           ) : (
@@ -278,7 +339,7 @@ const AddSheet = React.forwardRef<AddSheetRef, AddSheetProps>(
         </BottomSheetView>
       </BottomSheetModal>
     );
-  }
+  },
 );
 
 AddSheet.displayName = 'AddSheet';

@@ -20,7 +20,10 @@ const getDateString = (date: unknown): string | null => {
   try {
     return toLocalDateString(new Date(date as string | number | Date));
   } catch (e) {
-    addLog(`[HealthKitService] Could not convert date: ${date}. ${e}`, 'WARNING');
+    addLog(
+      `[HealthKitService] Could not convert date: ${date}. ${e}`,
+      'WARNING',
+    );
     return null;
   }
 };
@@ -29,13 +32,13 @@ const getDateString = (date: unknown): string | null => {
 interface ValueTransformResult {
   value: number;
   date: string;
-  type?: string;  // Optional override for output type
+  type?: string; // Optional override for output type
 }
 
 // Transformer that extracts value and date for standard record output
 type ValueTransformer = (
   rec: Record<string, unknown>,
-  metricConfig: MetricConfig
+  metricConfig: MetricConfig,
 ) => ValueTransformResult | null;
 
 // Transformer that directly pushes to output array (for complex records)
@@ -43,30 +46,40 @@ type DirectTransformer = (
   rec: Record<string, unknown>,
   record: unknown,
   metricConfig: MetricConfig,
-  output: TransformOutput[]
+  output: TransformOutput[],
 ) => void;
 
 // ============================================================================
 // Value Extractors - reusable functions for nested property extraction
 // ============================================================================
 
-const extractNestedValue = (rec: Record<string, unknown>, key: string, nestedKey: string): number | null => {
+const extractNestedValue = (
+  rec: Record<string, unknown>,
+  key: string,
+  nestedKey: string,
+): number | null => {
   const nested = rec[key] as Record<string, number> | undefined;
   return nested?.[nestedKey] ?? null;
 };
 
-const extractDirectValue = (rec: Record<string, unknown>, key: string): number | null => {
+const extractDirectValue = (
+  rec: Record<string, unknown>,
+  key: string,
+): number | null => {
   const val = rec[key];
   return typeof val === 'number' ? val : null;
 };
 
-const extractPercentAsDecimal = (rec: Record<string, unknown>): number | null => {
+const extractPercentAsDecimal = (
+  rec: Record<string, unknown>,
+): number | null => {
   const val = rec.value;
   return typeof val === 'number' ? val * 100 : null;
 };
 
 const extractPercentValue = (rec: Record<string, unknown>): number | null =>
-  extractNestedValue(rec, 'percentage', 'inPercent') ?? extractPercentAsDecimal(rec);
+  extractNestedValue(rec, 'percentage', 'inPercent') ??
+  extractPercentAsDecimal(rec);
 
 // ============================================================================
 // Timezone Metadata Extraction
@@ -77,7 +90,9 @@ const extractPercentValue = (rec: Record<string, unknown>): number | null =>
  * HealthKit records may carry metadata.HKTimeZone as an IANA timezone string.
  * Only returns metadata when a valid timezone is found.
  */
-export const extractTimezoneMetadata = (rec: Record<string, unknown>): RecordTimezoneMetadata => {
+export const extractTimezoneMetadata = (
+  rec: Record<string, unknown>,
+): RecordTimezoneMetadata => {
   const metadata = rec.metadata as Record<string, unknown> | undefined;
   const tz = metadata?.HKTimeZone as string | undefined;
   if (tz) {
@@ -92,63 +107,63 @@ export const extractTimezoneMetadata = (rec: Record<string, unknown>): RecordTim
 
 const VALUE_TRANSFORMERS: Record<string, ValueTransformer> = {
   // Weight-like records with nested objects
-  Weight: (rec) => {
+  Weight: rec => {
     const value = extractNestedValue(rec, 'weight', 'inKilograms');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  Height: (rec) => {
+  Height: rec => {
     const value = extractNestedValue(rec, 'height', 'inMeters');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  LeanBodyMass: (rec) => {
+  LeanBodyMass: rec => {
     const value = extractNestedValue(rec, 'mass', 'inKilograms');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  Distance: (rec) => {
+  Distance: rec => {
     const value = extractNestedValue(rec, 'distance', 'inMeters');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  Hydration: (rec) => {
+  Hydration: rec => {
     const value = extractNestedValue(rec, 'volume', 'inLiters');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  BodyTemperature: (rec) => {
+  BodyTemperature: rec => {
     const value = extractNestedValue(rec, 'temperature', 'inCelsius');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
   // Percentage records
-  BodyFat: (rec) => {
+  BodyFat: rec => {
     const value = extractNestedValue(rec, 'percentage', 'inPercent');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  OxygenSaturation: (rec) => {
+  OxygenSaturation: rec => {
     const value = extractPercentValue(rec);
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  BloodOxygenSaturation: (rec) => {
+  BloodOxygenSaturation: rec => {
     const value = extractPercentValue(rec);
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
   // Blood glucose with unit conversion
-  BloodGlucose: (rec) => {
+  BloodGlucose: rec => {
     const level = rec.level as Record<string, number> | undefined;
     let value: number | null = null;
     if (level?.inMillimolesPerLiter != null) {
@@ -161,51 +176,51 @@ const VALUE_TRANSFORMERS: Record<string, ValueTransformer> = {
   },
 
   // Direct value records with rec.time
-  Vo2Max: (rec) => {
+  Vo2Max: rec => {
     const value = extractDirectValue(rec, 'vo2Max');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  RestingHeartRate: (rec) => {
+  RestingHeartRate: rec => {
     const value = extractDirectValue(rec, 'beatsPerMinute');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  HeartRate: (rec) => {
+  HeartRate: rec => {
     const samples = rec.samples as { beatsPerMinute: number }[] | undefined;
     const value = samples?.[0]?.beatsPerMinute ?? null;
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  RespiratoryRate: (rec) => {
+  RespiratoryRate: rec => {
     const value = extractDirectValue(rec, 'rate');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  FloorsClimbed: (rec) => {
+  FloorsClimbed: rec => {
     const value = extractDirectValue(rec, 'floors');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
   // Percentage values stored as decimals (need *100)
-  BloodAlcoholContent: (rec) => {
+  BloodAlcoholContent: rec => {
     const value = extractPercentAsDecimal(rec);
     const date = getDateString(rec.startTime || rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  WalkingAsymmetryPercentage: (rec) => {
+  WalkingAsymmetryPercentage: rec => {
     const value = extractPercentAsDecimal(rec);
     const date = getDateString(rec.startTime || rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  WalkingDoubleSupportPercentage: (rec) => {
+  WalkingDoubleSupportPercentage: rec => {
     const value = extractPercentAsDecimal(rec);
     const date = getDateString(rec.startTime || rec.time);
     return value !== null && date ? { value, date } : null;
@@ -213,21 +228,38 @@ const VALUE_TRANSFORMERS: Record<string, ValueTransformer> = {
 };
 
 // Simple value transformers that just extract rec.value with startTime or time
-const createSimpleValueTransformer = (useStartTime = true): ValueTransformer => (rec) => {
-  const value = rec.value as number | undefined;
-  const date = getDateString(useStartTime ? (rec.startTime || rec.time) : rec.time);
-  return value !== undefined && date ? { value, date } : null;
-};
+const createSimpleValueTransformer =
+  (useStartTime = true): ValueTransformer =>
+  rec => {
+    const value = rec.value as number | undefined;
+    const date = getDateString(
+      useStartTime ? rec.startTime || rec.time : rec.time,
+    );
+    return value !== undefined && date ? { value, date } : null;
+  };
 
 // Register simple value transformers for multiple record types
 const SIMPLE_VALUE_TYPES_START_TIME = [
-  'StepsCadence', 'WalkingSpeed', 'WalkingStepLength',
-  'RunningGroundContactTime', 'RunningStrideLength', 'RunningPower',
-  'RunningVerticalOscillation', 'RunningSpeed',
-  'CyclingSpeed', 'CyclingPower', 'CyclingCadence', 'CyclingFunctionalThresholdPower',
-  'EnvironmentalAudioExposure', 'HeadphoneAudioExposure',
-  'AppleMoveTime', 'AppleExerciseTime', 'AppleStandTime',
-  'DietaryFatTotal', 'DietaryProtein', 'DietarySodium',
+  'StepsCadence',
+  'WalkingSpeed',
+  'WalkingStepLength',
+  'RunningGroundContactTime',
+  'RunningStrideLength',
+  'RunningPower',
+  'RunningVerticalOscillation',
+  'RunningSpeed',
+  'CyclingSpeed',
+  'CyclingPower',
+  'CyclingCadence',
+  'CyclingFunctionalThresholdPower',
+  'EnvironmentalAudioExposure',
+  'HeadphoneAudioExposure',
+  'AppleMoveTime',
+  'AppleExerciseTime',
+  'AppleStandTime',
+  'DietaryFatTotal',
+  'DietaryProtein',
+  'DietarySodium',
 ];
 
 SIMPLE_VALUE_TYPES_START_TIME.forEach(type => {
@@ -235,11 +267,19 @@ SIMPLE_VALUE_TYPES_START_TIME.forEach(type => {
 });
 
 // Qualitative record types - pass raw value with warning
-const QUALITATIVE_TYPES = ['CervicalMucus', 'MenstruationFlow', 'OvulationTest', 'IntermenstrualBleeding'];
+const QUALITATIVE_TYPES = [
+  'CervicalMucus',
+  'MenstruationFlow',
+  'OvulationTest',
+  'IntermenstrualBleeding',
+];
 
 QUALITATIVE_TYPES.forEach(type => {
   VALUE_TRANSFORMERS[type] = (rec, metricConfig) => {
-    addLog(`[HealthKitService] Qualitative record type '${metricConfig.recordType}' is not fully transformed. Passing raw value.`, 'WARNING');
+    addLog(
+      `[HealthKitService] Qualitative record type '${metricConfig.recordType}' is not fully transformed. Passing raw value.`,
+      'WARNING',
+    );
     const value = rec.value as number;
     const date = getDateString(rec.startTime);
     return value !== undefined && date ? { value, date } : null;
@@ -253,29 +293,89 @@ QUALITATIVE_TYPES.forEach(type => {
 // HKWorkoutActivityType Mapping — matches WorkoutActivityType enum from @kingstinct/react-native-healthkit
 // Source: https://developer.apple.com/documentation/healthkit/hkworkoutactivitytype
 const ACTIVITY_MAP: Record<number, string> = {
-  1: 'American Football', 2: 'Archery', 3: 'Australian Football', 4: 'Badminton',
-  5: 'Baseball', 6: 'Basketball', 7: 'Bowling', 8: 'Boxing', 9: 'Climbing',
-  10: 'Cricket', 11: 'Cross Training', 12: 'Curling', 13: 'Cycling',
-  14: 'Dance', 15: 'Dance Inspired Training', 16: 'Elliptical',
-  17: 'Equestrian Sports', 18: 'Fencing',
-  19: 'Fishing', 20: 'Functional Strength Training', 21: 'Golf', 22: 'Gymnastics',
-  23: 'Handball', 24: 'Hiking', 25: 'Hockey', 26: 'Hunting', 27: 'Lacrosse',
-  28: 'Martial Arts', 29: 'Mind and Body', 30: 'Mixed Cardio', 31: 'Paddle Sports',
-  32: 'Play', 33: 'Preparation and Recovery', 34: 'Racquetball', 35: 'Rowing',
-  36: 'Rugby', 37: 'Running', 38: 'Sailing',
-  39: 'Skating Sports', 40: 'Snow Sports', 41: 'Soccer', 42: 'Softball',
-  43: 'Squash', 44: 'Stair Climbing', 45: 'Surfing Sports', 46: 'Swimming',
-  47: 'Table Tennis', 48: 'Tennis', 49: 'Track and Field', 50: 'Traditional Strength Training',
-  51: 'Volleyball', 52: 'Walking', 53: 'Water Fitness', 54: 'Water Polo',
-  55: 'Water Sports', 56: 'Wrestling', 57: 'Yoga', 58: 'Barre', 59: 'Core Training',
-  60: 'Cross Country Skiing', 61: 'Downhill Skiing', 62: 'Flexibility',
-  63: 'High Intensity Interval Training', 64: 'Jump Rope', 65: 'Kickboxing',
-  66: 'Pilates', 67: 'Snowboarding', 68: 'Stairs', 69: 'Step Training',
-  70: 'Wheelchair Walk Pace', 71: 'Wheelchair Run Pace', 72: 'Tai Chi',
-  73: 'Mixed Cardio', 74: 'Hand Cycling', 75: 'Disc Sports',
-  76: 'Fitness Gaming', 77: 'Cardio Dance', 78: 'Social Dance',
-  79: 'Pickleball', 80: 'Cooldown', 82: 'Swim Bike Run',
-  83: 'Transition', 84: 'Underwater Diving',
+  1: 'American Football',
+  2: 'Archery',
+  3: 'Australian Football',
+  4: 'Badminton',
+  5: 'Baseball',
+  6: 'Basketball',
+  7: 'Bowling',
+  8: 'Boxing',
+  9: 'Climbing',
+  10: 'Cricket',
+  11: 'Cross Training',
+  12: 'Curling',
+  13: 'Cycling',
+  14: 'Dance',
+  15: 'Dance Inspired Training',
+  16: 'Elliptical',
+  17: 'Equestrian Sports',
+  18: 'Fencing',
+  19: 'Fishing',
+  20: 'Functional Strength Training',
+  21: 'Golf',
+  22: 'Gymnastics',
+  23: 'Handball',
+  24: 'Hiking',
+  25: 'Hockey',
+  26: 'Hunting',
+  27: 'Lacrosse',
+  28: 'Martial Arts',
+  29: 'Mind and Body',
+  30: 'Mixed Cardio',
+  31: 'Paddle Sports',
+  32: 'Play',
+  33: 'Preparation and Recovery',
+  34: 'Racquetball',
+  35: 'Rowing',
+  36: 'Rugby',
+  37: 'Running',
+  38: 'Sailing',
+  39: 'Skating Sports',
+  40: 'Snow Sports',
+  41: 'Soccer',
+  42: 'Softball',
+  43: 'Squash',
+  44: 'Stair Climbing',
+  45: 'Surfing Sports',
+  46: 'Swimming',
+  47: 'Table Tennis',
+  48: 'Tennis',
+  49: 'Track and Field',
+  50: 'Traditional Strength Training',
+  51: 'Volleyball',
+  52: 'Walking',
+  53: 'Water Fitness',
+  54: 'Water Polo',
+  55: 'Water Sports',
+  56: 'Wrestling',
+  57: 'Yoga',
+  58: 'Barre',
+  59: 'Core Training',
+  60: 'Cross Country Skiing',
+  61: 'Downhill Skiing',
+  62: 'Flexibility',
+  63: 'High Intensity Interval Training',
+  64: 'Jump Rope',
+  65: 'Kickboxing',
+  66: 'Pilates',
+  67: 'Snowboarding',
+  68: 'Stairs',
+  69: 'Step Training',
+  70: 'Wheelchair Walk Pace',
+  71: 'Wheelchair Run Pace',
+  72: 'Tai Chi',
+  73: 'Mixed Cardio',
+  74: 'Hand Cycling',
+  75: 'Disc Sports',
+  76: 'Fitness Gaming',
+  77: 'Cardio Dance',
+  78: 'Social Dance',
+  79: 'Pickleball',
+  80: 'Cooldown',
+  82: 'Swim Bike Run',
+  83: 'Transition',
+  84: 'Underwater Diving',
 } as const;
 
 const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
@@ -340,13 +440,20 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
 
     const activityType = rec.activityType as number | undefined;
     const activityTypeName = activityType
-      ? (ACTIVITY_MAP[activityType] || `Workout type ${activityType}`)
+      ? ACTIVITY_MAP[activityType] || `Workout type ${activityType}`
       : 'Workout Session';
 
     // Handle duration which might be an object { unit: 's', quantity: 123 }
     let durationInSeconds = 0;
-    const duration = rec.duration as { unit?: string; quantity?: number } | number | undefined;
-    if (duration && typeof duration === 'object' && duration.quantity !== undefined) {
+    const duration = rec.duration as
+      | { unit?: string; quantity?: number }
+      | number
+      | undefined;
+    if (
+      duration &&
+      typeof duration === 'object' &&
+      duration.quantity !== undefined
+    ) {
       durationInSeconds = duration.quantity;
     } else if (typeof duration === 'number') {
       durationInSeconds = duration;
@@ -354,10 +461,12 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
 
     // Prefer record-level timezone; fall back to device timezone for HealthKit workouts
     const tzMeta = extractTimezoneMetadata(rec);
-    const timezone: RecordTimezoneMetadata = Object.keys(tzMeta).length > 0
-      ? tzMeta
-      : { record_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone };
-    const totalDistanceMeters = typeof rec.totalDistance === 'number' ? rec.totalDistance : 0;
+    const timezone: RecordTimezoneMetadata =
+      Object.keys(tzMeta).length > 0
+        ? tzMeta
+        : { record_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone };
+    const totalDistanceMeters =
+      typeof rec.totalDistance === 'number' ? rec.totalDistance : 0;
 
     const exerciseSession: TransformedExerciseSession = {
       type: 'ExerciseSession',
@@ -370,11 +479,17 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
       duration: durationInSeconds,
       activityType: activityTypeName,
       title: activityTypeName,
-      caloriesBurned: rec.totalEnergyBurned as number || 0,
+      caloriesBurned: (rec.totalEnergyBurned as number) || 0,
       distance: parseFloat((totalDistanceMeters / 1000).toFixed(2)),
       notes: 'Source: HealthKit',
       raw_data: record,
-      sets: [{ set_number: 1, set_type: 'Working Set', duration: Math.round(durationInSeconds / 60) }],
+      sets: [
+        {
+          set_number: 1,
+          set_type: 'Working Set',
+          duration: Math.round(durationInSeconds / 60),
+        },
+      ],
       source_id: rec.uuid as string | undefined,
       ...timezone,
     };
@@ -385,7 +500,10 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
 // ExerciseSession uses same transformer as Workout
 DIRECT_TRANSFORMERS['ExerciseSession'] = DIRECT_TRANSFORMERS['Workout'];
 
-export const transformHealthRecords = (records: unknown[], metricConfig: MetricConfig): TransformOutput[] => {
+export const transformHealthRecords = (
+  records: unknown[],
+  metricConfig: MetricConfig,
+): TransformOutput[] => {
   if (!Array.isArray(records) || records.length === 0) return [];
 
   const transformedData: TransformOutput[] = [];
@@ -422,7 +540,8 @@ export const transformHealthRecords = (records: unknown[], metricConfig: MetricC
             transformedRecord.record_timezone = rec.record_timezone as string;
           }
           if (rec.record_utc_offset_minutes != null) {
-            transformedRecord.record_utc_offset_minutes = rec.record_utc_offset_minutes as number;
+            transformedRecord.record_utc_offset_minutes =
+              rec.record_utc_offset_minutes as number;
           }
           transformedData.push(transformedRecord);
           successCount++;
@@ -482,13 +601,19 @@ export const transformHealthRecords = (records: unknown[], metricConfig: MetricC
       }
     } catch (error) {
       skipCount++;
-      addLog(`[HealthKitService] Error transforming record: ${(error as Error).message}`, 'WARNING');
+      addLog(
+        `[HealthKitService] Error transforming record: ${(error as Error).message}`,
+        'WARNING',
+      );
     }
   });
 
   // Log transformation summary for debugging
   if (skipCount > 0) {
-    addLog(`[HealthKitService] ${recordType} transformation: ${successCount} succeeded, ${skipCount} skipped (of ${records.length} total)`, 'DEBUG');
+    addLog(
+      `[HealthKitService] ${recordType} transformation: ${successCount} succeeded, ${skipCount} skipped (of ${records.length} total)`,
+      'DEBUG',
+    );
   }
 
   return transformedData;

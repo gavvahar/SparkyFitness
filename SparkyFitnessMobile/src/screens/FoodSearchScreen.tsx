@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Text,
@@ -28,12 +34,19 @@ import {
 import Toast from 'react-native-toast-message';
 import { fetchExternalFoodDetails } from '../services/api/externalFoodSearchApi';
 import { getApiErrorMessage } from '../services/api/errors';
-import { getLastUsedTab, setLastUsedTab } from '../services/foodSearchPreferences';
+import {
+  getLastUsedTab,
+  setLastUsedTab,
+} from '../services/foodSearchPreferences';
 import type { FoodSearchTab } from '../services/foodSearchPreferences';
 import { FoodItem, TopFoodItem } from '../types/foods';
 import { ExternalFoodItem } from '../types/externalFoods';
 import { Meal } from '../types/meals';
-import { foodItemToFoodInfo, externalFoodItemToFoodInfo, mealToFoodInfo } from '../types/foodInfo';
+import {
+  foodItemToFoodInfo,
+  externalFoodItemToFoodInfo,
+  mealToFoodInfo,
+} from '../types/foodInfo';
 import type { FoodInfoItem } from '../types/foodInfo';
 import type { RootStackScreenProps } from '../types/navigation';
 
@@ -52,7 +65,10 @@ const ALL_TABS: { key: TabKey; label: string }[] = [
   { key: 'meal', label: 'Meals' },
 ] as const;
 
-const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }) => {
+const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const date = route.params?.date;
   const pickerMode = route.params?.pickerMode ?? 'log-entry';
   const isMealBuilderMode = pickerMode === 'meal-builder';
@@ -64,14 +80,17 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
   ]) as [string, string, string];
   const { isConnected } = useServerConnection();
   const { preferences } = usePreferences({ enabled: isConnected });
-  const { recentFoods, topFoods, isLoading, isError, refetch } = useFoods({ enabled: isConnected });
+  const { recentFoods, topFoods, isLoading, isError, refetch } = useFoods({
+    enabled: isConnected,
+  });
 
   const [activeTab, setActiveTab] = useState<TabKey>('search');
   const [searchText, setSearchText] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const visibleTabs = useMemo(
-    () => (isMealBuilderMode ? ALL_TABS.filter((tab) => tab.key !== 'meal') : ALL_TABS),
+    () =>
+      isMealBuilderMode ? ALL_TABS.filter(tab => tab.key !== 'meal') : ALL_TABS,
     [isMealBuilderMode],
   );
 
@@ -81,11 +100,17 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     }
   }, [activeTab, isMealBuilderMode]);
 
-  const { searchResults, isSearching, isSearchActive, isSearchError } = useFoodSearch(searchText, {
-    enabled: isConnected && activeTab === 'search',
-  });
+  const { searchResults, isSearching, isSearchActive, isSearchError } =
+    useFoodSearch(searchText, {
+      enabled: isConnected && activeTab === 'search',
+    });
 
-  const { meals, isLoading: isMealsLoading, isError: isMealsError, refetch: refetchMeals } = useMeals({
+  const {
+    meals,
+    isLoading: isMealsLoading,
+    isError: isMealsError,
+    refetch: refetchMeals,
+  } = useMeals({
     enabled: isConnected && activeTab === 'meal' && !isMealBuilderMode,
   });
   const {
@@ -132,12 +157,16 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
   }, []);
 
   const selectedProviderType = useMemo(
-    () => providers.find((provider) => provider.id === selectedProvider)?.provider_type ?? '',
+    () =>
+      providers.find(provider => provider.id === selectedProvider)
+        ?.provider_type ?? '',
     [providers, selectedProvider],
   );
 
   const selectedProviderName = useMemo(
-    () => providers.find((provider) => provider.id === selectedProvider)?.provider_name ?? '',
+    () =>
+      providers.find(provider => provider.id === selectedProvider)
+        ?.provider_name ?? '',
     [providers, selectedProvider],
   );
 
@@ -160,12 +189,17 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
 
   useEffect(() => {
     if (providers.length === 0) return;
-    if (hasUserSelectedProvider.current && providers.some((provider) => provider.id === selectedProvider)) {
+    if (
+      hasUserSelectedProvider.current &&
+      providers.some(provider => provider.id === selectedProvider)
+    ) {
       return;
     }
 
     const defaultId = preferences?.default_food_data_provider_id;
-    const defaultProvider = defaultId ? providers.find((provider) => provider.id === defaultId) : undefined;
+    const defaultProvider = defaultId
+      ? providers.find(provider => provider.id === defaultId)
+      : undefined;
     setSelectedProvider(defaultProvider?.id ?? providers[0].id);
   }, [preferences?.default_food_data_provider_id, providers, selectedProvider]);
 
@@ -212,11 +246,20 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     if (item.source === 'fatsecret' && selectedProvider) {
       setLoadingFoodId(item.id);
       try {
-        const detailed = await fetchExternalFoodDetails('fatsecret', item.id, selectedProvider);
+        const detailed = await fetchExternalFoodDetails(
+          'fatsecret',
+          item.id,
+          selectedProvider,
+        );
         showFoodInfo(externalFoodItemToFoodInfo(detailed));
       } catch (error) {
-        const message = getApiErrorMessage(error) ?? "Couldn't load full nutrition details.";
-        Toast.show({ type: 'error', text1: 'Details unavailable', text2: message });
+        const message =
+          getApiErrorMessage(error) ?? "Couldn't load full nutrition details.";
+        Toast.show({
+          type: 'error',
+          text1: 'Details unavailable',
+          text2: message,
+        });
         showFoodInfo(externalFoodItemToFoodInfo(item));
       } finally {
         setLoadingFoodId(null);
@@ -233,7 +276,7 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
       { title: 'Top Foods', data: topFoods },
     ];
 
-    return allSections.filter((section) => section.data.length > 0);
+    return allSections.filter(section => section.data.length > 0);
   }, [recentFoods, topFoods]);
 
   const trailingActionLabel =
@@ -250,7 +293,9 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
         accessibilityRole="button"
         accessibilityLabel="Create Meal"
       >
-        <Text className="text-accent-primary text-base font-medium py-2">Create new meal...</Text>
+        <Text className="text-accent-primary text-base font-medium py-2">
+          Create new meal...
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -263,9 +308,13 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     >
       <View className="flex-row justify-between items-center">
         <View className="flex-1 mr-3">
-          <Text className="text-text-primary text-base font-medium">{item.name}</Text>
+          <Text className="text-text-primary text-base font-medium">
+            {item.name}
+          </Text>
           {item.brand ? (
-            <Text className="text-text-secondary text-sm mt-0.5">{item.brand}</Text>
+            <Text className="text-text-secondary text-sm mt-0.5">
+              {item.brand}
+            </Text>
           ) : null}
         </View>
         <View className="items-end">
@@ -273,7 +322,8 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
             {item.default_variant.calories} cal
           </Text>
           <Text className="text-text-secondary text-xs">
-            {item.default_variant.serving_size} {item.default_variant.serving_unit}
+            {item.default_variant.serving_size}{' '}
+            {item.default_variant.serving_unit}
           </Text>
         </View>
       </View>
@@ -282,7 +332,9 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
 
   const renderSectionHeader = ({ section }: { section: FoodSection }) => (
     <View className="px-4 py-2 bg-surface">
-      <Text className="text-text-muted text-xs font-semibold uppercase">{section.title}</Text>
+      <Text className="text-text-muted text-xs font-semibold uppercase">
+        {section.title}
+      </Text>
     </View>
   );
 
@@ -300,14 +352,19 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
 
       <View
         className="flex-1 flex-row items-center bg-raised rounded-lg px-3"
-        style={{ borderWidth: 1, borderColor: isSearchFocused ? accentColor : 'transparent' }}
+        style={{
+          borderWidth: 1,
+          borderColor: isSearchFocused ? accentColor : 'transparent',
+        }}
       >
         <Icon name="search" size={18} color={textMuted} />
         <View className="flex-1 ml-2">
           <TextInput
             className="text-text-primary"
             style={{ fontSize: 16 }}
-            placeholder={activeTab === 'meal' ? 'Search meals...' : 'Search foods...'}
+            placeholder={
+              activeTab === 'meal' ? 'Search meals...' : 'Search foods...'
+            }
             placeholderTextColor={textMuted}
             value={searchText}
             onChangeText={setSearchText}
@@ -359,7 +416,11 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
 
     return (
       <View className="px-4 pb-2">
-        <SegmentedControl segments={visibleTabs} activeKey={activeTab} onSelect={handleTabChange} />
+        <SegmentedControl
+          segments={visibleTabs}
+          activeKey={activeTab}
+          onSelect={handleTabChange}
+        />
       </View>
     );
   };
@@ -412,7 +473,10 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
               <Button
                 variant="primary"
                 onPress={() =>
-                  navigation.navigate('FoodScan', { date, initialMode: 'photo' })
+                  navigation.navigate('FoodScan', {
+                    date,
+                    initialMode: 'photo',
+                  })
                 }
                 className="self-stretch rounded-lg"
               >
@@ -427,7 +491,7 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     return (
       <FlatList
         data={searchResults}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderItem}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -471,7 +535,11 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
           <Text className="text-text-secondary text-base mt-4 text-center">
             Failed to load foods
           </Text>
-          <Button variant="secondary" onPress={() => refetch()} className="mt-4 px-6">
+          <Button
+            variant="secondary"
+            onPress={() => refetch()}
+            className="mt-4 px-6"
+          >
             Retry
           </Button>
         </View>
@@ -481,7 +549,9 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     if (sections.length === 0) {
       return (
         <View className="flex-1 justify-center items-center px-6">
-          <Text className="text-text-secondary text-base text-center">No foods found</Text>
+          <Text className="text-text-secondary text-base text-center">
+            No foods found
+          </Text>
         </View>
       );
     }
@@ -553,8 +623,10 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     return (
       <FlatList
         data={mealSearchResults}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => renderMealRow(item, index === mealSearchResults.length - 1)}
+        keyExtractor={item => item.id}
+        renderItem={({ item, index }) =>
+          renderMealRow(item, index === mealSearchResults.length - 1)
+        }
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         contentContainerClassName="pb-safe-or-4"
@@ -608,7 +680,11 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
             <Text className="text-text-secondary text-base mt-4 text-center">
               Failed to load meals
             </Text>
-            <Button variant="secondary" onPress={() => refetchMeals()} className="mt-4 px-6">
+            <Button
+              variant="secondary"
+              onPress={() => refetchMeals()}
+              className="mt-4 px-6"
+            >
               Retry
             </Button>
           </View>
@@ -621,7 +697,9 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
         <>
           {renderCreateMealCta()}
           <View className="flex-1 justify-center items-center px-6">
-            <Text className="text-text-secondary text-base text-center">No meals found</Text>
+            <Text className="text-text-secondary text-base text-center">
+              No meals found
+            </Text>
           </View>
         </>
       );
@@ -630,8 +708,10 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     return (
       <FlatList
         data={meals}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => renderMealRow(item, index === meals.length - 1)}
+        keyExtractor={item => item.id}
+        renderItem={({ item, index }) =>
+          renderMealRow(item, index === meals.length - 1)
+        }
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         contentContainerClassName="pb-safe-or-4"
@@ -651,9 +731,13 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
     >
       <View className="flex-row justify-between items-center">
         <View className="flex-1 mr-3">
-          <Text className="text-text-primary text-base font-medium">{item.name}</Text>
+          <Text className="text-text-primary text-base font-medium">
+            {item.name}
+          </Text>
           {item.brand ? (
-            <Text className="text-text-secondary text-sm mt-0.5">{item.brand}</Text>
+            <Text className="text-text-secondary text-sm mt-0.5">
+              {item.brand}
+            </Text>
           ) : null}
         </View>
         <View className="items-end">
@@ -661,7 +745,9 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
             <ActivityIndicator size="small" color={accentColor} />
           ) : (
             <>
-              <Text className="text-text-primary text-base font-semibold">{item.calories} cal</Text>
+              <Text className="text-text-primary text-base font-semibold">
+                {item.calories} cal
+              </Text>
               <Text className="text-text-secondary text-xs">
                 {item.serving_size} {item.serving_unit}
               </Text>
@@ -679,7 +765,7 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
       contentContainerClassName="px-4 gap-2 items-center"
       className="grow-0 py-2"
     >
-      {providers.map((provider) => {
+      {providers.map(provider => {
         const isActive = provider.id === selectedProvider;
 
         return (
@@ -730,7 +816,8 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
           <View className="flex-1 justify-center items-center px-6">
             <Icon name="alert-circle" size={48} color={accentColor} />
             <Text className="text-text-secondary text-base mt-4 text-center">
-              {onlineSearchErrorMessage ?? `Failed to search ${selectedProviderName}`}
+              {onlineSearchErrorMessage ??
+                `Failed to search ${selectedProviderName}`}
             </Text>
           </View>
         </>
@@ -829,7 +916,11 @@ const FoodSearchScreen: React.FC<FoodSearchScreenProps> = ({ navigation, route }
             <Text className="text-text-secondary text-base mt-4 text-center">
               Failed to load providers
             </Text>
-            <Button variant="secondary" onPress={() => refetchProviders()} className="mt-4 px-6">
+            <Button
+              variant="secondary"
+              onPress={() => refetchProviders()}
+              className="mt-4 px-6"
+            >
               Retry
             </Button>
           </View>

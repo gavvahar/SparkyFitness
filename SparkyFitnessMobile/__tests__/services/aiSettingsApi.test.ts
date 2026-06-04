@@ -3,12 +3,15 @@ import {
   isFoodPhotoAvailable,
 } from '../../src/services/api/aiSettingsApi';
 import { notifySessionExpired } from '../../src/services/api/authService';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord:
-    jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({
@@ -23,10 +26,12 @@ jest.mock('../../src/services/api/authService', () => {
   };
 });
 
-const mockGetActiveServerConfig =
-  getActiveServerConfig as jest.MockedFunction<typeof getActiveServerConfig>;
-const mockNotifySessionExpired =
-  notifySessionExpired as jest.MockedFunction<typeof notifySessionExpired>;
+const mockGetActiveServerConfig = getActiveServerConfig as jest.MockedFunction<
+  typeof getActiveServerConfig
+>;
+const mockNotifySessionExpired = notifySessionExpired as jest.MockedFunction<
+  typeof notifySessionExpired
+>;
 
 const testConfig: ServerConfig = {
   id: 'cfg-1',

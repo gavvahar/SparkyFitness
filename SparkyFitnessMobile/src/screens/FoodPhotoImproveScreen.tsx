@@ -2,7 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ActivityIndicator, Image, Platform } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { File } from 'expo-file-system';
-import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboard-controller';
+import {
+  KeyboardAwareScrollView,
+  KeyboardStickyView,
+} from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,7 +15,10 @@ import FormInput from '../components/FormInput';
 import Icon from '../components/Icon';
 import SegmentedControl, { type Segment } from '../components/SegmentedControl';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { FoodPhotoFlowScreenProps, RootStackParamList } from '../types/navigation';
+import type {
+  FoodPhotoFlowScreenProps,
+  RootStackParamList,
+} from '../types/navigation';
 import { useEstimateFoodPhoto } from '../hooks/useEstimateFoodPhoto';
 import { useActiveAiServiceSetting } from '../hooks/useActiveAiServiceSetting';
 import { activeAiServiceSettingQueryKey } from '../hooks/queryKeys';
@@ -176,7 +182,7 @@ const FoodPhotoImproveScreen: React.FC<Props> = ({ navigation, route }) => {
         signal: controller.signal,
       },
       {
-        onSuccess: (estimate) => {
+        onSuccess: estimate => {
           abortControllerRef.current = null;
           navigation.navigate('EstimateReview', {
             date,
@@ -188,7 +194,7 @@ const FoodPhotoImproveScreen: React.FC<Props> = ({ navigation, route }) => {
             },
           });
         },
-        onError: (error) => {
+        onError: error => {
           abortControllerRef.current = null;
           if (cancelledRef.current) return;
           const copy = mapEstimateError(error.code);
@@ -203,8 +209,14 @@ const FoodPhotoImproveScreen: React.FC<Props> = ({ navigation, route }) => {
             });
           }
           if (!copy.stayOnForm) {
-            const parent = navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
-            if (error.code === 'IMAGE_TOO_LARGE' || error.code === 'UNSUPPORTED_MIME_TYPE') {
+            const parent =
+              navigation.getParent<
+                NativeStackNavigationProp<RootStackParamList>
+              >();
+            if (
+              error.code === 'IMAGE_TOO_LARGE' ||
+              error.code === 'UNSUPPORTED_MIME_TYPE'
+            ) {
               parent?.replace('FoodScan', { date, initialMode: 'photo' });
             } else {
               parent?.popToTop();
@@ -226,7 +238,11 @@ const FoodPhotoImproveScreen: React.FC<Props> = ({ navigation, route }) => {
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border-subtle">
         <Button
           variant="ghost"
-          onPress={() => navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.popToTop()}
+          onPress={() =>
+            navigation
+              .getParent<NativeStackNavigationProp<RootStackParamList>>()
+              ?.popToTop()
+          }
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           className="z-10 p-0"
           accessibilityLabel="Cancel"
@@ -311,12 +327,12 @@ const FoodPhotoImproveScreen: React.FC<Props> = ({ navigation, route }) => {
               Description (optional)
             </Text>
             <Text className="text-text-secondary text-sm mb-2 leading-5">
-              Include oils, butter, cream, sauces, toppings, sides, or restaurant
-              names.
+              Include oils, butter, cream, sauces, toppings, sides, or
+              restaurant names.
             </Text>
             <FormInput
               className="mb-1"
-              placeholder='e.g. salmon with lemon dill cream sauce'
+              placeholder="e.g. salmon with lemon dill cream sauce"
               value={description}
               onChangeText={setDescription}
               multiline

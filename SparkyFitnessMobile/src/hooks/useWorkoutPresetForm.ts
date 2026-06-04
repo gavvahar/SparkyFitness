@@ -23,12 +23,20 @@ function createEmptyDraft(): PresetDraft {
   };
 }
 
-export type PresetClientIds = { exerciseClientId: string; setClientIds: string[] }[];
+export type PresetClientIds = {
+  exerciseClientId: string;
+  setClientIds: string[];
+}[];
 
 type PresetFormAction =
   | { type: 'SET_NAME'; name: string }
   | { type: 'SET_DESCRIPTION'; description: string }
-  | { type: 'ADD_EXERCISE'; exercise: Exercise; exerciseClientId: string; setClientId: string }
+  | {
+      type: 'ADD_EXERCISE';
+      exercise: Exercise;
+      exerciseClientId: string;
+      setClientId: string;
+    }
   | { type: 'REMOVE_EXERCISE'; clientId: string }
   | { type: 'ADD_SET'; exerciseClientId: string; setClientId: string }
   | { type: 'REMOVE_SET'; exerciseClientId: string; setClientId: string }
@@ -47,7 +55,10 @@ type PresetFormAction =
       clientIds: PresetClientIds;
     };
 
-export function presetFormReducer(state: PresetDraft, action: PresetFormAction): PresetDraft {
+export function presetFormReducer(
+  state: PresetDraft,
+  action: PresetFormAction,
+): PresetDraft {
   switch (action.type) {
     case 'SET_NAME':
       return { ...state, name: action.name };
@@ -135,7 +146,10 @@ export function presetFormReducer(state: PresetDraft, action: PresetFormAction):
           if (exercise.clientId !== action.exerciseClientId) return exercise;
           return {
             ...exercise,
-            sets: exercise.sets.map(set => ({ ...set, restTime: action.seconds })),
+            sets: exercise.sets.map(set => ({
+              ...set,
+              restTime: action.seconds,
+            })),
           };
         }),
       };
@@ -155,7 +169,11 @@ export function presetFormReducer(state: PresetDraft, action: PresetFormAction):
             restTime: set.rest_time,
             weight:
               set.weight != null
-                ? String(parseFloat(weightFromKg(set.weight, action.weightUnit).toFixed(1)))
+                ? String(
+                    parseFloat(
+                      weightFromKg(set.weight, action.weightUnit).toFixed(1),
+                    ),
+                  )
                 : '',
             reps: set.reps != null ? String(set.reps) : '',
             setType: set.set_type,
@@ -171,7 +189,11 @@ export function presetFormReducer(state: PresetDraft, action: PresetFormAction):
 }
 
 export function useWorkoutPresetForm() {
-  const [state, dispatch] = useReducer(presetFormReducer, undefined, createEmptyDraft);
+  const [state, dispatch] = useReducer(
+    presetFormReducer,
+    undefined,
+    createEmptyDraft,
+  );
   const exercisesModifiedRef = useRef(false);
   const initialDescriptionRef = useRef('');
 
@@ -188,7 +210,12 @@ export function useWorkoutPresetForm() {
       exercisesModifiedRef.current = true;
       const exerciseClientId = generateClientId();
       const setClientId = generateClientId();
-      dispatch({ type: 'ADD_EXERCISE', exercise, exerciseClientId, setClientId });
+      dispatch({
+        type: 'ADD_EXERCISE',
+        exercise,
+        exerciseClientId,
+        setClientId,
+      });
       return { exerciseClientId, setClientId };
     },
     [],
@@ -206,10 +233,13 @@ export function useWorkoutPresetForm() {
     return setClientId;
   }, []);
 
-  const removeSet = useCallback((exerciseClientId: string, setClientId: string) => {
-    exercisesModifiedRef.current = true;
-    dispatch({ type: 'REMOVE_SET', exerciseClientId, setClientId });
-  }, []);
+  const removeSet = useCallback(
+    (exerciseClientId: string, setClientId: string) => {
+      exercisesModifiedRef.current = true;
+      dispatch({ type: 'REMOVE_SET', exerciseClientId, setClientId });
+    },
+    [],
+  );
 
   const updateSetField = useCallback(
     (
@@ -219,15 +249,24 @@ export function useWorkoutPresetForm() {
       value: string,
     ) => {
       exercisesModifiedRef.current = true;
-      dispatch({ type: 'UPDATE_SET_FIELD', exerciseClientId, setClientId, field, value });
+      dispatch({
+        type: 'UPDATE_SET_FIELD',
+        exerciseClientId,
+        setClientId,
+        field,
+        value,
+      });
     },
     [],
   );
 
-  const setExerciseRest = useCallback((exerciseClientId: string, seconds: number) => {
-    exercisesModifiedRef.current = true;
-    dispatch({ type: 'SET_EXERCISE_REST', exerciseClientId, seconds });
-  }, []);
+  const setExerciseRest = useCallback(
+    (exerciseClientId: string, seconds: number) => {
+      exercisesModifiedRef.current = true;
+      dispatch({ type: 'SET_EXERCISE_REST', exerciseClientId, seconds });
+    },
+    [],
+  );
 
   const populateFromPreset = useCallback(
     (preset: WorkoutPreset, weightUnit: 'kg' | 'lbs'): string[] => {

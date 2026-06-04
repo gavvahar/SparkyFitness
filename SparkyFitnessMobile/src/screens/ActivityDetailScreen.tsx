@@ -19,10 +19,19 @@ import {
 import { usePreferences } from '../hooks/usePreferences';
 import { useExerciseImageSource } from '../hooks/useExerciseImageSource';
 import { syncExerciseSessionInCache } from '../hooks/syncExerciseSessionInCache';
-import { useActivityForm, getActivityDraftSubmission } from '../hooks/useActivityForm';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
+import {
+  useActivityForm,
+  getActivityDraftSubmission,
+} from '../hooks/useActivityForm';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
 import { normalizeDate, formatDate, formatDateLabel } from '../utils/dateUtils';
-import { distanceFromKm, weightFromKg, weightToKg } from '../utils/unitConversions';
+import {
+  distanceFromKm,
+  weightFromKg,
+  weightToKg,
+} from '../utils/unitConversions';
 import { parseDecimalInput } from '../utils/numericInput';
 import Toast from 'react-native-toast-message';
 import { addLog } from '../services/LogService';
@@ -32,7 +41,13 @@ import type { ExerciseEntrySetResponse } from '@workspace/shared';
 
 type Props = RootStackScreenProps<'ActivityDetail'>;
 
-type EditableField = 'name' | 'duration' | 'calories' | 'distance' | 'avgHeartRate' | 'notes';
+type EditableField =
+  | 'name'
+  | 'duration'
+  | 'calories'
+  | 'distance'
+  | 'avgHeartRate'
+  | 'notes';
 
 const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const [session, setSession] = useState(route.params.session);
@@ -40,7 +55,8 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const { preferences } = usePreferences();
-  const distanceUnit = (preferences?.default_distance_unit as 'km' | 'miles') ?? 'km';
+  const distanceUnit =
+    (preferences?.default_distance_unit as 'km' | 'miles') ?? 'km';
   const weightUnit = (preferences?.default_weight_unit as 'kg' | 'lbs') ?? 'kg';
 
   const calendarSheetRef = useRef<CalendarSheetRef>(null);
@@ -70,7 +86,11 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const isDeleting = deleteActivity.isPending;
 
-  const { updateEntry, isPending: isSaving, invalidateCache: invalidateEntryCache } = useUpdateExerciseEntry();
+  const {
+    updateEntry,
+    isPending: isSaving,
+    invalidateCache: invalidateEntryCache,
+  } = useUpdateExerciseEntry();
 
   // --- Edit mode state ---
   const [isEditing, setIsEditing] = useState(false);
@@ -82,12 +102,17 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   // merge edited weight/reps back in without losing fields like rest_time, rpe, etc.
   const SET_CLIENT_ID_PREFIX = 'activity';
   const nextSetIdRef = useRef(0);
-  const originalSetsRef = useRef<Map<string, ExerciseEntrySetResponse>>(new Map());
+  const originalSetsRef = useRef<Map<string, ExerciseEntrySetResponse>>(
+    new Map(),
+  );
   const [draftSets, setDraftSets] = useState<WorkoutDraftSet[]>([]);
   const [activeSetKey, setActiveSetKey] = useState<string | null>(null);
-  const [activeSetField, setActiveSetField] = useState<'weight' | 'reps'>('weight');
-  const hasSets = session.sets.length > 1
-    || session.sets.some(s => s.weight != null || s.reps != null);
+  const [activeSetField, setActiveSetField] = useState<'weight' | 'reps'>(
+    'weight',
+  );
+  const hasSets =
+    session.sets.length > 1 ||
+    session.sets.some(s => s.weight != null || s.reps != null);
 
   const {
     state: formState,
@@ -111,9 +136,12 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       originals.set(clientId, set);
       return {
         clientId,
-        weight: set.weight != null
-          ? String(parseFloat(weightFromKg(set.weight, weightUnit).toFixed(1)))
-          : '',
+        weight:
+          set.weight != null
+            ? String(
+                parseFloat(weightFromKg(set.weight, weightUnit).toFixed(1)),
+              )
+            : '',
         reps: set.reps != null ? String(set.reps) : '',
       };
     });
@@ -136,20 +164,42 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     const id = `set-${nextSetIdRef.current++}`;
     setDraftSets(prev => {
       const lastSet = prev[prev.length - 1];
-      return [...prev, { clientId: id, weight: lastSet?.weight ?? '', reps: lastSet?.reps ?? '' }];
+      return [
+        ...prev,
+        {
+          clientId: id,
+          weight: lastSet?.weight ?? '',
+          reps: lastSet?.reps ?? '',
+        },
+      ];
     });
     setActiveSetKey(`${SET_CLIENT_ID_PREFIX}:${id}`);
     setActiveSetField('weight');
   }, []);
 
-  const removeDraftSet = useCallback((_exerciseId: string, setClientId: string) => {
-    setDraftSets(prev => prev.filter(s => s.clientId !== setClientId));
-    setActiveSetKey(null);
-  }, []);
+  const removeDraftSet = useCallback(
+    (_exerciseId: string, setClientId: string) => {
+      setDraftSets(prev => prev.filter(s => s.clientId !== setClientId));
+      setActiveSetKey(null);
+    },
+    [],
+  );
 
-  const updateDraftSetField = useCallback((_exerciseId: string, setClientId: string, field: 'weight' | 'reps', value: string) => {
-    setDraftSets(prev => prev.map(s => s.clientId === setClientId ? { ...s, [field]: value } : s));
-  }, []);
+  const updateDraftSetField = useCallback(
+    (
+      _exerciseId: string,
+      setClientId: string,
+      field: 'weight' | 'reps',
+      value: string,
+    ) => {
+      setDraftSets(prev =>
+        prev.map(s =>
+          s.clientId === setClientId ? { ...s, [field]: value } : s,
+        ),
+      );
+    },
+    [],
+  );
 
   const activateSet = useCallback((key: string, field: 'weight' | 'reps') => {
     setActiveSetKey(key);
@@ -221,13 +271,20 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       originalSetsRef.current.clear();
     } catch (error) {
       addLog(`Failed to save activity: ${error}`, 'ERROR');
-      Toast.show({ type: 'error', text1: 'Failed to save activity', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to save activity',
+        text2: 'Please try again.',
+      });
     }
   };
 
   // --- Formatting helpers ---
 
-  const formatPace = (durationMin: number, distanceKm: number): string | null => {
+  const formatPace = (
+    durationMin: number,
+    distanceKm: number,
+  ): string | null => {
     if (durationMin <= 0 || distanceKm <= 0) return null;
     const distanceInUnit = distanceFromKm(distanceKm, distanceUnit);
     const paceMinPerUnit = durationMin / distanceInUnit;
@@ -256,8 +313,10 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isEditing || duration > 0) {
       stats.push({
         value: isEditing
-          ? (formState.duration || '—')
-          : (duration > 0 ? String(Math.round(duration)) : '—'),
+          ? formState.duration || '—'
+          : duration > 0
+            ? String(Math.round(duration))
+            : '—',
         label: 'Duration',
         editKey: 'duration',
         editSuffix: 'min',
@@ -267,10 +326,12 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isEditing || calories > 0) {
       stats.push({
         value: isEditing
-          ? (formState.calories || '—')
-          : (calories > 0
-              ? (calories % 1 === 0 ? String(calories) : calories.toFixed(1))
-              : '—'),
+          ? formState.calories || '—'
+          : calories > 0
+            ? calories % 1 === 0
+              ? String(calories)
+              : calories.toFixed(1)
+            : '—',
         label: 'Calories',
         editKey: 'calories',
         editSuffix: 'cal',
@@ -280,10 +341,10 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isEditing || (session.distance != null && session.distance > 0)) {
       stats.push({
         value: isEditing
-          ? (formState.distance || '—')
-          : (session.distance != null && session.distance > 0
-              ? String(distanceFromKm(session.distance, distanceUnit).toFixed(1))
-              : '—'),
+          ? formState.distance || '—'
+          : session.distance != null && session.distance > 0
+            ? String(distanceFromKm(session.distance, distanceUnit).toFixed(1))
+            : '—',
         label: 'Distance',
         editKey: 'distance',
         editSuffix: distLabel,
@@ -293,8 +354,10 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isEditing || session.avg_heart_rate != null) {
       stats.push({
         value: isEditing
-          ? (formState.avgHeartRate || '—')
-          : (session.avg_heart_rate != null ? String(session.avg_heart_rate) : '—'),
+          ? formState.avgHeartRate || '—'
+          : session.avg_heart_rate != null
+            ? String(session.avg_heart_rate)
+            : '—',
         label: 'Avg Heart Rate',
         editKey: 'avgHeartRate',
         editSuffix: 'bpm',
@@ -356,13 +419,20 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     const canEdit = isEditing && stat.editKey;
 
     const content = (
-      <View className={`bg-surface rounded-xl p-3 ${canEdit ? 'border' : ''}`} style={canEdit ? { borderColor: isActive ? accentPrimary : borderSubtle } : undefined}>
+      <View
+        className={`bg-surface rounded-xl p-3 ${canEdit ? 'border' : ''}`}
+        style={
+          canEdit
+            ? { borderColor: isActive ? accentPrimary : borderSubtle }
+            : undefined
+        }
+      >
         <View style={{ minHeight: 24 }}>
           {isActive && stat.editKey ? (
             <FadeView key="stat-edit">
               <FormInput
                 value={getFieldValue(stat.editKey)}
-                onChangeText={(v) => updateFieldValue(stat.editKey!, v)}
+                onChangeText={v => updateFieldValue(stat.editKey!, v)}
                 onBlur={() => setActiveField(null)}
                 keyboardType={stat.keyboardType ?? 'numeric'}
                 placeholder="0"
@@ -380,7 +450,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
             </FadeView>
           ) : (
             <FadeView key="stat-view">
-              <Text className="text-lg font-semibold text-text-primary">{stat.value}</Text>
+              <Text className="text-lg font-semibold text-text-primary">
+                {stat.value}
+              </Text>
             </FadeView>
           )}
           {stat.editSuffix && (
@@ -409,7 +481,11 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       );
     }
 
-    return <View key={stat.label} className="flex-1">{content}</View>;
+    return (
+      <View key={stat.label} className="flex-1">
+        {content}
+      </View>
+    );
   };
 
   const renderStatsGrid = () => {
@@ -449,7 +525,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               className="py-0 px-0"
             >
-              <Text className="text-accent-primary text-base font-medium">Cancel</Text>
+              <Text className="text-accent-primary text-base font-medium">
+                Cancel
+              </Text>
             </Button>
             <View className="flex-1" />
             <Button
@@ -462,7 +540,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               {isSaving ? (
                 <ActivityIndicator size="small" color={accentPrimary} />
               ) : (
-                <Text className="text-accent-primary text-base font-semibold">Save</Text>
+                <Text className="text-accent-primary text-base font-semibold">
+                  Save
+                </Text>
               )}
             </Button>
           </FadeView>
@@ -487,7 +567,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 className="py-0 px-0"
               >
-                <Text className="text-accent-primary text-base font-medium">Edit</Text>
+                <Text className="text-accent-primary text-base font-medium">
+                  Edit
+                </Text>
               </Button>
             )}
           </FadeView>
@@ -496,7 +578,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
       <KeyboardAwareScrollView
         contentContainerClassName="px-4"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 32 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 32 + activeWorkoutBarPadding,
+        }}
         bottomOffset={20}
         keyboardShouldPersistTaps="handled"
       >
@@ -505,13 +589,21 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
           {firstImageSource && (
             <SafeImage
               source={firstImageSource}
-              style={{ width: 48, height: 48, borderRadius: 10, marginRight: 12 }}
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 10,
+                marginRight: 12,
+              }}
             />
           )}
           <View className="flex-1">
             {isEditing ? (
               <FadeView key="edit-title">
-                <TouchableOpacity onPress={() => setActiveField('name')} activeOpacity={0.6}>
+                <TouchableOpacity
+                  onPress={() => setActiveField('name')}
+                  activeOpacity={0.6}
+                >
                   {activeField === 'name' ? (
                     <FormInput
                       value={formState.name}
@@ -519,7 +611,15 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                       onBlur={() => setActiveField(null)}
                       placeholder="Activity Name"
                       autoFocus
-                      style={{ borderWidth: 0, backgroundColor: 'transparent', paddingLeft: 0, paddingTop: 8, paddingBottom: 8, fontSize: 20, fontWeight: '700' }}
+                      style={{
+                        borderWidth: 0,
+                        backgroundColor: 'transparent',
+                        paddingLeft: 0,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        fontSize: 20,
+                        fontWeight: '700',
+                      }}
                     />
                   ) : (
                     <Text className="text-xl font-bold text-text-primary mb-0.5">
@@ -530,7 +630,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               </FadeView>
             ) : (
               <FadeView key="view-title">
-                <Text className="text-xl font-bold text-text-primary mb-0.5">{name}</Text>
+                <Text className="text-xl font-bold text-text-primary mb-0.5">
+                  {name}
+                </Text>
               </FadeView>
             )}
             <View className="flex-row items-center">
@@ -545,15 +647,21 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                   <Text className="text-sm" style={{ color: accentPrimary }}>
                     {formatDateLabel(formState.entryDate)}
                   </Text>
-                  <Icon name="chevron-down" size={14} color={accentPrimary} style={{ marginLeft: 2 }} />
+                  <Icon
+                    name="chevron-down"
+                    size={14}
+                    color={accentPrimary}
+                    style={{ marginLeft: 2 }}
+                  />
                 </TouchableOpacity>
               ) : entryDate ? (
-                <Text className="text-sm text-text-muted">{formatDate(entryDate)}</Text>
+                <Text className="text-sm text-text-muted">
+                  {formatDate(entryDate)}
+                </Text>
               ) : null}
             </View>
           </View>
         </View>
-
 
         {/* Stats grid */}
         {renderStatsGrid()}
@@ -562,7 +670,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         {isEditing ? (
           draftSets.length > 0 || hasSets ? (
             <View className="py-4">
-              <Text className="text-sm font-medium text-text-secondary mb-2">Sets</Text>
+              <Text className="text-sm font-medium text-text-secondary mb-2">
+                Sets
+              </Text>
               <EditableSetList
                 exerciseClientId={SET_CLIENT_ID_PREFIX}
                 sets={draftSets}
@@ -580,22 +690,38 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         ) : hasSets ? (
           <>
             <View className="py-4">
-              <Text className="text-sm font-medium text-text-secondary mb-2">Sets</Text>
+              <Text className="text-sm font-medium text-text-secondary mb-2">
+                Sets
+              </Text>
               <View className="flex-row py-1 mb-1">
-                <Text className="text-xs font-semibold text-text-muted w-10 text-center">Set</Text>
-                <Text className="text-xs font-semibold text-text-muted flex-1 text-center">Weight</Text>
-                <Text className="text-xs font-semibold text-text-muted flex-1 text-center">Reps</Text>
+                <Text className="text-xs font-semibold text-text-muted w-10 text-center">
+                  Set
+                </Text>
+                <Text className="text-xs font-semibold text-text-muted flex-1 text-center">
+                  Weight
+                </Text>
+                <Text className="text-xs font-semibold text-text-muted flex-1 text-center">
+                  Reps
+                </Text>
               </View>
               {session.sets.map(set => {
-                const displayWeight = set.weight != null
-                  ? `${parseFloat(weightFromKg(set.weight, weightUnit).toFixed(1))} ${weightUnit}`
-                  : '\u2014';
-                const displayReps = set.reps != null ? String(set.reps) : '\u2014';
+                const displayWeight =
+                  set.weight != null
+                    ? `${parseFloat(weightFromKg(set.weight, weightUnit).toFixed(1))} ${weightUnit}`
+                    : '\u2014';
+                const displayReps =
+                  set.reps != null ? String(set.reps) : '\u2014';
                 return (
                   <View key={set.id} className="flex-row py-1.5">
-                    <Text className="text-sm text-text-muted w-10 text-center">{set.set_number}</Text>
-                    <Text className="text-sm text-text-primary flex-1 text-center">{displayWeight}</Text>
-                    <Text className="text-sm text-text-primary flex-1 text-center">{displayReps}</Text>
+                    <Text className="text-sm text-text-muted w-10 text-center">
+                      {set.set_number}
+                    </Text>
+                    <Text className="text-sm text-text-primary flex-1 text-center">
+                      {displayWeight}
+                    </Text>
+                    <Text className="text-sm text-text-primary flex-1 text-center">
+                      {displayReps}
+                    </Text>
                   </View>
                 );
               })}
@@ -607,7 +733,9 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         {(isEditing || session.notes) && (
           <>
             <View className="py-4">
-              <Text className="text-sm font-medium text-text-secondary mb-2">Notes</Text>
+              <Text className="text-sm font-medium text-text-secondary mb-2">
+                Notes
+              </Text>
               {isEditing ? (
                 activeField === 'notes' ? (
                   <FormInput
@@ -620,14 +748,19 @@ const ActivityDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                     style={{ minHeight: 60 }}
                   />
                 ) : (
-                  <TouchableOpacity onPress={() => setActiveField('notes')} activeOpacity={0.6}>
+                  <TouchableOpacity
+                    onPress={() => setActiveField('notes')}
+                    activeOpacity={0.6}
+                  >
                     <Text className="text-sm text-text-primary">
                       {formState.notes || 'Add notes...'}
                     </Text>
                   </TouchableOpacity>
                 )
               ) : (
-                <Text className="text-sm text-text-primary">{session.notes}</Text>
+                <Text className="text-sm text-text-primary">
+                  {session.notes}
+                </Text>
               )}
             </View>
           </>

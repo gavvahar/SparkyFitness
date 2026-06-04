@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import Button from '../components/ui/Button';
@@ -9,7 +15,13 @@ import FoodNutritionSummary from '../components/FoodNutritionSummary';
 import StatusView from '../components/StatusView';
 import SettingsRow, { SettingsRowGroup } from '../components/SettingsRow';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
-import { useDeleteFood, useFoodVariants, useProfile, useServerConnection, usePreferences } from '../hooks';
+import {
+  useDeleteFood,
+  useFoodVariants,
+  useProfile,
+  useServerConnection,
+  usePreferences,
+} from '../hooks';
 import {
   buildExternalVariantOptions,
   buildLocalVariantOptions,
@@ -21,11 +33,17 @@ import type { RootStackScreenProps } from '../types/navigation';
 
 type FoodDetailScreenProps = RootStackScreenProps<'FoodDetail'>;
 
-const buildSelectedVariantId = (hasExternalVariants: boolean, variantId?: string) =>
-  hasExternalVariants ? (variantId ?? 'ext-0') : variantId;
+const buildSelectedVariantId = (
+  hasExternalVariants: boolean,
+  variantId?: string,
+) => (hasExternalVariants ? (variantId ?? 'ext-0') : variantId);
 
-const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }) => {
-  const { item, updatedItem, updatedSelectedVariantId, updatedBarcode } = route.params;
+const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const { item, updatedItem, updatedSelectedVariantId, updatedBarcode } =
+    route.params;
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentColor, textPrimary] = useCSSVariable([
@@ -39,14 +57,25 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
   const [food, setFood] = useState(item);
 
   const isLocalFood = food.source === 'local';
-  const hasExternalVariants = !!(food.externalVariants && food.externalVariants.length > 1);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(
-    buildSelectedVariantId(hasExternalVariants, item.variantId),
+  const hasExternalVariants = !!(
+    food.externalVariants && food.externalVariants.length > 1
   );
-  const { variants, isLoading: isVariantsLoading, isError: isVariantsError } = useFoodVariants(food.id, {
+  const [selectedVariantId, setSelectedVariantId] = useState<
+    string | undefined
+  >(buildSelectedVariantId(hasExternalVariants, item.variantId));
+  const {
+    variants,
+    isLoading: isVariantsLoading,
+    isError: isVariantsError,
+  } = useFoodVariants(food.id, {
     enabled: isLocalFood && isConnected,
   });
-  const canManageFood = !!(isLocalFood && isConnected && food.userId && profile?.id === food.userId);
+  const canManageFood = !!(
+    isLocalFood &&
+    isConnected &&
+    food.userId &&
+    profile?.id === food.userId
+  );
 
   const localVariantOptions = useMemo(
     () => buildLocalVariantOptions(variants),
@@ -56,23 +85,28 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
     () => buildExternalVariantOptions(food.externalVariants),
     [food.externalVariants],
   );
-  const variantOptions = localVariantOptions.length > 0
-    ? localVariantOptions
-    : externalVariantOptions;
+  const variantOptions =
+    localVariantOptions.length > 0
+      ? localVariantOptions
+      : externalVariantOptions;
   const displayValues = useMemo(
-    () => resolveFoodDisplayValues({
-      item: food,
-      selectedVariantId,
-      localVariantOptions,
-      externalVariantOptions,
-    }),
+    () =>
+      resolveFoodDisplayValues({
+        item: food,
+        selectedVariantId,
+        localVariantOptions,
+        externalVariantOptions,
+      }),
     [food, selectedVariantId, localVariantOptions, externalVariantOptions],
   );
 
-  const selectedVariantLabel = variantOptions.find((option) => option.id === selectedVariantId)?.label
-    ?? formatVariantLabel(displayValues);
+  const selectedVariantLabel =
+    variantOptions.find(option => option.id === selectedVariantId)?.label ??
+    formatVariantLabel(displayValues);
   const selectedCustomNutrients = useMemo(() => {
-    const selectedVariant = variants?.find((variant) => variant.id === selectedVariantId);
+    const selectedVariant = variants?.find(
+      variant => variant.id === selectedVariantId,
+    );
     if (selectedVariant) {
       return selectedVariant.custom_nutrients ?? null;
     }
@@ -101,7 +135,7 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
 
   useEffect(() => {
     if (updatedBarcode !== undefined) {
-      setFood((prev) => ({ ...prev, barcode: updatedBarcode }));
+      setFood(prev => ({ ...prev, barcode: updatedBarcode }));
       navigation.setParams({ updatedBarcode: undefined });
     }
   }, [updatedBarcode, navigation]);
@@ -112,7 +146,11 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
     }
   }, [selectedVariantId, localVariantOptions]);
 
-  const { confirmAndDelete, isPending: isDeletePending, invalidateCaches } = useDeleteFood({
+  const {
+    confirmAndDelete,
+    isPending: isDeletePending,
+    invalidateCaches,
+  } = useDeleteFood({
     foodId: food.id,
     onSuccess: () => {
       invalidateCaches();
@@ -127,7 +165,11 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
 
     navigation.navigate('FoodForm', {
       mode: 'edit-food',
-      item: applyDisplayValuesToFoodInfo(food, displayValues, selectedVariantId),
+      item: applyDisplayValuesToFoodInfo(
+        food,
+        displayValues,
+        selectedVariantId,
+      ),
       returnKey: route.key,
       foodId: food.id,
       variantId: selectedVariantId,
@@ -142,16 +184,31 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
         carbs: String(displayValues.carbs),
         fat: String(displayValues.fat),
         fiber: displayValues.fiber != null ? String(displayValues.fiber) : '',
-        saturatedFat: displayValues.saturatedFat != null ? String(displayValues.saturatedFat) : '',
-        sodium: displayValues.sodium != null ? String(displayValues.sodium) : '',
-        sugars: displayValues.sugars != null ? String(displayValues.sugars) : '',
-        transFat: displayValues.transFat != null ? String(displayValues.transFat) : '',
-        potassium: displayValues.potassium != null ? String(displayValues.potassium) : '',
-        calcium: displayValues.calcium != null ? String(displayValues.calcium) : '',
+        saturatedFat:
+          displayValues.saturatedFat != null
+            ? String(displayValues.saturatedFat)
+            : '',
+        sodium:
+          displayValues.sodium != null ? String(displayValues.sodium) : '',
+        sugars:
+          displayValues.sugars != null ? String(displayValues.sugars) : '',
+        transFat:
+          displayValues.transFat != null ? String(displayValues.transFat) : '',
+        potassium:
+          displayValues.potassium != null
+            ? String(displayValues.potassium)
+            : '',
+        calcium:
+          displayValues.calcium != null ? String(displayValues.calcium) : '',
         iron: displayValues.iron != null ? String(displayValues.iron) : '',
-        cholesterol: displayValues.cholesterol != null ? String(displayValues.cholesterol) : '',
-        vitaminA: displayValues.vitaminA != null ? String(displayValues.vitaminA) : '',
-        vitaminC: displayValues.vitaminC != null ? String(displayValues.vitaminC) : '',
+        cholesterol:
+          displayValues.cholesterol != null
+            ? String(displayValues.cholesterol)
+            : '',
+        vitaminA:
+          displayValues.vitaminA != null ? String(displayValues.vitaminA) : '',
+        vitaminC:
+          displayValues.vitaminC != null ? String(displayValues.vitaminC) : '',
       },
     });
   };
@@ -165,7 +222,11 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
           iconSize={64}
           title="No server configured"
           subtitle="Configure your server connection in Settings to view food details."
-          action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }), variant: 'primary' }}
+          action={{
+            label: 'Go to Settings',
+            onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -192,7 +253,10 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
           {variantOptions.length > 1 ? (
             <BottomSheetPicker
               value={selectedVariantId ?? variantOptions[0].id}
-              options={variantOptions.map((option) => ({ label: option.label, value: option.id }))}
+              options={variantOptions.map(option => ({
+                label: option.label,
+                value: option.id,
+              }))}
               onSelect={setSelectedVariantId}
               title="Select Serving"
               renderTrigger={({ onPress }) => (
@@ -241,7 +305,9 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
                 food.barcode ? (
                   food.barcode
                 ) : (
-                  <Text className="text-sm text-text-secondary mt-0.5">Not set</Text>
+                  <Text className="text-sm text-text-secondary mt-0.5">
+                    Not set
+                  </Text>
                 )
               }
               onPress={() =>
@@ -258,9 +324,15 @@ const FoodDetailScreen: React.FC<FoodDetailScreenProps> = ({ navigation, route }
 
         <Button
           variant="primary"
-          onPress={() => navigation.navigate('FoodEntryAdd', {
-            item: applyDisplayValuesToFoodInfo(food, displayValues, selectedVariantId),
-          })}
+          onPress={() =>
+            navigation.navigate('FoodEntryAdd', {
+              item: applyDisplayValuesToFoodInfo(
+                food,
+                displayValues,
+                selectedVariantId,
+              ),
+            })
+          }
         >
           <Text className="text-white text-base font-semibold">Log Food</Text>
         </Button>

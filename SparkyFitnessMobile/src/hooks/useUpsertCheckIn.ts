@@ -28,7 +28,7 @@ export function useUpsertCheckIn() {
       );
       refreshHealthSyncCache(queryClient);
     },
-    onError: (error) => {
+    onError: error => {
       addLog(`Failed to upsert check-in: ${error}`, 'ERROR');
       Toast.show({
         type: 'error',

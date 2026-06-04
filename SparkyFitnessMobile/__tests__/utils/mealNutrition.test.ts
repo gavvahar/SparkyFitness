@@ -51,19 +51,23 @@ describe('mealNutrition', () => {
       entry({ id: 'custom', meal_type: 'Brunch' }),
     ];
 
-    expect(filterFoodEntriesByMealType(entries, 'breakfast')).toEqual([entries[0]]);
+    expect(filterFoodEntriesByMealType(entries, 'breakfast')).toEqual([
+      entries[0],
+    ]);
     expect(filterFoodEntriesByMealType(entries, 'other')).toEqual([entries[2]]);
   });
 
   it('scales entry nutrition by quantity and serving size', () => {
-    const nutrition = calculateEntryNutrition(entry({
-      calories: 200,
-      protein: 10,
-      carbs: 20,
-      fat: 5,
-      quantity: 3,
-      serving_size: 2,
-    }));
+    const nutrition = calculateEntryNutrition(
+      entry({
+        calories: 200,
+        protein: 10,
+        carbs: 20,
+        fat: 5,
+        quantity: 3,
+        serving_size: 2,
+      }),
+    );
 
     expect(nutrition).toEqual({
       calories: 300,

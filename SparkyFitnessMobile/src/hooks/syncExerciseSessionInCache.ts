@@ -1,5 +1,8 @@
 import type { InfiniteData, QueryClient } from '@tanstack/react-query';
-import type { ExerciseHistoryResponse, ExerciseSessionResponse } from '@workspace/shared';
+import type {
+  ExerciseHistoryResponse,
+  ExerciseSessionResponse,
+} from '@workspace/shared';
 import { exerciseHistoryQueryKey } from './queryKeys';
 
 function replaceSession(

@@ -5,11 +5,15 @@ import {
   getFoodEntryMealWithComponents,
   deleteFoodEntryMeal,
 } from '../../src/services/api/foodEntryMealsApi';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({

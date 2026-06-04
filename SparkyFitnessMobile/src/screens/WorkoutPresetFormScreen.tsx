@@ -13,7 +13,10 @@ import {
 } from '../hooks';
 import { useExerciseSetEditing } from '../hooks/useExerciseSetEditing';
 import { useSelectedExercise } from '../hooks/useSelectedExercise';
-import { useWorkoutPresetForm, type PresetDraft } from '../hooks/useWorkoutPresetForm';
+import {
+  useWorkoutPresetForm,
+  type PresetDraft,
+} from '../hooks/useWorkoutPresetForm';
 import { useExerciseImageSource } from '../hooks/useExerciseImageSource';
 import { buildPresetExercisesPayload } from '../utils/workoutSession';
 import type { WorkoutPreset } from '../types/workoutPresets';
@@ -26,7 +29,10 @@ import type {
   WorkoutPresetUpdatePayload,
 } from '../services/api/workoutPresetsApi';
 
-type EditParams = Extract<RootStackParamList['WorkoutPresetForm'], { mode: 'edit-preset' }>;
+type EditParams = Extract<
+  RootStackParamList['WorkoutPresetForm'],
+  { mode: 'edit-preset' }
+>;
 
 type WorkoutPresetFormScreenProps = RootStackScreenProps<'WorkoutPresetForm'>;
 type Navigation = WorkoutPresetFormScreenProps['navigation'];
@@ -68,7 +74,9 @@ const PresetFormBody: React.FC<PresetFormBodyProps> = ({
     <View className="gap-4">
       <View className="bg-surface rounded-xl p-4 gap-4 shadow-sm">
         <View className="gap-1.5">
-          <Text className="text-text-secondary text-sm font-medium">Name *</Text>
+          <Text className="text-text-secondary text-sm font-medium">
+            Name *
+          </Text>
           <FormInput
             placeholder="e.g. Push Day"
             value={state.name}
@@ -81,7 +89,9 @@ const PresetFormBody: React.FC<PresetFormBodyProps> = ({
         </View>
 
         <View className="gap-1.5">
-          <Text className="text-text-secondary text-sm font-medium">Description</Text>
+          <Text className="text-text-secondary text-sm font-medium">
+            Description
+          </Text>
           <FormInput
             placeholder="Optional notes about this routine"
             value={state.description}
@@ -127,7 +137,10 @@ interface CreatePresetModeProps {
   route: Route;
 }
 
-const CreatePresetMode: React.FC<CreatePresetModeProps> = ({ navigation, route }) => {
+const CreatePresetMode: React.FC<CreatePresetModeProps> = ({
+  navigation,
+  route,
+}) => {
   const { profile } = useProfile();
   const { preferences } = usePreferences();
   const weightUnit = getWeightUnit(preferences?.default_weight_unit);
@@ -263,7 +276,13 @@ export function buildPresetEditPayload(args: {
   exercisesModified: boolean;
   weightUnit: 'kg' | 'lbs';
 }): WorkoutPresetUpdatePayload {
-  const { state, initialPreset, initialDescription, exercisesModified, weightUnit } = args;
+  const {
+    state,
+    initialPreset,
+    initialDescription,
+    exercisesModified,
+    weightUnit,
+  } = args;
   const payload: WorkoutPresetUpdatePayload = {};
 
   const trimmedName = state.name.trim();
@@ -280,13 +299,20 @@ export function buildPresetEditPayload(args: {
   // would unshare a previously-public preset (server uses COALESCE).
 
   if (exercisesModified) {
-    payload.exercises = buildPresetExercisesPayload(state.exercises, weightUnit);
+    payload.exercises = buildPresetExercisesPayload(
+      state.exercises,
+      weightUnit,
+    );
   }
 
   return payload;
 }
 
-const EditPresetMode: React.FC<EditPresetModeProps> = ({ navigation, route, params }) => {
+const EditPresetMode: React.FC<EditPresetModeProps> = ({
+  navigation,
+  route,
+  params,
+}) => {
   const { preset, returnKey } = params;
   const { preferences, isLoading: isPreferencesLoading } = usePreferences();
   const weightUnit = getWeightUnit(preferences?.default_weight_unit);
@@ -417,7 +443,13 @@ const WorkoutPresetFormScreen: React.FC<WorkoutPresetFormScreenProps> = ({
   route,
 }) => {
   if (route.params.mode === 'edit-preset') {
-    return <EditPresetMode navigation={navigation} route={route} params={route.params} />;
+    return (
+      <EditPresetMode
+        navigation={navigation}
+        route={route}
+        params={route.params}
+      />
+    );
   }
   return <CreatePresetMode navigation={navigation} route={route} />;
 };

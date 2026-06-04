@@ -2,7 +2,10 @@ import { FOOD_VARIANT_NUTRIENT_FIELDS } from '@workspace/shared';
 import type { ExternalFoodVariant } from '../types/externalFoods';
 import type { FoodInfoItem } from '../types/foodInfo';
 import type { FoodVariantDetail } from '../types/foods';
-import type { EquivalentUnit, FoodUnitVariant } from '../types/foodUnitVariants';
+import type {
+  EquivalentUnit,
+  FoodUnitVariant,
+} from '../types/foodUnitVariants';
 import type { CreateFoodVariantPayload } from '../services/api/foodsApi';
 
 export interface FoodDisplayValues {
@@ -108,7 +111,9 @@ export function foodInfoToDisplayValues(item: FoodInfoItem): FoodDisplayValues {
   };
 }
 
-export function unitVariantToDisplayValues(variant: FoodUnitVariant): FoodDisplayValues {
+export function unitVariantToDisplayValues(
+  variant: FoodUnitVariant,
+): FoodDisplayValues {
   return {
     servingSize: variant.serving_size,
     servingUnit: variant.serving_unit,
@@ -154,7 +159,9 @@ export function foodInfoToUnitVariant(item: FoodInfoItem): FoodUnitVariant {
   };
 }
 
-export function localVariantToUnitVariant(variant: FoodVariantDetail): FoodUnitVariant {
+export function localVariantToUnitVariant(
+  variant: FoodVariantDetail,
+): FoodUnitVariant {
   return {
     id: variant.id,
     food_id: variant.food_id,
@@ -215,14 +222,16 @@ export function externalVariantToUnitVariant(
   };
 }
 
-export function formatVariantLabel(values: Pick<FoodDisplayValues, 'servingSize' | 'servingUnit' | 'calories'>): string {
+export function formatVariantLabel(
+  values: Pick<FoodDisplayValues, 'servingSize' | 'servingUnit' | 'calories'>,
+): string {
   return `${formatServingSizeDisplay(values.servingSize)} ${values.servingUnit} (${formatCaloriesDisplay(values.calories)} cal)`;
 }
 
 export function buildLocalVariantOptions(
   variants?: FoodVariantDetail[],
 ): FoodVariantOptionData[] {
-  return (variants ?? []).map((variant) => ({
+  return (variants ?? []).map(variant => ({
     id: variant.id,
     label: formatVariantLabel({
       servingSize: variant.serving_size,
@@ -346,8 +355,8 @@ export function resolveFoodDisplayValues({
 }): FoodDisplayValues {
   if (selectedVariantId) {
     const selectedVariant =
-      localVariantOptions.find((variant) => variant.id === selectedVariantId)
-      ?? externalVariantOptions.find((variant) => variant.id === selectedVariantId);
+      localVariantOptions.find(variant => variant.id === selectedVariantId) ??
+      externalVariantOptions.find(variant => variant.id === selectedVariantId);
 
     if (selectedVariant) {
       return selectedVariant;
@@ -357,7 +366,9 @@ export function resolveFoodDisplayValues({
   return foodInfoToDisplayValues(item);
 }
 
-type NutritionLike = Partial<Record<(typeof FOOD_VARIANT_NUTRIENT_FIELDS)[number], unknown>> & {
+type NutritionLike = Partial<
+  Record<(typeof FOOD_VARIANT_NUTRIENT_FIELDS)[number], unknown>
+> & {
   custom_nutrients?: Record<string, string | number> | null;
 };
 
@@ -398,7 +409,7 @@ export function groupEquivalentVariants(
 ): VariantGroup[] {
   const groups: VariantGroup[] = [];
   for (const variant of variants ?? []) {
-    const match = groups.find((g) => nutritionMatches(g.base, variant));
+    const match = groups.find(g => nutritionMatches(g.base, variant));
     if (match) {
       match.equivalents.push(toEquivalentUnit(variant));
     } else {
@@ -420,9 +431,12 @@ function rowsEqual(
   current: FoodVariantDetail,
   desired: DesiredSiblingRow,
 ): boolean {
-  if (coerceNumber(current.serving_size) !== coerceNumber(desired.serving_size)) return false;
-  if ((current.serving_unit ?? '') !== (desired.serving_unit ?? '')) return false;
-  if ((current.glycemic_index ?? '') !== (desired.glycemic_index ?? '')) return false;
+  if (coerceNumber(current.serving_size) !== coerceNumber(desired.serving_size))
+    return false;
+  if ((current.serving_unit ?? '') !== (desired.serving_unit ?? ''))
+    return false;
+  if ((current.glycemic_index ?? '') !== (desired.glycemic_index ?? ''))
+    return false;
   return nutritionMatches(current, desired);
 }
 
@@ -455,8 +469,8 @@ export function diffSiblingRows(
   }
 
   const deletes = current
-    .filter((row) => !desiredIds.has(row.id))
-    .map((row) => row.id);
+    .filter(row => !desiredIds.has(row.id))
+    .map(row => row.id);
 
   return { creates, updates, deletes };
 }

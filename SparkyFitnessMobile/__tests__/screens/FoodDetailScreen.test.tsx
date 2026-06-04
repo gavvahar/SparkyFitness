@@ -2,14 +2,24 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import FoodDetailScreen from '../../src/screens/FoodDetailScreen';
-import { useDeleteFood, useFoodVariants, useProfile, useServerConnection } from '../../src/hooks';
+import {
+  useDeleteFood,
+  useFoodVariants,
+  useProfile,
+  useServerConnection,
+} from '../../src/hooks';
 
 jest.mock('../../src/hooks', () => ({
   useDeleteFood: jest.fn(),
   useFoodVariants: jest.fn(),
   useProfile: jest.fn(),
   useServerConnection: jest.fn(),
-  usePreferences: jest.fn(() => ({ preferences: undefined, isLoading: false, isError: false, refetch: jest.fn() })),
+  usePreferences: jest.fn(() => ({
+    preferences: undefined,
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  })),
 }));
 
 jest.mock('../../src/components/ActiveWorkoutBar', () => ({
@@ -50,10 +60,16 @@ jest.mock('../../src/components/BottomSheetPicker', () => {
   };
 });
 
-const mockUseFoodVariants = useFoodVariants as jest.MockedFunction<typeof useFoodVariants>;
-const mockUseDeleteFood = useDeleteFood as jest.MockedFunction<typeof useDeleteFood>;
+const mockUseFoodVariants = useFoodVariants as jest.MockedFunction<
+  typeof useFoodVariants
+>;
+const mockUseDeleteFood = useDeleteFood as jest.MockedFunction<
+  typeof useDeleteFood
+>;
 const mockUseProfile = useProfile as jest.MockedFunction<typeof useProfile>;
-const mockUseServerConnection = useServerConnection as jest.MockedFunction<typeof useServerConnection>;
+const mockUseServerConnection = useServerConnection as jest.MockedFunction<
+  typeof useServerConnection
+>;
 const mockConfirmAndDelete = jest.fn();
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -116,7 +132,10 @@ describe('FoodDetailScreen', () => {
   const renderScreen = (itemOverrides: Record<string, unknown> = {}) =>
     render(
       <SafeAreaProvider initialMetrics={{ insets, frame }}>
-        <FoodDetailScreen navigation={navigation} route={buildRoute(itemOverrides) as any} />
+        <FoodDetailScreen
+          navigation={navigation}
+          route={buildRoute(itemOverrides) as any}
+        />
       </SafeAreaProvider>,
     );
 

@@ -66,7 +66,10 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
 
   // MFA state
   const [step, setStep] = useState<'credentials' | 'mfa'>('credentials');
-  const [mfaFactors, setMfaFactors] = useState<MfaFactors>({ mfaTotpEnabled: false, mfaEmailEnabled: false });
+  const [mfaFactors, setMfaFactors] = useState<MfaFactors>({
+    mfaTotpEnabled: false,
+    mfaEmailEnabled: false,
+  });
   const [mfaMethod, setMfaMethod] = useState<'totp' | 'email'>('totp');
   const [mfaCode, setMfaCode] = useState('');
   const [emailOtpSent, setEmailOtpSent] = useState(false);
@@ -86,11 +89,12 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
     const loadConfigs = async () => {
       const allConfigs = await getAllServerConfigs();
       // Only show session-auth configs (API key configs don't have session expiry)
-      const sessionConfigs = allConfigs.filter((c) => c.authType === 'session');
+      const sessionConfigs = allConfigs.filter(c => c.authType === 'session');
       setConfigs(sessionConfigs);
 
       const preferred =
-        (expiredConfigId && sessionConfigs.find((c) => c.id === expiredConfigId)) ||
+        (expiredConfigId &&
+          sessionConfigs.find(c => c.id === expiredConfigId)) ||
         sessionConfigs[0];
       if (preferred) {
         setSelectedConfigId(preferred.id);
@@ -100,12 +104,12 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
     loadConfigs();
   }, [visible, expiredConfigId]);
 
-  const selectedConfig = configs.find((c) => c.id === selectedConfigId);
+  const selectedConfig = configs.find(c => c.id === selectedConfigId);
   const currentUrl = selectedConfig?.url ?? '';
 
   const handleSelectConfig = (configId: string) => {
     setSelectedConfigId(configId);
-    const config = configs.find((c) => c.id === configId);
+    const config = configs.find(c => c.id === configId);
     if (config) {
       setPendingProxyHeaders(proxyHeadersToRecord(config.proxyHeaders));
     }
@@ -126,9 +130,18 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
   // --- Sign In ---
 
   const handleSignIn = async () => {
-    if (!currentUrl) { setError('No server selected.'); return; }
-    if (!email.trim()) { setError('Please enter your email.'); return; }
-    if (!password) { setError('Please enter your password.'); return; }
+    if (!currentUrl) {
+      setError('No server selected.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Please enter your email.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -137,13 +150,19 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
       const result = await login(currentUrl, email.trim(), password);
 
       if (result.type === 'mfa_required') {
-        let factors: MfaFactors = { mfaTotpEnabled: true, mfaEmailEnabled: false };
+        let factors: MfaFactors = {
+          mfaTotpEnabled: true,
+          mfaEmailEnabled: false,
+        };
         try {
           factors = await fetchMfaFactors(currentUrl, email.trim());
         } catch (err) {
           // Fallback: assume TOTP only
           const message = err instanceof Error ? err.message : String(err);
-          addLog(`[ReauthModal] Failed to fetch MFA factors, falling back to TOTP: ${message}`, 'WARNING');
+          addLog(
+            `[ReauthModal] Failed to fetch MFA factors, falling back to TOTP: ${message}`,
+            'WARNING',
+          );
         }
         setMfaFactors(factors);
         setMfaMethod(factors.mfaTotpEnabled ? 'totp' : 'email');
@@ -171,7 +190,10 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
 
   const handleVerifyMfa = async () => {
     const code = mfaCode.trim();
-    if (!code) { setError('Please enter the verification code.'); return; }
+    if (!code) {
+      setError('Please enter the verification code.');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -277,7 +299,9 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
             {/* Header */}
             <View className="items-center mb-5">
               <Text className="text-[22px] font-bold text-center text-text-primary">
-                {step === 'credentials' ? 'Session Expired' : 'Two-Factor Authentication'}
+                {step === 'credentials'
+                  ? 'Session Expired'
+                  : 'Two-Factor Authentication'}
               </Text>
             </View>
 
@@ -286,8 +310,10 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
                 {/* Server picker (only if multiple session configs) */}
                 {configs.length > 1 && (
                   <View className="mb-3">
-                    <Text className="text-sm mb-2 text-text-secondary">Server</Text>
-                    {configs.map((config) => (
+                    <Text className="text-sm mb-2 text-text-secondary">
+                      Server
+                    </Text>
+                    {configs.map(config => (
                       <TouchableOpacity
                         key={config.id}
                         className={`flex-row items-center p-3 rounded-lg mb-1.5 border ${
@@ -325,7 +351,10 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
                 {/* Server label (single config) */}
                 {configs.length === 1 && (
                   <View className="mb-3">
-                    <Text className="text-sm text-text-muted text-center" numberOfLines={1}>
+                    <Text
+                      className="text-sm text-text-muted text-center"
+                      numberOfLines={1}
+                    >
                       {configs[0].url}
                     </Text>
                   </View>
@@ -333,7 +362,9 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
 
                 {/* Email */}
                 <View className="mb-3">
-                  <Text className="text-sm mb-2 text-text-secondary">Email</Text>
+                  <Text className="text-sm mb-2 text-text-secondary">
+                    Email
+                  </Text>
                   <FormInput
                     placeholder="email@example.com"
                     value={email}
@@ -346,7 +377,9 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
 
                 {/* Password */}
                 <View className="mb-4">
-                  <Text className="text-sm mb-2 text-text-secondary">Password</Text>
+                  <Text className="text-sm mb-2 text-text-secondary">
+                    Password
+                  </Text>
                   <FormInput
                     placeholder="Password"
                     value={password}
@@ -358,7 +391,11 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
 
                 <ErrorBanner message={error} />
 
-                <PrimaryButton label="Sign In" onPress={handleSignIn} loading={loading} />
+                <PrimaryButton
+                  label="Sign In"
+                  onPress={handleSignIn}
+                  loading={loading}
+                />
 
                 {onSwitchToApiKey && (
                   <Button
@@ -393,7 +430,9 @@ const ReauthModal: React.FC<ReauthModalProps> = ({
                 onVerify={handleVerifyMfa}
                 onSendEmailOtp={handleSendEmailOtp}
                 onBack={handleBackToCredentials}
-                onUseApiKey={onSwitchToApiKey ? handleSwitchToApiKey : undefined}
+                onUseApiKey={
+                  onSwitchToApiKey ? handleSwitchToApiKey : undefined
+                }
                 textMuted={textMuted}
               />
             )}

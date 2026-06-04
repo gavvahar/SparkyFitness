@@ -6,7 +6,9 @@ jest.mock('@react-navigation/native', () => ({
   useFocusEffect: jest.fn(),
 }));
 
-const mockUseFocusEffect = useFocusEffect as jest.MockedFunction<typeof useFocusEffect>;
+const mockUseFocusEffect = useFocusEffect as jest.MockedFunction<
+  typeof useFocusEffect
+>;
 
 describe('useRefetchOnFocus', () => {
   let focusCallback: (() => void) | undefined;
@@ -15,7 +17,7 @@ describe('useRefetchOnFocus', () => {
     jest.clearAllMocks();
     focusCallback = undefined;
     // Capture the callback and invoke it immediately (simulates focus on mount)
-    mockUseFocusEffect.mockImplementation((callback) => {
+    mockUseFocusEffect.mockImplementation(callback => {
       focusCallback = callback;
       callback();
     });
@@ -55,7 +57,7 @@ describe('useRefetchOnFocus', () => {
 
     const { rerender } = renderHook<void, { enabled: boolean }>(
       ({ enabled }) => useRefetchOnFocus(mockRefetch, enabled),
-      { initialProps: { enabled: false } }
+      { initialProps: { enabled: false } },
     );
 
     expect(mockRefetch).not.toHaveBeenCalled();

@@ -2,7 +2,11 @@ import { renderHook, waitFor, act } from '@testing-library/react-native';
 import { useAddFoodEntry } from '../../src/hooks/useAddFoodEntry';
 import { createFoodEntry } from '../../src/services/api/foodEntriesApi';
 import { createFoodVariant, saveFood } from '../../src/services/api/foodsApi';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/foodEntriesApi', () => ({
   createFoodEntry: jest.fn(),
@@ -17,9 +21,12 @@ jest.mock('../../src/services/LogService', () => ({
   addLog: jest.fn(),
 }));
 
-const mockCreateFoodEntry = createFoodEntry as jest.MockedFunction<typeof createFoodEntry>;
-const mockCreateFoodVariant =
-  createFoodVariant as jest.MockedFunction<typeof createFoodVariant>;
+const mockCreateFoodEntry = createFoodEntry as jest.MockedFunction<
+  typeof createFoodEntry
+>;
+const mockCreateFoodVariant = createFoodVariant as jest.MockedFunction<
+  typeof createFoodVariant
+>;
 const mockSaveFood = saveFood as jest.MockedFunction<typeof saveFood>;
 
 describe('useAddFoodEntry', () => {

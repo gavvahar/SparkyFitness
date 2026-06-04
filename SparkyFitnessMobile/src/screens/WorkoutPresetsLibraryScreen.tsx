@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import Button from '../components/ui/Button';
@@ -12,9 +18,12 @@ import { useServerConnection, useWorkoutPresetsLibrary } from '../hooks';
 import type { WorkoutPreset } from '../types/workoutPresets';
 import type { RootStackScreenProps } from '../types/navigation';
 
-type WorkoutPresetsLibraryScreenProps = RootStackScreenProps<'WorkoutPresetsLibrary'>;
+type WorkoutPresetsLibraryScreenProps =
+  RootStackScreenProps<'WorkoutPresetsLibrary'>;
 
-const WorkoutPresetsLibraryScreen: React.FC<WorkoutPresetsLibraryScreenProps> = ({ navigation }) => {
+const WorkoutPresetsLibraryScreen: React.FC<
+  WorkoutPresetsLibraryScreenProps
+> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentColor, textSecondary] = useCSSVariable([
@@ -54,14 +63,18 @@ const WorkoutPresetsLibraryScreen: React.FC<WorkoutPresetsLibraryScreenProps> = 
       >
         <Icon name="chevron-back" size={22} color={accentColor} />
       </Button>
-      <Text className="text-2xl font-bold text-text-primary">Workout presets</Text>
+      <Text className="text-2xl font-bold text-text-primary">
+        Workout presets
+      </Text>
     </View>
   );
 
   const renderEmpty = () => (
     <View className="px-6 py-10 items-center">
       <Text className="text-text-primary text-base font-medium text-center">
-        {searchText.trim().length > 0 ? 'No matching presets found' : 'No workout presets yet'}
+        {searchText.trim().length > 0
+          ? 'No matching presets found'
+          : 'No workout presets yet'}
       </Text>
       <Text className="text-text-secondary text-sm mt-2 text-center">
         {searchText.trim().length > 0
@@ -71,7 +84,13 @@ const WorkoutPresetsLibraryScreen: React.FC<WorkoutPresetsLibraryScreenProps> = 
     </View>
   );
 
-  const renderRow = ({ item, index }: { item: WorkoutPreset; index: number }) => {
+  const renderRow = ({
+    item,
+    index,
+  }: {
+    item: WorkoutPreset;
+    index: number;
+  }) => {
     const exerciseCount = item.exercises?.length ?? 0;
     return (
       <TouchableOpacity
@@ -79,7 +98,9 @@ const WorkoutPresetsLibraryScreen: React.FC<WorkoutPresetsLibraryScreenProps> = 
         activeOpacity={0.7}
         onPress={() => handlePresetPress(item)}
       >
-        <Text className="text-text-primary text-base font-medium">{item.name}</Text>
+        <Text className="text-text-primary text-base font-medium">
+          {item.name}
+        </Text>
         <Text className="text-sm mt-0.5" style={{ color: textSecondary }}>
           {exerciseCount} {exerciseCount === 1 ? 'exercise' : 'exercises'}
         </Text>
@@ -131,7 +152,7 @@ const WorkoutPresetsLibraryScreen: React.FC<WorkoutPresetsLibraryScreenProps> = 
     return (
       <FlatList
         data={presets}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderRow}
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={
@@ -150,9 +171,16 @@ const WorkoutPresetsLibraryScreen: React.FC<WorkoutPresetsLibraryScreenProps> = 
         }}
         onEndReachedThreshold={0.5}
         refreshControl={
-          <RefreshControl refreshing={isSearching} onRefresh={refetch} tintColor={accentColor} />
+          <RefreshControl
+            refreshing={isSearching}
+            onRefresh={refetch}
+            tintColor={accentColor}
+          />
         }
-        contentContainerStyle={{ paddingBottom: scrollBottomPadding, flexGrow: 1 }}
+        contentContainerStyle={{
+          paddingBottom: scrollBottomPadding,
+          flexGrow: 1,
+        }}
       />
     );
   };

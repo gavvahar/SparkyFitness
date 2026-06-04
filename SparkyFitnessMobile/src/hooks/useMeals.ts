@@ -18,11 +18,18 @@ import {
   recentMealsQueryKeyRoot,
 } from './queryKeys';
 import type { QueryClient } from '@tanstack/react-query';
-import type { CreateMealPayload, Meal, UpdateMealPayload } from '../types/meals';
+import type {
+  CreateMealPayload,
+  Meal,
+  UpdateMealPayload,
+} from '../types/meals';
 
 function invalidateMealCaches(queryClient: QueryClient, mealId?: string) {
   queryClient.invalidateQueries({ queryKey: mealsQueryKey });
-  queryClient.invalidateQueries({ queryKey: recentMealsQueryKeyRoot, refetchType: 'all' });
+  queryClient.invalidateQueries({
+    queryKey: recentMealsQueryKeyRoot,
+    refetchType: 'all',
+  });
   queryClient.invalidateQueries({ queryKey: mealSearchQueryKeyRoot });
 
   if (mealId) {
@@ -48,7 +55,10 @@ export function useMeals(options?: { enabled?: boolean }) {
   };
 }
 
-export function useRecentMeals(options?: { enabled?: boolean; limit?: number }) {
+export function useRecentMeals(options?: {
+  enabled?: boolean;
+  limit?: number;
+}) {
   const { enabled = true, limit = 3 } = options ?? {};
 
   const query = useQuery({
@@ -93,7 +103,7 @@ export function useCreateMeal() {
 
   const mutation = useMutation({
     mutationFn: (payload: CreateMealPayload) => createMeal(payload),
-    onSuccess: (meal) => {
+    onSuccess: meal => {
       invalidateMealCaches(queryClient, meal.id);
     },
     onError: () => {
@@ -112,7 +122,10 @@ export function useCreateMeal() {
   };
 }
 
-export function useUpdateMeal(options?: { mealId?: string; onSuccess?: (meal: Meal) => void }) {
+export function useUpdateMeal(options?: {
+  mealId?: string;
+  onSuccess?: (meal: Meal) => void;
+}) {
   const queryClient = useQueryClient();
   const { mealId, onSuccess } = options ?? {};
 
@@ -123,7 +136,7 @@ export function useUpdateMeal(options?: { mealId?: string; onSuccess?: (meal: Me
       }
       return updateMeal(mealId, payload);
     },
-    onSuccess: (meal) => {
+    onSuccess: meal => {
       invalidateMealCaches(queryClient, meal.id);
       onSuccess?.(meal);
     },
@@ -143,7 +156,10 @@ export function useUpdateMeal(options?: { mealId?: string; onSuccess?: (meal: Me
   };
 }
 
-export function useDeleteMeal(options: { mealId?: string; onSuccess?: () => void }) {
+export function useDeleteMeal(options: {
+  mealId?: string;
+  onSuccess?: () => void;
+}) {
   const queryClient = useQueryClient();
   const { mealId, onSuccess } = options;
 
@@ -185,7 +201,11 @@ export function useDeleteMeal(options: { mealId?: string; onSuccess?: () => void
         : 'Delete this meal from your library? Logged diary entries will stay unchanged.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => mutation.mutate() },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => mutation.mutate(),
+        },
       ],
     );
   };

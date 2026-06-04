@@ -50,7 +50,9 @@ jest.mock('../../src/components/CalendarSheet', () => {
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
 
-function buildSaveFoodPayload(overrides?: Partial<SaveFoodPayload>): SaveFoodPayload {
+function buildSaveFoodPayload(
+  overrides?: Partial<SaveFoodPayload>,
+): SaveFoodPayload {
   return {
     name: 'Bowl of yogurt and berries',
     brand: null,
@@ -164,7 +166,7 @@ describe('FoodPhotoLogEntryScreen', () => {
   it('dismisses to root via getParent().popToTop() when useAddFoodEntry fires onSuccess', () => {
     // Capture the onSuccess option passed to the hook so we can trigger it manually.
     let capturedOnSuccess: (() => void) | undefined;
-    (useAddFoodEntry as jest.Mock).mockImplementation((options) => {
+    (useAddFoodEntry as jest.Mock).mockImplementation(options => {
       capturedOnSuccess = options?.onSuccess;
       return { addEntryAsync, isPending: false, invalidateCache };
     });

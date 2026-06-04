@@ -3,7 +3,10 @@ import { fetchExternalProviders } from '../services/api/externalProvidersApi';
 import { FOOD_PROVIDER_TYPES } from '../types/externalProviders';
 import { externalProvidersQueryKey } from './queryKeys';
 
-export function useExternalProviders(options?: { enabled?: boolean; filterSet?: Set<string> }) {
+export function useExternalProviders(options?: {
+  enabled?: boolean;
+  filterSet?: Set<string>;
+}) {
   const { enabled = true, filterSet = FOOD_PROVIDER_TYPES } = options ?? {};
 
   const query = useQuery({
@@ -11,10 +14,8 @@ export function useExternalProviders(options?: { enabled?: boolean; filterSet?: 
     queryFn: fetchExternalProviders,
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled,
-    select: (data) =>
-      data.filter(
-        (p) => p.is_active && filterSet.has(p.provider_type),
-      ),
+    select: data =>
+      data.filter(p => p.is_active && filterSet.has(p.provider_type)),
   });
 
   return {

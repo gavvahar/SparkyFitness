@@ -27,7 +27,11 @@ import {
   savePendingHealthSyncCacheRefresh,
   consumePendingHealthSyncCacheRefresh,
 } from './storage';
-import { runTasksInBatches, withTimeout, TimeoutError } from '../utils/concurrency';
+import {
+  runTasksInBatches,
+  withTimeout,
+  TimeoutError,
+} from '../utils/concurrency';
 import { queryClient } from '../hooks/queryClient';
 import { refreshHealthSyncCache } from '../hooks/refreshHealthSyncCache';
 
@@ -65,31 +69,51 @@ async function processBackgroundMetric(
 
   // Cumulative metrics use the aggregation API (handles deduplication)
   if (type === 'Steps') {
-    const result = await getAggregatedStepsByDateDetailed(aggregatedStartDate, endDate);
+    const result = await getAggregatedStepsByDateDetailed(
+      aggregatedStartDate,
+      endDate,
+    );
     dataToTransform = result.records;
     readError = result.error;
   } else if (type === 'ActiveCaloriesBurned') {
-    const result = await getAggregatedActiveCaloriesByDateDetailed(aggregatedStartDate, endDate);
+    const result = await getAggregatedActiveCaloriesByDateDetailed(
+      aggregatedStartDate,
+      endDate,
+    );
     dataToTransform = result.records;
     readError = result.error;
   } else if (type === 'TotalCaloriesBurned') {
-    const result = await getAggregatedTotalCaloriesByDateDetailed(aggregatedStartDate, endDate);
+    const result = await getAggregatedTotalCaloriesByDateDetailed(
+      aggregatedStartDate,
+      endDate,
+    );
     dataToTransform = result.records;
     readError = result.error;
   } else if (type === 'Distance') {
-    const result = await getAggregatedDistanceByDateDetailed(aggregatedStartDate, endDate);
+    const result = await getAggregatedDistanceByDateDetailed(
+      aggregatedStartDate,
+      endDate,
+    );
     dataToTransform = result.records;
     readError = result.error;
   } else if (type === 'FloorsClimbed') {
-    const result = await getAggregatedFloorsClimbedByDateDetailed(aggregatedStartDate, endDate);
+    const result = await getAggregatedFloorsClimbedByDateDetailed(
+      aggregatedStartDate,
+      endDate,
+    );
     dataToTransform = result.records;
     readError = result.error;
   } else {
     // All other metrics: read raw records
-    const result = await readHealthRecordsDetailed(type, sessionStartDate, endDate);
+    const result = await readHealthRecordsDetailed(
+      type,
+      sessionStartDate,
+      endDate,
+    );
     const rawRecords = result.records;
     readError = result.error;
-    if (!rawRecords || rawRecords.length === 0) return { data: [], error: readError };
+    if (!rawRecords || rawRecords.length === 0)
+      return { data: [], error: readError };
     dataToTransform = rawRecords;
 
     // Post-read aggregation for specific types
@@ -130,23 +154,27 @@ async function refreshHealthSyncCacheWhenActive() {
   }
 }
 
-export const flushPendingHealthSyncCacheRefresh = async (): Promise<boolean> => {
-  if (!isAppActive()) {
-    return false;
-  }
+export const flushPendingHealthSyncCacheRefresh =
+  async (): Promise<boolean> => {
+    if (!isAppActive()) {
+      return false;
+    }
 
-  const shouldRefresh = await consumePendingHealthSyncCacheRefresh();
-  if (!shouldRefresh) {
-    return false;
-  }
+    const shouldRefresh = await consumePendingHealthSyncCacheRefresh();
+    if (!shouldRefresh) {
+      return false;
+    }
 
-  refreshHealthSyncCache(queryClient);
-  return true;
-}
+    refreshHealthSyncCache(queryClient);
+    return true;
+  };
 
 export const performBackgroundSync = async (taskId: string): Promise<void> => {
   if (inflightSync) {
-    addLog(`[Background Sync] Sync already in progress, waiting for it to finish (triggered by ${taskId})`, 'DEBUG');
+    addLog(
+      `[Background Sync] Sync already in progress, waiting for it to finish (triggered by ${taskId})`,
+      'DEBUG',
+    );
     return inflightSync;
   }
 
@@ -162,19 +190,29 @@ const performBackgroundSyncInternal = async (taskId: string): Promise<void> => {
 
   const now = new Date();
   const lastSyncedTimeStr = await loadLastSyncedTime();
-  const lastSyncedDate = lastSyncedTimeStr ? new Date(lastSyncedTimeStr) : new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  addLog(`[Background Sync] Last synced: ${lastSyncedTimeStr ?? 'never (defaulting to 24h ago)'}`, 'DEBUG');
+  const lastSyncedDate = lastSyncedTimeStr
+    ? new Date(lastSyncedTimeStr)
+    : new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  addLog(
+    `[Background Sync] Last synced: ${lastSyncedTimeStr ?? 'never (defaulting to 24h ago)'}`,
+    'DEBUG',
+  );
   const endDate = now;
 
   // Session metrics use an overlap window to catch late-arriving records whose
   // event timestamps predate lastSyncedTime (e.g. overnight sleep synced next morning).
-  const sessionStartDate = new Date(lastSyncedDate.getTime() - SESSION_OVERLAP_MS);
+  const sessionStartDate = new Date(
+    lastSyncedDate.getTime() - SESSION_OVERLAP_MS,
+  );
 
   // Aggregated metrics (steps, calories) produce per-day totals. Use start-of-day
   // so we always send complete daily values rather than partial-window slices.
   const aggregatedStartDate = alignToLocalDayStart(sessionStartDate);
 
-  addLog(`[Background Sync] Syncing sessions from ${sessionStartDate.toISOString()}, aggregated from ${aggregatedStartDate.toISOString()} to ${endDate.toISOString()}`, 'DEBUG');
+  addLog(
+    `[Background Sync] Syncing sessions from ${sessionStartDate.toISOString()}, aggregated from ${aggregatedStartDate.toISOString()} to ${endDate.toISOString()}`,
+    'DEBUG',
+  );
 
   const allData: HealthDataPayload = [];
   const collectedCounts: string[] = [];
@@ -192,21 +230,33 @@ const performBackgroundSyncInternal = async (taskId: string): Promise<void> => {
     }
   }
   enabledMetricCount = enabledMetrics.length;
-  addLog(`[Background Sync] Found ${enabledMetricCount} enabled metrics`, 'INFO');
+  addLog(
+    `[Background Sync] Found ${enabledMetricCount} enabled metrics`,
+    'INFO',
+  );
 
   if (enabledMetricCount === 0) {
-    await addLog('[Background Sync] No metrics enabled — nothing to sync', 'INFO');
+    await addLog(
+      '[Background Sync] No metrics enabled — nothing to sync',
+      'INFO',
+    );
     return;
   }
 
   const results = await runTasksInBatches(
     enabledMetrics,
     METRIC_FETCH_CONCURRENCY,
-    metric => withTimeout(
-      processBackgroundMetric(metric, aggregatedStartDate, sessionStartDate, endDate),
-      METRIC_TIMEOUT_MS,
-      `Background query for ${metric.recordType}`,
-    ),
+    metric =>
+      withTimeout(
+        processBackgroundMetric(
+          metric,
+          aggregatedStartDate,
+          sessionStartDate,
+          endDate,
+        ),
+        METRIC_TIMEOUT_MS,
+        `Background query for ${metric.recordType}`,
+      ),
     {
       stopOnError: error => error instanceof TimeoutError,
     },
@@ -236,8 +286,14 @@ const performBackgroundSyncInternal = async (taskId: string): Promise<void> => {
       }
     } else {
       syncErrors++;
-      const message = result.reason instanceof Error ? result.reason.message : String(result.reason);
-      addLog(`[Background Sync] Error syncing ${metric.label}: ${message}`, 'ERROR');
+      const message =
+        result.reason instanceof Error
+          ? result.reason.message
+          : String(result.reason);
+      addLog(
+        `[Background Sync] Error syncing ${metric.label}: ${message}`,
+        'ERROR',
+      );
     }
   }
 
@@ -246,8 +302,8 @@ const performBackgroundSyncInternal = async (taskId: string): Promise<void> => {
   if (inaccessibleCount > 0 && allData.length === 0) {
     await addLog(
       `[Background Sync] Device appears locked — ${inaccessibleCount} HealthKit query(s) returned database inaccessible ` +
-      `(${enabledMetricCount} metric(s) enabled). Skipping timestamp update; will retry next cycle.`,
-      'WARNING'
+        `(${enabledMetricCount} metric(s) enabled). Skipping timestamp update; will retry next cycle.`,
+      'WARNING',
     );
     return;
   }
@@ -255,14 +311,20 @@ const performBackgroundSyncInternal = async (taskId: string): Promise<void> => {
   if (inaccessibleCount > 0) {
     addLog(
       `[Background Sync] Partial data collected — ${inaccessibleCount} query(s) hit database inaccessible, ` +
-      `but ${allData.length} records were still collected. Proceeding with sync.`,
-      'WARNING'
+        `but ${allData.length} records were still collected. Proceeding with sync.`,
+      'WARNING',
     );
   }
 
   if (allData.length > 0) {
-    addLog(`[Background Sync] Collected ${allData.length} records (${collectedCounts.join(', ')})`, 'DEBUG');
-    addLog(`[Background Sync] Sending ${allData.length} records to server`, 'INFO');
+    addLog(
+      `[Background Sync] Collected ${allData.length} records (${collectedCounts.join(', ')})`,
+      'DEBUG',
+    );
+    addLog(
+      `[Background Sync] Sending ${allData.length} records to server`,
+      'INFO',
+    );
     await syncHealthData(allData);
     await refreshHealthSyncCacheWhenActive();
 
@@ -275,9 +337,15 @@ const performBackgroundSyncInternal = async (taskId: string): Promise<void> => {
       await saveLastSyncedTime();
     }
 
-    await addLog(`[Background Sync] Sync completed successfully${syncErrors > 0 ? ` (${syncErrors} metric(s) had errors)` : ''}`, 'INFO');
+    await addLog(
+      `[Background Sync] Sync completed successfully${syncErrors > 0 ? ` (${syncErrors} metric(s) had errors)` : ''}`,
+      'INFO',
+    );
   } else {
-    await addLog(`[Background Sync] No health data collected to sync${syncErrors > 0 ? ` (${syncErrors} metric(s) had errors)` : ''}`, 'INFO');
+    await addLog(
+      `[Background Sync] No health data collected to sync${syncErrors > 0 ? ` (${syncErrors} metric(s) had errors)` : ''}`,
+      'INFO',
+    );
   }
 };
 
@@ -301,7 +369,9 @@ export const configureBackgroundSync = async (): Promise<void> => {
   try {
     const enabled = await loadBackgroundSyncEnabled();
     if (!enabled) {
-      await BackgroundTask.unregisterTaskAsync(BACKGROUND_TASK_NAME).catch(() => {});
+      await BackgroundTask.unregisterTaskAsync(BACKGROUND_TASK_NAME).catch(
+        () => {},
+      );
       // Disabled temporarily due to log flooding
       // addLog('[Background Sync] Background sync disabled, task unregistered', 'DEBUG');
       return;
@@ -318,7 +388,10 @@ export const configureBackgroundSync = async (): Promise<void> => {
     // // }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Background Sync] Failed to register background task: ${message}`, 'ERROR');
+    addLog(
+      `[Background Sync] Failed to register background task: ${message}`,
+      'ERROR',
+    );
   }
 };
 
@@ -328,7 +401,10 @@ export const stopBackgroundSync = async (): Promise<void> => {
     addLog('[Background Sync] Background task unregistered', 'INFO');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Background Sync] Background task failed to stop: ${message}`, 'ERROR');
+    addLog(
+      `[Background Sync] Background task failed to stop: ${message}`,
+      'ERROR',
+    );
   }
 };
 

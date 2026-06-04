@@ -22,11 +22,38 @@ jest.mock('../../src/services/api/healthDataApi', () => ({
 
 jest.mock('../../src/HealthMetrics', () => ({
   HEALTH_METRICS: [
-    { recordType: 'Steps', stateKey: 'isStepsSyncEnabled', unit: 'count', type: 'step' },
-    { recordType: 'HeartRate', stateKey: 'isHeartRateSyncEnabled', unit: 'bpm', type: 'heart_rate', aggregationStrategy: 'min-max-avg' },
-    { recordType: 'ActiveCaloriesBurned', stateKey: 'isCaloriesSyncEnabled', unit: 'kcal', type: 'active_calories' },
-    { recordType: 'TotalCaloriesBurned', stateKey: 'isTotalCaloriesSyncEnabled', unit: 'kcal', type: 'total_calories' },
-    { recordType: 'RunningSpeed', stateKey: 'isRunningSpeedSyncEnabled', unit: 'm/s', type: 'running_speed', aggregationStrategy: 'min-max-avg' },
+    {
+      recordType: 'Steps',
+      stateKey: 'isStepsSyncEnabled',
+      unit: 'count',
+      type: 'step',
+    },
+    {
+      recordType: 'HeartRate',
+      stateKey: 'isHeartRateSyncEnabled',
+      unit: 'bpm',
+      type: 'heart_rate',
+      aggregationStrategy: 'min-max-avg',
+    },
+    {
+      recordType: 'ActiveCaloriesBurned',
+      stateKey: 'isCaloriesSyncEnabled',
+      unit: 'kcal',
+      type: 'active_calories',
+    },
+    {
+      recordType: 'TotalCaloriesBurned',
+      stateKey: 'isTotalCaloriesSyncEnabled',
+      unit: 'kcal',
+      type: 'total_calories',
+    },
+    {
+      recordType: 'RunningSpeed',
+      stateKey: 'isRunningSpeedSyncEnabled',
+      unit: 'm/s',
+      type: 'running_speed',
+      aggregationStrategy: 'min-max-avg',
+    },
   ],
 }));
 
@@ -35,7 +62,9 @@ const mockQueryStatisticsForQuantity = queryStatisticsForQuantity as jest.Mock;
 const mockQueryQuantitySamples = queryQuantitySamples as jest.Mock;
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const api = require('../../src/services/api/healthDataApi') as { syncHealthData: jest.Mock };
+const api = require('../../src/services/api/healthDataApi') as {
+  syncHealthData: jest.Mock;
+};
 
 describe('syncHealthData (iOS)', () => {
   beforeEach(async () => {
@@ -46,7 +75,10 @@ describe('syncHealthData (iOS)', () => {
   });
 
   test('returns success with no data when no metrics enabled', async () => {
-    const result = await syncHealthData('24h' as SyncDuration, {} as HealthMetricStates);
+    const result = await syncHealthData(
+      '24h' as SyncDuration,
+      {} as HealthMetricStates,
+    );
 
     expect(result.success).toBe(true);
     expect(result.message).toBe('No new health data to sync.');
@@ -60,7 +92,9 @@ describe('syncHealthData (iOS)', () => {
     });
     api.syncHealthData.mockResolvedValue({ processed: 1, success: true });
 
-    const result = await syncHealthData('today' as SyncDuration, { isStepsSyncEnabled: true });
+    const result = await syncHealthData('today' as SyncDuration, {
+      isStepsSyncEnabled: true,
+    });
 
     expect(result.success).toBe(true);
     expect(result.apiResponse).toEqual({ processed: 1, success: true });
@@ -74,7 +108,7 @@ describe('syncHealthData (iOS)', () => {
           date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
           unit: 'count',
         }),
-      ])
+      ]),
     );
   });
 
@@ -84,7 +118,9 @@ describe('syncHealthData (iOS)', () => {
     });
     api.syncHealthData.mockRejectedValue(new Error('Network error'));
 
-    const result = await syncHealthData('today' as SyncDuration, { isStepsSyncEnabled: true });
+    const result = await syncHealthData('today' as SyncDuration, {
+      isStepsSyncEnabled: true,
+    });
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Network error');
@@ -118,9 +154,15 @@ describe('syncHealthData (iOS)', () => {
     expect(types).toContain('heart_rate_avg');
     expect(types).not.toContain('heart_rate');
 
-    const minRecord = sentData.find((r: { type: string }) => r.type === 'heart_rate_min');
-    const maxRecord = sentData.find((r: { type: string }) => r.type === 'heart_rate_max');
-    const avgRecord = sentData.find((r: { type: string }) => r.type === 'heart_rate_avg');
+    const minRecord = sentData.find(
+      (r: { type: string }) => r.type === 'heart_rate_min',
+    );
+    const maxRecord = sentData.find(
+      (r: { type: string }) => r.type === 'heart_rate_max',
+    );
+    const avgRecord = sentData.find(
+      (r: { type: string }) => r.type === 'heart_rate_avg',
+    );
 
     expect(minRecord.value).toBe(64);
     expect(maxRecord.value).toBe(80);
@@ -156,9 +198,15 @@ describe('syncHealthData (iOS)', () => {
     expect(types).not.toContain('running_speed');
 
     // Verify values
-    const minRecord = sentData.find((r: { type: string }) => r.type === 'running_speed_min');
-    const maxRecord = sentData.find((r: { type: string }) => r.type === 'running_speed_max');
-    const avgRecord = sentData.find((r: { type: string }) => r.type === 'running_speed_avg');
+    const minRecord = sentData.find(
+      (r: { type: string }) => r.type === 'running_speed_min',
+    );
+    const maxRecord = sentData.find(
+      (r: { type: string }) => r.type === 'running_speed_max',
+    );
+    const avgRecord = sentData.find(
+      (r: { type: string }) => r.type === 'running_speed_avg',
+    );
 
     expect(minRecord.value).toBe(2.5);
     expect(maxRecord.value).toBe(4.0);
@@ -182,7 +230,9 @@ describe('syncHealthData (iOS)', () => {
     expect(mockQueryQuantitySamples).not.toHaveBeenCalled();
 
     const sentData = api.syncHealthData.mock.calls[0][0];
-    const calorieRecords = sentData.filter((r: { type: string }) => r.type === 'total_calories');
+    const calorieRecords = sentData.filter(
+      (r: { type: string }) => r.type === 'total_calories',
+    );
     expect(calorieRecords.length).toBeGreaterThan(0);
     // 1000 basal + 1000 active = 2000
     expect(calorieRecords[0].value).toBe(2000);

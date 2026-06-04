@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Platform,
   StyleSheet,
@@ -33,8 +39,8 @@ import {
 } from '@workspace/shared';
 
 const STANDARD_UNIT_KEYS = new Set(
-  FOOD_FORM_UNIT_GROUPS.flatMap((group) =>
-    group.units.map((unit) => unit.trim().toLowerCase()),
+  FOOD_FORM_UNIT_GROUPS.flatMap(group =>
+    group.units.map(unit => unit.trim().toLowerCase()),
   ),
 );
 
@@ -119,7 +125,7 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
 
   const selectedVariant = useMemo(
     () =>
-      variants.find((variant) => variant.id === selectedVariantId) ??
+      variants.find(variant => variant.id === selectedVariantId) ??
       variants[0] ??
       null,
     [selectedVariantId, variants],
@@ -134,7 +140,8 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
   const selectedUnitKey = useMemo(
     () =>
       normalizeUnitKey(
-        selectedSelection?.variant.serving_unit ?? selectedVariant?.serving_unit,
+        selectedSelection?.variant.serving_unit ??
+          selectedVariant?.serving_unit,
       ),
     [selectedSelection, selectedVariant],
   );
@@ -142,32 +149,30 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
   const savedStandardUnits = useMemo(
     () =>
       variants
-        .map((variant) => normalizeUnitKey(variant.serving_unit))
-        .filter((unit) => STANDARD_UNIT_KEYS.has(unit)),
+        .map(variant => normalizeUnitKey(variant.serving_unit))
+        .filter(unit => STANDARD_UNIT_KEYS.has(unit)),
     [variants],
   );
 
   const groupedUnits = useMemo(() => {
     const availableUnits = new Set(
-      convertibleUnits.map((unit) => unit.toLowerCase()),
+      convertibleUnits.map(unit => unit.toLowerCase()),
     );
-    savedStandardUnits.forEach((unit) => {
+    savedStandardUnits.forEach(unit => {
       availableUnits.add(unit);
     });
     if (selectedUnitKey) {
       availableUnits.add(selectedUnitKey);
     }
 
-    return FOOD_FORM_UNIT_GROUPS
-      .map((group) => ({
-        label: group.label,
-        units: group.units.filter(
-          (unit) =>
-            availableUnits.has(unit.toLowerCase()) &&
-            !UNIT_ALIASES_TO_HIDE.has(unit.toLowerCase()),
-        ),
-      }))
-      .filter((group) => group.units.length > 0);
+    return FOOD_FORM_UNIT_GROUPS.map(group => ({
+      label: group.label,
+      units: group.units.filter(
+        unit =>
+          availableUnits.has(unit.toLowerCase()) &&
+          !UNIT_ALIASES_TO_HIDE.has(unit.toLowerCase()),
+      ),
+    })).filter(group => group.units.length > 0);
   }, [convertibleUnits, savedStandardUnits, selectedUnitKey]);
 
   const renderBackdrop = useCallback(
@@ -190,7 +195,11 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
   }, []);
 
   const handleOpen = useCallback(() => {
-    if (isDismissingRef.current || isOpenRef.current || isPresentingRef.current) {
+    if (
+      isDismissingRef.current ||
+      isOpenRef.current ||
+      isPresentingRef.current
+    ) {
       return;
     }
 
@@ -285,7 +294,7 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
     async (unit: string) => {
       const normalizedTarget = normalizeUnitKey(unit);
       const matchedVariant = variants.find(
-        (variant) =>
+        variant =>
           Boolean(variant.id) &&
           normalizeUnitKey(variant.serving_unit) === normalizedTarget,
       );
@@ -331,7 +340,7 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
 
   const customSavedVariants = useMemo(
     () =>
-      variants.filter((variant) => {
+      variants.filter(variant => {
         const normalizedUnit = normalizeUnitKey(variant.serving_unit);
         return Boolean(variant.id) && !STANDARD_UNIT_KEYS.has(normalizedUnit);
       }),
@@ -343,7 +352,9 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
       borderColor: isSelected && !isDarkMode ? borderStrong : borderSubtle,
       borderTopWidth: isSelected && !isDarkMode ? StyleSheet.hairlineWidth : 0,
       borderBottomWidth:
-        isSelected && !isDarkMode ? StyleSheet.hairlineWidth : StyleSheet.hairlineWidth,
+        isSelected && !isDarkMode
+          ? StyleSheet.hairlineWidth
+          : StyleSheet.hairlineWidth,
       backgroundColor: isSelected ? raisedBg : 'transparent',
       paddingHorizontal: 16,
       paddingVertical: 14,
@@ -358,7 +369,10 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
     // the dropdown surfaces the indicator.
     const isAiSourced =
       variant.source === 'ai_estimate' && Boolean(variant.food_id);
-    const aiConfidence = variant.ai_confidence as AiConfidence | null | undefined;
+    const aiConfidence = variant.ai_confidence as
+      | AiConfidence
+      | null
+      | undefined;
     const aiTone = aiConfidence ? CONFIDENCE_TONES[aiConfidence] : null;
     const aiSparkleColor = aiTone ? aiSparkleColorByTone[aiTone] : textMuted;
     const aiAccessibilityLabel = aiConfidence
@@ -401,7 +415,7 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
   const renderUnitRow = (unit: string) => {
     const matchedSavedVariant =
       variants.find(
-        (variant) =>
+        variant =>
           Boolean(variant.id) &&
           normalizeUnitKey(variant.serving_unit) === normalizeUnitKey(unit),
       ) ?? null;
@@ -467,7 +481,7 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
         enableDynamicSizing={false}
         backdropComponent={renderBackdrop}
         onDismiss={handleDismiss}
-        onChange={(index) => {
+        onChange={index => {
           isOpenRef.current = index >= 0;
           if (index >= 0) {
             isPresentingRef.current = false;
@@ -496,7 +510,7 @@ const FoodUnitSelectorSheet: React.FC<FoodUnitSelectorSheetProps> = ({
               </>
             ) : null}
 
-            {groupedUnits.map((group) => (
+            {groupedUnits.map(group => (
               <React.Fragment key={group.label}>
                 <View className="px-4 py-2 bg-surface">
                   <Text className="text-xs font-semibold uppercase text-text-muted">

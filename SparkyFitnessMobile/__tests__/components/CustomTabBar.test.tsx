@@ -37,9 +37,10 @@ describe('CustomTabBar', () => {
           {
             navigation: {} as never,
             route,
-            options: route.name === 'Add'
-              ? { tabBarAccessibilityLabel: 'Add' }
-              : { title: route.name },
+            options:
+              route.name === 'Add'
+                ? { tabBarAccessibilityLabel: 'Add' }
+                : { title: route.name },
             render: jest.fn(),
           },
         ]),

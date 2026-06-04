@@ -1,5 +1,9 @@
 import { formatRest } from '../../src/components/RestPeriodChip';
-import { clampRestSeconds, MIN_REST_SEC, MAX_REST_SEC } from '../../src/components/RestPeriodSheet';
+import {
+  clampRestSeconds,
+  MIN_REST_SEC,
+  MAX_REST_SEC,
+} from '../../src/components/RestPeriodSheet';
 
 describe('formatRest', () => {
   it('formats values under a minute as Ns', () => {

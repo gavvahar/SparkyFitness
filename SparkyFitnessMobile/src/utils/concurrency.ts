@@ -9,7 +9,11 @@ export class TimeoutError extends Error {
  * Wraps a promise with a timeout. Rejects with a TimeoutError if the
  * promise doesn't settle within `ms` milliseconds.
  */
-export function withTimeout<T>(promise: Promise<T>, ms: number, label?: string): Promise<T> {
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label?: string,
+): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(
@@ -54,7 +58,10 @@ export async function runTasksInBatches<TInput, TResult>(
     for (let index = 0; index < batchResults.length; index++) {
       const result = batchResults[index];
       results[start + index] = result;
-      if (result.status === 'rejected' && options.stopOnError?.(result.reason)) {
+      if (
+        result.status === 'rejected' &&
+        options.stopOnError?.(result.reason)
+      ) {
         shouldStop = true;
       }
     }
@@ -85,10 +92,12 @@ export function createConcurrencyLimiter(concurrency: number) {
   return <T>(fn: () => Promise<T>): Promise<T> => {
     return new Promise<T>((resolve, reject) => {
       const run = () => {
-        fn().then(resolve, reject).finally(() => {
-          active--;
-          next();
-        });
+        fn()
+          .then(resolve, reject)
+          .finally(() => {
+            active--;
+            next();
+          });
       };
       queue.push(run);
       next();

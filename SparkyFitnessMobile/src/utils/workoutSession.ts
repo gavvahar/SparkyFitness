@@ -85,7 +85,10 @@ const SOURCE_DISPLAY_NAMES: Record<string, string> = {
   withings: 'Withings',
 };
 
-export function getSourceLabel(source: string | null): { label: string; isSparky: boolean } {
+export function getSourceLabel(source: string | null): {
+  label: string;
+  isSparky: boolean;
+} {
   const s = source?.toLowerCase() ?? null;
   if (s == null || s === 'manual' || s === 'sparky' || s === 'workout plan') {
     return { label: 'Sparky', isSparky: true };
@@ -127,7 +130,9 @@ export interface ExerciseStats {
   durationMinutes: number;
 }
 
-export function calculateExerciseStats(sessions: ExerciseSessionResponse[]): ExerciseStats {
+export function calculateExerciseStats(
+  sessions: ExerciseSessionResponse[],
+): ExerciseStats {
   let caloriesBurned = 0;
   let activeCalories = 0;
   let otherExerciseCalories = 0;
@@ -141,7 +146,8 @@ export function calculateExerciseStats(sessions: ExerciseSessionResponse[]): Exe
       otherExerciseCalories += sessionCals;
       durationMinutes += session.total_duration_minutes;
     } else {
-      const isActiveCals = session.exercise_snapshot?.name === 'Active Calories';
+      const isActiveCals =
+        session.exercise_snapshot?.name === 'Active Calories';
       if (isActiveCals) {
         activeCalories += session.calories_burned || 0;
       } else {
@@ -151,24 +157,33 @@ export function calculateExerciseStats(sessions: ExerciseSessionResponse[]): Exe
     }
   }
 
-  return { caloriesBurned, activeCalories, otherExerciseCalories, durationMinutes };
+  return {
+    caloriesBurned,
+    activeCalories,
+    otherExerciseCalories,
+    durationMinutes,
+  };
 }
 
 /** Total calories across all sessions. */
-export const calculateCaloriesBurned = (sessions: ExerciseSessionResponse[]): number =>
-  calculateExerciseStats(sessions).caloriesBurned;
+export const calculateCaloriesBurned = (
+  sessions: ExerciseSessionResponse[],
+): number => calculateExerciseStats(sessions).caloriesBurned;
 
 /** Calories from "Active Calories" individual entries only (e.g. watch/fitness tracker). */
-export const calculateActiveCalories = (sessions: ExerciseSessionResponse[]): number =>
-  calculateExerciseStats(sessions).activeCalories;
+export const calculateActiveCalories = (
+  sessions: ExerciseSessionResponse[],
+): number => calculateExerciseStats(sessions).activeCalories;
 
 /** Calories from all sessions except "Active Calories" entries. */
-export const calculateOtherExerciseCalories = (sessions: ExerciseSessionResponse[]): number =>
-  calculateExerciseStats(sessions).otherExerciseCalories;
+export const calculateOtherExerciseCalories = (
+  sessions: ExerciseSessionResponse[],
+): number => calculateExerciseStats(sessions).otherExerciseCalories;
 
 /** Total duration in minutes, excluding "Active Calories" entries. */
-export const calculateExerciseDuration = (sessions: ExerciseSessionResponse[]): number =>
-  calculateExerciseStats(sessions).durationMinutes;
+export const calculateExerciseDuration = (
+  sessions: ExerciseSessionResponse[],
+): number => calculateExerciseStats(sessions).durationMinutes;
 
 export function getWorkoutSummary(session: ExerciseSessionResponse): {
   name: string;
@@ -198,9 +213,16 @@ export function buildSessionSubtitle(
 ): string {
   if (session.type === 'preset') {
     const exerciseCount = session.exercises.length;
-    const totalSets = session.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+    const totalSets = session.exercises.reduce(
+      (sum, ex) => sum + ex.sets.length,
+      0,
+    );
     const totalVolumeKg = session.exercises.reduce(
-      (sum, ex) => ex.sets.reduce((s, set) => s + (set.weight ?? 0) * (set.reps ?? 0), sum),
+      (sum, ex) =>
+        ex.sets.reduce(
+          (s, set) => s + (set.weight ?? 0) * (set.reps ?? 0),
+          sum,
+        ),
       0,
     );
 
@@ -218,7 +240,8 @@ export function buildSessionSubtitle(
   if (session.sets.length > 0) {
     const totalSets = session.sets.length;
     const totalVolumeKg = session.sets.reduce(
-      (sum, set) => sum + (set.weight ?? 0) * (set.reps ?? 0), 0,
+      (sum, set) => sum + (set.weight ?? 0) * (set.reps ?? 0),
+      0,
     );
     const parts: string[] = [];
     parts.push(`${totalSets} set${totalSets !== 1 ? 's' : ''}`);

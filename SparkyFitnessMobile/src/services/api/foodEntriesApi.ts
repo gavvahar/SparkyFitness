@@ -36,7 +36,9 @@ export interface CreateFoodEntryPayload {
 /**
  * Creates a food entry.
  */
-export const createFoodEntry = async (payload: CreateFoodEntryPayload): Promise<FoodEntry> => {
+export const createFoodEntry = async (
+  payload: CreateFoodEntryPayload,
+): Promise<FoodEntry> => {
   return apiFetch<FoodEntry>({
     endpoint: '/api/food-entries/',
     serviceName: 'Food Entries API',
@@ -77,7 +79,10 @@ export interface UpdateFoodEntryPayload {
 /**
  * Updates a food entry by ID.
  */
-export const updateFoodEntry = async (id: string, payload: UpdateFoodEntryPayload): Promise<FoodEntry> => {
+export const updateFoodEntry = async (
+  id: string,
+  payload: UpdateFoodEntryPayload,
+): Promise<FoodEntry> => {
   return apiFetch<FoodEntry>({
     endpoint: `/api/food-entries/${id}`,
     serviceName: 'Food Entries API',
@@ -127,7 +132,10 @@ export const calculateCaloriesConsumed = (entries: FoodEntry[]): number => {
  * Calculates a macro nutrient total from food entries.
  * Uses same formula as calories: (value * quantity) / serving_size
  */
-const calculateMacro = (entries: FoodEntry[], field: keyof FoodEntry): number => {
+const calculateMacro = (
+  entries: FoodEntry[],
+  field: keyof FoodEntry,
+): number => {
   return entries.reduce((total, entry) => {
     if (entry.serving_size === 0) {
       return total;
@@ -140,7 +148,11 @@ const calculateMacro = (entries: FoodEntry[], field: keyof FoodEntry): number =>
   }, 0);
 };
 
-export const calculateProtein = (entries: FoodEntry[]): number => calculateMacro(entries, 'protein');
-export const calculateCarbs = (entries: FoodEntry[]): number => calculateMacro(entries, 'carbs');
-export const calculateFat = (entries: FoodEntry[]): number => calculateMacro(entries, 'fat');
-export const calculateFiber = (entries: FoodEntry[]): number => calculateMacro(entries, 'dietary_fiber');
+export const calculateProtein = (entries: FoodEntry[]): number =>
+  calculateMacro(entries, 'protein');
+export const calculateCarbs = (entries: FoodEntry[]): number =>
+  calculateMacro(entries, 'carbs');
+export const calculateFat = (entries: FoodEntry[]): number =>
+  calculateMacro(entries, 'fat');
+export const calculateFiber = (entries: FoodEntry[]): number =>
+  calculateMacro(entries, 'dietary_fiber');

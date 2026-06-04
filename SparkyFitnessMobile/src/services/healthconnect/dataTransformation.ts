@@ -21,7 +21,10 @@ const getDateString = (date: unknown): string | null => {
   try {
     return toLocalDateString(new Date(date as string | number | Date));
   } catch (e) {
-    addLog(`[HealthConnectService] Could not convert date: ${date}. ${e}`, 'WARNING');
+    addLog(
+      `[HealthConnectService] Could not convert date: ${date}. ${e}`,
+      'WARNING',
+    );
     return null;
   }
 };
@@ -37,7 +40,7 @@ interface ValueTransformResult {
 type ValueTransformer = (
   rec: Record<string, unknown>,
   metricConfig: MetricConfig,
-  index: number
+  index: number,
 ) => ValueTransformResult | null;
 
 // Transformer that directly pushes to output array (for complex records)
@@ -45,19 +48,26 @@ type DirectTransformer = (
   rec: Record<string, unknown>,
   record: unknown,
   metricConfig: MetricConfig,
-  output: TransformOutput[]
+  output: TransformOutput[],
 ) => void;
 
 // ============================================================================
 // Value Extractors - reusable functions for nested property extraction
 // ============================================================================
 
-const extractNestedValue = (rec: Record<string, unknown>, key: string, nestedKey: string): number | null => {
+const extractNestedValue = (
+  rec: Record<string, unknown>,
+  key: string,
+  nestedKey: string,
+): number | null => {
   const nested = rec[key] as Record<string, number> | undefined;
   return nested?.[nestedKey] ?? null;
 };
 
-const extractDirectValue = (rec: Record<string, unknown>, key: string): number | null => {
+const extractDirectValue = (
+  rec: Record<string, unknown>,
+  key: string,
+): number | null => {
   const val = rec[key];
   if (typeof val === 'number') return val;
   if (typeof val === 'string') {
@@ -69,7 +79,10 @@ const extractDirectValue = (rec: Record<string, unknown>, key: string): number |
 };
 
 // Try multiple date fields in order of preference
-const extractDate = (rec: Record<string, unknown>, ...fields: string[]): string | null => {
+const extractDate = (
+  rec: Record<string, unknown>,
+  ...fields: string[]
+): string | null => {
   for (const field of fields) {
     const date = getDateString(rec[field]);
     if (date) return date;
@@ -101,7 +114,9 @@ export const extractTimezoneMetadata = (
 
   const fallbackOffset = rec[fallback] as { totalSeconds?: number } | undefined;
   if (fallbackOffset?.totalSeconds != null) {
-    return { record_utc_offset_minutes: Math.round(fallbackOffset.totalSeconds / 60) };
+    return {
+      record_utc_offset_minutes: Math.round(fallbackOffset.totalSeconds / 60),
+    };
   }
 
   return {};
@@ -122,11 +137,16 @@ interface RobustExtractorConfig {
   logLabel: string;
 }
 
-const createRobustTransformer = (config: RobustExtractorConfig): ValueTransformer => {
+const createRobustTransformer = (
+  config: RobustExtractorConfig,
+): ValueTransformer => {
   return (rec, _metricConfig, index) => {
     // Log sample record for debugging on first record
     if (index === 0) {
-      addLog(`[Transform] ${config.logLabel} sample keys: ${Object.keys(rec).join(', ')}`, 'DEBUG');
+      addLog(
+        `[Transform] ${config.logLabel} sample keys: ${Object.keys(rec).join(', ')}`,
+        'DEBUG',
+      );
     }
 
     // Try value extraction strategies in order
@@ -140,7 +160,10 @@ const createRobustTransformer = (config: RobustExtractorConfig): ValueTransforme
     const date = extractDate(rec, ...config.dateFields);
 
     // Validate
-    const isValidValue = value !== null && !isNaN(value) && (!config.validateValue || config.validateValue(value));
+    const isValidValue =
+      value !== null &&
+      !isNaN(value) &&
+      (!config.validateValue || config.validateValue(value));
     const isValidDate = date !== null && date.length > 0;
 
     if (isValidValue && isValidDate) {
@@ -154,7 +177,10 @@ const createRobustTransformer = (config: RobustExtractorConfig): ValueTransforme
       const issues: string[] = [];
       if (!isValidValue) issues.push('invalid value');
       if (!isValidDate) issues.push('invalid date');
-      addLog(`[Transform] ${config.logLabel} FAILED: ${issues.join(', ')}`, 'WARNING');
+      addLog(
+        `[Transform] ${config.logLabel} FAILED: ${issues.join(', ')}`,
+        'WARNING',
+      );
     }
     return null;
   };
@@ -166,73 +192,73 @@ const createRobustTransformer = (config: RobustExtractorConfig): ValueTransforme
 
 const VALUE_TRANSFORMERS: Record<string, ValueTransformer> = {
   // Weight-like records with nested objects
-  Weight: (rec) => {
+  Weight: rec => {
     const value = extractNestedValue(rec, 'weight', 'inKilograms');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  Height: (rec) => {
+  Height: rec => {
     const value = extractNestedValue(rec, 'height', 'inMeters');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  Distance: (rec) => {
+  Distance: rec => {
     const value = extractNestedValue(rec, 'distance', 'inMeters');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  Hydration: (rec) => {
+  Hydration: rec => {
     const value = extractNestedValue(rec, 'volume', 'inLiters');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  BodyTemperature: (rec) => {
+  BodyTemperature: rec => {
     const value = extractNestedValue(rec, 'temperature', 'inCelsius');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  BasalBodyTemperature: (rec) => {
+  BasalBodyTemperature: rec => {
     const value = extractNestedValue(rec, 'temperature', 'inCelsius');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  LeanBodyMass: (rec) => {
+  LeanBodyMass: rec => {
     const value = extractNestedValue(rec, 'mass', 'inKilograms');
     const date = extractDate(rec, 'time', 'startTime');
     return value !== null && date ? { value, date } : null;
   },
 
-  BoneMass: (rec) => {
+  BoneMass: rec => {
     const value = extractNestedValue(rec, 'mass', 'inKilograms');
     const date = extractDate(rec, 'time', 'startTime');
     return value !== null && date ? { value, date } : null;
   },
 
-  ElevationGained: (rec) => {
+  ElevationGained: rec => {
     const value = extractNestedValue(rec, 'elevation', 'inMeters');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  Power: (rec) => {
+  Power: rec => {
     const value = extractNestedValue(rec, 'power', 'inWatts');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  Speed: (rec) => {
+  Speed: rec => {
     const value = extractNestedValue(rec, 'speed', 'inMetersPerSecond');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  Nutrition: (rec) => {
+  Nutrition: rec => {
     const energy = rec.energy as Record<string, number> | undefined;
     if (!energy?.inCalories) return null;
     const value = energy.inCalories / 1000;
@@ -241,43 +267,43 @@ const VALUE_TRANSFORMERS: Record<string, ValueTransformer> = {
   },
 
   // Direct value records
-  FloorsClimbed: (rec) => {
+  FloorsClimbed: rec => {
     const value = extractDirectValue(rec, 'floors');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  RespiratoryRate: (rec) => {
+  RespiratoryRate: rec => {
     const value = extractDirectValue(rec, 'rate');
     const date = extractDate(rec, 'time', 'startTime');
     return value !== null && date ? { value, date } : null;
   },
 
-  RestingHeartRate: (rec) => {
+  RestingHeartRate: rec => {
     const value = extractDirectValue(rec, 'beatsPerMinute');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  WheelchairPushes: (rec) => {
+  WheelchairPushes: rec => {
     const value = extractDirectValue(rec, 'count');
     const date = getDateString(rec.startTime);
     return value !== null && date ? { value, date } : null;
   },
 
-  IntermenstrualBleeding: (rec) => {
+  IntermenstrualBleeding: rec => {
     const date = getDateString(rec.time);
     return date ? { value: 1, date } : null;
   },
 
   // Percentage records
-  BloodAlcoholContent: (rec) => {
+  BloodAlcoholContent: rec => {
     const value = extractNestedValue(rec, 'percentage', 'inPercent');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
   },
 
-  BloodOxygenSaturation: (rec) => {
+  BloodOxygenSaturation: rec => {
     const value = extractNestedValue(rec, 'percentage', 'inPercent');
     const date = getDateString(rec.time);
     return value !== null && date ? { value, date } : null;
@@ -291,84 +317,89 @@ const VALUE_TRANSFORMERS: Record<string, ValueTransformer> = {
 VALUE_TRANSFORMERS['BasalMetabolicRate'] = createRobustTransformer({
   logLabel: 'BMR',
   dateFields: ['time', 'startTime', 'timestamp', 'date'],
-  validateValue: (v) => v > 0 && v < 10000,
+  validateValue: v => v > 0 && v < 10000,
   valueStrategies: [
-    (rec) => extractNestedValue(rec, 'basalMetabolicRate', 'inKilocaloriesPerDay'),
-    (rec) => extractNestedValue(rec, 'basalMetabolicRate', 'inCalories'),
-    (rec) => extractNestedValue(rec, 'basalMetabolicRate', 'inKilocalories'),
-    (rec) => {
+    rec =>
+      extractNestedValue(rec, 'basalMetabolicRate', 'inKilocaloriesPerDay'),
+    rec => extractNestedValue(rec, 'basalMetabolicRate', 'inCalories'),
+    rec => extractNestedValue(rec, 'basalMetabolicRate', 'inKilocalories'),
+    rec => {
       const bmr = rec.basalMetabolicRate;
       return typeof bmr === 'number' ? bmr : null;
     },
-    (rec) => extractDirectValue(rec, 'bmr'),
-    (rec) => extractDirectValue(rec, 'value'),
+    rec => extractDirectValue(rec, 'bmr'),
+    rec => extractDirectValue(rec, 'value'),
   ],
 });
 
 VALUE_TRANSFORMERS['BloodGlucose'] = createRobustTransformer({
   logLabel: 'BloodGlucose',
   dateFields: ['time', 'startTime', 'timestamp', 'date'],
-  validateValue: (v) => v > 0,
+  validateValue: v => v > 0,
   valueStrategies: [
-    (rec) => extractNestedValue(rec, 'level', 'inMillimolesPerLiter'),
-    (rec) => extractNestedValue(rec, 'bloodGlucose', 'inMillimolesPerLiter'),
-    (rec) => {
+    rec => extractNestedValue(rec, 'level', 'inMillimolesPerLiter'),
+    rec => extractNestedValue(rec, 'bloodGlucose', 'inMillimolesPerLiter'),
+    rec => {
       const mgDl = extractNestedValue(rec, 'level', 'inMilligramsPerDeciliter');
       return mgDl !== null ? mgDl / 18.018 : null;
     },
-    (rec) => {
-      const mgDl = extractNestedValue(rec, 'bloodGlucose', 'inMilligramsPerDeciliter');
+    rec => {
+      const mgDl = extractNestedValue(
+        rec,
+        'bloodGlucose',
+        'inMilligramsPerDeciliter',
+      );
       return mgDl !== null ? mgDl / 18.018 : null;
     },
-    (rec) => {
+    rec => {
       const level = rec.level;
       return typeof level === 'number' ? level : null;
     },
-    (rec) => extractDirectValue(rec, 'value'),
+    rec => extractDirectValue(rec, 'value'),
   ],
 });
 
 VALUE_TRANSFORMERS['BodyFat'] = createRobustTransformer({
   logLabel: 'BodyFat',
   dateFields: ['time', 'startTime', 'timestamp', 'date'],
-  validateValue: (v) => v >= 0 && v <= 100,
+  validateValue: v => v >= 0 && v <= 100,
   valueStrategies: [
-    (rec) => extractNestedValue(rec, 'percentage', 'inPercent'),
-    (rec) => {
+    rec => extractNestedValue(rec, 'percentage', 'inPercent'),
+    rec => {
       const pct = rec.percentage;
       return typeof pct === 'number' ? pct : null;
     },
-    (rec) => extractDirectValue(rec, 'value'),
-    (rec) => extractDirectValue(rec, 'bodyFat'),
-    (rec) => extractNestedValue(rec, 'bodyFatPercentage', 'inPercent'),
+    rec => extractDirectValue(rec, 'value'),
+    rec => extractDirectValue(rec, 'bodyFat'),
+    rec => extractNestedValue(rec, 'bodyFatPercentage', 'inPercent'),
   ],
 });
 
 VALUE_TRANSFORMERS['OxygenSaturation'] = createRobustTransformer({
   logLabel: 'OxygenSaturation',
   dateFields: ['time', 'startTime', 'timestamp', 'date'],
-  validateValue: (v) => v > 0 && v <= 100,
+  validateValue: v => v > 0 && v <= 100,
   valueStrategies: [
-    (rec) => extractNestedValue(rec, 'percentage', 'inPercent'),
-    (rec) => {
+    rec => extractNestedValue(rec, 'percentage', 'inPercent'),
+    rec => {
       const pct = rec.percentage;
       return typeof pct === 'number' ? pct : null;
     },
-    (rec) => extractDirectValue(rec, 'value'),
-    (rec) => extractDirectValue(rec, 'oxygenSaturation'),
-    (rec) => extractDirectValue(rec, 'spo2'),
+    rec => extractDirectValue(rec, 'value'),
+    rec => extractDirectValue(rec, 'oxygenSaturation'),
+    rec => extractDirectValue(rec, 'spo2'),
   ],
 });
 
 VALUE_TRANSFORMERS['Vo2Max'] = createRobustTransformer({
   logLabel: 'Vo2Max',
   dateFields: ['time', 'startTime', 'timestamp', 'date'],
-  validateValue: (v) => v > 0 && v < 100,
+  validateValue: v => v > 0 && v < 100,
   valueStrategies: [
-    (rec) => extractDirectValue(rec, 'vo2MillilitersPerMinuteKilogram'),
-    (rec) => extractDirectValue(rec, 'vo2Max'),
-    (rec) => extractDirectValue(rec, 'vo2'),
-    (rec) => extractDirectValue(rec, 'value'),
+    rec => extractDirectValue(rec, 'vo2MillilitersPerMinuteKilogram'),
+    rec => extractDirectValue(rec, 'vo2Max'),
+    rec => extractDirectValue(rec, 'vo2'),
+    rec => extractDirectValue(rec, 'value'),
   ],
 });
 
@@ -467,17 +498,26 @@ const EXERCISE_MAP: Record<number, string> = {
 // We skip UNKNOWN values so they do not distort asleep-time totals downstream.
 const mapHealthConnectSleepStage = (stage: number): SleepStageType | null => {
   switch (stage) {
-    case 1: return 'awake';
-    case 2: return 'light';   // SLEEPING (generic) → light
-    case 3: return 'awake';   // OUT_OF_BED → awake
-    case 4: return 'light';
-    case 5: return 'deep';
-    case 6: return 'rem';
+    case 1:
+      return 'awake';
+    case 2:
+      return 'light'; // SLEEPING (generic) → light
+    case 3:
+      return 'awake'; // OUT_OF_BED → awake
+    case 4:
+      return 'light';
+    case 5:
+      return 'deep';
+    case 6:
+      return 'rem';
     case 0:
       addLog('[HealthConnect] Skipping UNKNOWN sleep stage value', 'WARNING');
       return null;
     default:
-      addLog(`[HealthConnect] Skipping unsupported sleep stage value: ${stage}`, 'WARNING');
+      addLog(
+        `[HealthConnect] Skipping unsupported sleep stage value: ${stage}`,
+        'WARNING',
+      );
       return null;
   }
 };
@@ -493,7 +533,13 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
 
     for (const sample of samples) {
       if (sample.beatsPerMinute != null && !isNaN(sample.beatsPerMinute)) {
-        output.push({ value: sample.beatsPerMinute, type, date, unit, source: HEALTH_CONNECT_SOURCE });
+        output.push({
+          value: sample.beatsPerMinute,
+          type,
+          date,
+          unit,
+          source: HEALTH_CONNECT_SOURCE,
+        });
       }
     }
   },
@@ -539,7 +585,9 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
     if (durationInSeconds <= 0) return;
     const recordDate = toLocalDateString(rec.endTime as string);
 
-    const stages = rec.stages as { startTime: string; endTime: string; stage: number }[] | undefined;
+    const stages = rec.stages as
+      | { startTime: string; endTime: string; stage: number }[]
+      | undefined;
 
     let deepSeconds = 0;
     let lightSeconds = 0;
@@ -569,10 +617,18 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
         });
 
         switch (stageType) {
-          case 'deep': deepSeconds += stageDuration; break;
-          case 'light': lightSeconds += stageDuration; break;
-          case 'rem': remSeconds += stageDuration; break;
-          case 'awake': awakeSeconds += stageDuration; break;
+          case 'deep':
+            deepSeconds += stageDuration;
+            break;
+          case 'light':
+            lightSeconds += stageDuration;
+            break;
+          case 'rem':
+            remSeconds += stageDuration;
+            break;
+          case 'awake':
+            awakeSeconds += stageDuration;
+            break;
         }
       }
     }
@@ -593,7 +649,9 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
       stage_events: stageEvents,
       sleep_score: 0,
       deep_sleep_seconds: deepSeconds,
-      light_sleep_seconds: hasRecognizedStages ? lightSeconds : durationInSeconds,
+      light_sleep_seconds: hasRecognizedStages
+        ? lightSeconds
+        : durationInSeconds,
       rem_sleep_seconds: remSeconds,
       awake_sleep_seconds: awakeSeconds,
       ...extractTimezoneMetadata(rec, true),
@@ -613,7 +671,7 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
     const recordDate = toLocalDateString(rec.startTime as string);
     const exerciseType = rec.exerciseType as number | undefined;
     const activityTypeName = exerciseType
-      ? (EXERCISE_MAP[exerciseType] || `Exercise Type ${exerciseType}`)
+      ? EXERCISE_MAP[exerciseType] || `Exercise Type ${exerciseType}`
       : 'Exercise Session';
     const title = (rec.title as string) || activityTypeName;
 
@@ -651,7 +709,13 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
       distance: parseFloat(distanceKm.toFixed(2)),
       notes: rec.notes as string | undefined,
       raw_data: record,
-      sets: [{ set_number: 1, set_type: 'Working Set', duration: Math.round(durationInSeconds / 60) }],
+      sets: [
+        {
+          set_number: 1,
+          set_type: 'Working Set',
+          duration: Math.round(durationInSeconds / 60),
+        },
+      ],
       source_id: metadata?.id,
       ...extractTimezoneMetadata(rec),
     };
@@ -668,7 +732,11 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
 
     // Normalize to local midnight so a record like day1 20:00 → day2 08:00 still
     // emits both calendar days (the loop otherwise terminates after day 1).
-    const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const startDay = new Date(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate(),
+    );
     const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
     for (let d = startDay; d <= endDay; d.setDate(d.getDate() + 1)) {
       output.push({
@@ -682,7 +750,9 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
   },
 
   CyclingPedalingCadence: (rec, _record, metricConfig, output) => {
-    const samples = rec.samples as { revolutionsPerMinute: number }[] | undefined;
+    const samples = rec.samples as
+      | { revolutionsPerMinute: number }[]
+      | undefined;
     if (!rec.startTime || !samples) return;
 
     const { unit, type } = metricConfig;
@@ -722,10 +792,14 @@ const DIRECT_TRANSFORMERS: Record<string, DirectTransformer> = {
 // Calorie Transformers - special handling for aggregated vs raw records
 // ============================================================================
 
-const createCalorieTransformer = (aggregatedType: string, logLabel: string): ValueTransformer => {
+const createCalorieTransformer = (
+  aggregatedType: string,
+  logLabel: string,
+): ValueTransformer => {
   return (rec, _metricConfig, index) => {
     // Check if this is an aggregated record (handles both naming conventions from different aggregation functions)
-    const isAggregatedCalories = rec.type === aggregatedType ||
+    const isAggregatedCalories =
+      rec.type === aggregatedType ||
       rec.type === 'total_calories' ||
       rec.type === 'Active Calories' ||
       rec.type === 'active_calories';
@@ -733,7 +807,10 @@ const createCalorieTransformer = (aggregatedType: string, logLabel: string): Val
       const value = rec.value as number;
       const recordDate = rec.date as string;
       if (index === 0) {
-        addLog(`[Transform] ${logLabel} (aggregated as ${rec.type}) on ${recordDate}`, 'DEBUG');
+        addLog(
+          `[Transform] ${logLabel} (aggregated as ${rec.type}) on ${recordDate}`,
+          'DEBUG',
+        );
       }
       // Preserve the original type from aggregated records
       return { value, date: recordDate, type: rec.type as string };
@@ -759,28 +836,48 @@ const createCalorieTransformer = (aggregatedType: string, logLabel: string): Val
     }
 
     if (index === 0) {
-      addLog(`[Transform] ${logLabel} FAILED: missing ${value === null ? 'value' : 'date'}`, 'WARNING');
+      addLog(
+        `[Transform] ${logLabel} FAILED: missing ${value === null ? 'value' : 'date'}`,
+        'WARNING',
+      );
     }
     return null;
   };
 };
 
-VALUE_TRANSFORMERS['ActiveCaloriesBurned'] = createCalorieTransformer('Active Calories', 'ActiveCalories');
-VALUE_TRANSFORMERS['TotalCaloriesBurned'] = createCalorieTransformer('total_calories', 'TotalCalories');
+VALUE_TRANSFORMERS['ActiveCaloriesBurned'] = createCalorieTransformer(
+  'Active Calories',
+  'ActiveCalories',
+);
+VALUE_TRANSFORMERS['TotalCaloriesBurned'] = createCalorieTransformer(
+  'total_calories',
+  'TotalCalories',
+);
 
 // ============================================================================
 // Skip Types - qualitative records that should be skipped
 // ============================================================================
 
-const SKIP_TYPES = new Set(['CervicalMucus', 'MenstruationFlow', 'OvulationTest', 'SexualActivity']);
+const SKIP_TYPES = new Set([
+  'CervicalMucus',
+  'MenstruationFlow',
+  'OvulationTest',
+  'SexualActivity',
+]);
 
 // ============================================================================
 // Main Transform Function
 // ============================================================================
 
-export const transformHealthRecords = (records: unknown[], metricConfig: MetricConfig): TransformOutput[] => {
+export const transformHealthRecords = (
+  records: unknown[],
+  metricConfig: MetricConfig,
+): TransformOutput[] => {
   if (!Array.isArray(records)) {
-    addLog(`[HealthConnectService] transformHealthRecords received non-array records for ${metricConfig.recordType}`, 'WARNING');
+    addLog(
+      `[HealthConnectService] transformHealthRecords received non-array records for ${metricConfig.recordType}`,
+      'WARNING',
+    );
     return [];
   }
 
@@ -829,7 +926,8 @@ export const transformHealthRecords = (records: unknown[], metricConfig: MetricC
             transformed.record_timezone = rec.record_timezone as string;
           }
           if (rec.record_utc_offset_minutes != null) {
-            transformed.record_utc_offset_minutes = rec.record_utc_offset_minutes as number;
+            transformed.record_utc_offset_minutes =
+              rec.record_utc_offset_minutes as number;
           }
           transformedData.push(transformed);
           successCount++;
@@ -892,18 +990,27 @@ export const transformHealthRecords = (records: unknown[], metricConfig: MetricC
 
       // Unhandled record type
       if (index === 0) {
-        addLog(`[HealthConnectService] No transformer found for record type: ${recordType}`, 'WARNING');
+        addLog(
+          `[HealthConnectService] No transformer found for record type: ${recordType}`,
+          'WARNING',
+        );
       }
       skipCount++;
     } catch (error) {
       skipCount++;
-      addLog(`[HealthConnectService] Error transforming ${recordType} record at index ${index}: ${(error as Error).message}`, 'WARNING');
+      addLog(
+        `[HealthConnectService] Error transforming ${recordType} record at index ${index}: ${(error as Error).message}`,
+        'WARNING',
+      );
     }
   });
 
   // Log transformation summary for debugging
   if (skipCount > 0) {
-    addLog(`[HealthConnectService] ${recordType} transformation: ${successCount} succeeded, ${skipCount} skipped (of ${records.length} total)`, 'DEBUG');
+    addLog(
+      `[HealthConnectService] ${recordType} transformation: ${successCount} succeeded, ${skipCount} skipped (of ${records.length} total)`,
+      'DEBUG',
+    );
   }
 
   return transformedData;

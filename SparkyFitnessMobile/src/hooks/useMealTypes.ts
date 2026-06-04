@@ -11,9 +11,9 @@ export function useMealTypes(options?: { enabled?: boolean }) {
     queryFn: fetchMealTypes,
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled,
-    select: (data) => {
+    select: data => {
       const mealTypes = data
-        .filter((mt) => mt.is_visible)
+        .filter(mt => mt.is_visible)
         .sort((a, b) => a.sort_order - b.sort_order);
       return {
         mealTypes,

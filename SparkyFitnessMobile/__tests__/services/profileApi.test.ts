@@ -1,9 +1,13 @@
 import { fetchProfile } from '../../src/services/api/profileApi';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({
@@ -39,7 +43,7 @@ describe('profileApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(fetchProfile()).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
 
@@ -61,7 +65,7 @@ describe('profileApi', () => {
 
             'X-Meal-Model-Version': '2',
           },
-        })
+        }),
       );
     });
 
@@ -79,7 +83,7 @@ describe('profileApi', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/identity/profiles',
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -113,7 +117,7 @@ describe('profileApi', () => {
       });
 
       await expect(fetchProfile()).rejects.toThrow(
-        'Server error: 401 - Unauthorized'
+        'Server error: 401 - Unauthorized',
       );
     });
 
@@ -121,9 +125,7 @@ describe('profileApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockRejectedValue(new Error('Network request failed'));
 
-      await expect(fetchProfile()).rejects.toThrow(
-        'Network request failed'
-      );
+      await expect(fetchProfile()).rejects.toThrow('Network request failed');
     });
   });
 });

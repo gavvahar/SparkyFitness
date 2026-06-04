@@ -15,7 +15,7 @@ export class RateLimiter {
 
   private prune(): void {
     const cutoff = Date.now() - this.windowMs;
-    this.timestamps = this.timestamps.filter((t) => t > cutoff);
+    this.timestamps = this.timestamps.filter(t => t > cutoff);
   }
 
   canProceed(): boolean {

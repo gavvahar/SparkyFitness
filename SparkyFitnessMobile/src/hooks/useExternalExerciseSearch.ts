@@ -14,15 +14,27 @@ export function useExternalExerciseSearch(
   const isSearchActive = debouncedSearch.length >= 3;
 
   const query = useInfiniteQuery({
-    queryKey: externalExerciseSearchQueryKey(providerType, debouncedSearch, providerId),
+    queryKey: externalExerciseSearchQueryKey(
+      providerType,
+      debouncedSearch,
+      providerId,
+    ),
     queryFn: async ({ pageParam }) => {
       if (!providerId) {
-        return { items: [], pagination: { page: 1, pageSize: 0, totalCount: 0, hasMore: false } };
+        return {
+          items: [],
+          pagination: { page: 1, pageSize: 0, totalCount: 0, hasMore: false },
+        };
       }
-      return searchExternalExercises(debouncedSearch, providerType, providerId, pageParam);
+      return searchExternalExercises(
+        debouncedSearch,
+        providerType,
+        providerId,
+        pageParam,
+      );
     },
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: lastPage =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     enabled: isSearchActive && enabled,
     staleTime: 1000 * 60 * 5,
@@ -30,10 +42,11 @@ export function useExternalExerciseSearch(
   });
 
   const searchResults = useMemo(
-    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    () => query.data?.pages.flatMap(p => p.items) ?? [],
     [query.data?.pages],
   );
-  const hasCurrentData = !query.isPlaceholderData && (query.data?.pages.length ?? 0) > 0;
+  const hasCurrentData =
+    !query.isPlaceholderData && (query.data?.pages.length ?? 0) > 0;
 
   return {
     searchResults,

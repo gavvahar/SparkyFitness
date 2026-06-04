@@ -43,7 +43,10 @@ export function getDatabaseInaccessibleCount(): number {
 export function isDatabaseInaccessibleError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const msg = error.message.toLowerCase();
-  return msg.includes('protected health data') || msg.includes('errordatabaseinaccessible');
+  return (
+    msg.includes('protected health data') ||
+    msg.includes('errordatabaseinaccessible')
+  );
 }
 
 // Define all supported HealthKit type identifiers for this app
@@ -104,75 +107,79 @@ const SUPPORTED_HK_TYPES = new Set<string>([
 // Without specifying a unit, HealthKit returns values in the user's preferred/locale unit,
 // which can cause issues if we assume a specific unit (e.g., kg vs lbs).
 const HEALTHKIT_UNIT_MAP: Record<string, string> = {
-  'Weight': 'kg',
-  'Height': 'm',
-  'LeanBodyMass': 'kg',
-  'Distance': 'm',
-  'Hydration': 'L',
-  'BodyTemperature': 'degC',
-  'BasalBodyTemperature': 'degC',
-  'BloodGlucose': 'mg/dL',
+  Weight: 'kg',
+  Height: 'm',
+  LeanBodyMass: 'kg',
+  Distance: 'm',
+  Hydration: 'L',
+  BodyTemperature: 'degC',
+  BasalBodyTemperature: 'degC',
+  BloodGlucose: 'mg/dL',
   // Add other metrics that need explicit units as needed
 };
 
 // Map our internal health metric types to the official HealthKit identifiers
 export const HEALTHKIT_TYPE_MAP: Record<string, string> = {
-  'Steps': 'HKQuantityTypeIdentifierStepCount',
-  'HeartRate': 'HKQuantityTypeIdentifierHeartRate',
-  'ActiveCaloriesBurned': 'HKQuantityTypeIdentifierActiveEnergyBurned',
-  'TotalCaloriesBurned': 'HKQuantityTypeIdentifierBasalEnergyBurned',
-  'Weight': 'HKQuantityTypeIdentifierBodyMass',
-  'Height': 'HKQuantityTypeIdentifierHeight',
-  'BodyFat': 'HKQuantityTypeIdentifierBodyFatPercentage',
-  'BloodPressure': 'BloodPressure', // Special case, handled separately
-  'BloodPressureSystolic': 'HKQuantityTypeIdentifierBloodPressureSystolic',
-  'BloodPressureDiastolic': 'HKQuantityTypeIdentifierBloodPressureDiastolic',
-  'BodyTemperature': 'HKQuantityTypeIdentifierBodyTemperature',
-  'BloodGlucose': 'HKQuantityTypeIdentifierBloodGlucose',
-  'OxygenSaturation': 'HKQuantityTypeIdentifierOxygenSaturation',
-  'Vo2Max': 'HKQuantityTypeIdentifierVO2Max',
-  'RestingHeartRate': 'HKQuantityTypeIdentifierRestingHeartRate',
-  'RespiratoryRate': 'HKQuantityTypeIdentifierRespiratoryRate',
-  'Distance': 'HKQuantityTypeIdentifierDistanceWalkingRunning',
-  'FloorsClimbed': 'HKQuantityTypeIdentifierFlightsClimbed',
-  'Hydration': 'HKQuantityTypeIdentifierDietaryWater',
-  'LeanBodyMass': 'HKQuantityTypeIdentifierLeanBodyMass',
-  'SleepSession': 'HKCategoryTypeIdentifierSleepAnalysis',
-  'Stress': 'HKCategoryTypeIdentifierMindfulSession', // Map Stress to MindfulSession for HealthKit
-  'Workout': 'HKWorkoutTypeIdentifier', // Map Workout to HKWorkoutTypeIdentifier for HealthKit
-  'CervicalMucus': 'HKCategoryTypeIdentifierCervicalMucusQuality',
-  'ExerciseRoute': 'HKWorkoutTypeIdentifier',
-  'IntermenstrualBleeding': 'HKCategoryTypeIdentifierIntermenstrualBleeding',
-  'MenstruationFlow': 'HKCategoryTypeIdentifierMenstrualFlow',
-  'OvulationTest': 'HKCategoryTypeIdentifierOvulationTestResult',
-  'BloodAlcoholContent': 'HKQuantityTypeIdentifierBloodAlcoholContent',
-  'BloodOxygenSaturation': 'HKQuantityTypeIdentifierOxygenSaturation',
-  'BasalBodyTemperature': 'HKQuantityTypeIdentifierBasalBodyTemperature',
-  'BasalMetabolicRate': 'HKQuantityTypeIdentifierBasalEnergyBurned',
-  'ExerciseSession': 'HKWorkoutTypeIdentifier',
-  'CyclingCadence': 'HKQuantityTypeIdentifierCyclingCadence',
-  'DietaryFatTotal': 'HKQuantityTypeIdentifierDietaryFatTotal',
-  'DietaryProtein': 'HKQuantityTypeIdentifierDietaryProtein',
-  'DietarySodium': 'HKQuantityTypeIdentifierDietarySodium',
-  'WalkingSpeed': 'HKQuantityTypeIdentifierWalkingSpeed',
-  'WalkingStepLength': 'HKQuantityTypeIdentifierWalkingStepLength',
-  'WalkingAsymmetryPercentage': 'HKQuantityTypeIdentifierWalkingAsymmetryPercentage',
-  'WalkingDoubleSupportPercentage': 'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage',
-  'RunningGroundContactTime': 'HKQuantityTypeIdentifierRunningGroundContactTime',
-  'RunningStrideLength': 'HKQuantityTypeIdentifierRunningStrideLength',
-  'RunningPower': 'HKQuantityTypeIdentifierRunningPower',
-  'RunningVerticalOscillation': 'HKQuantityTypeIdentifierRunningVerticalOscillation',
-  'RunningSpeed': 'HKQuantityTypeIdentifierRunningSpeed',
-  'CyclingSpeed': 'HKQuantityTypeIdentifierCyclingSpeed',
-  'CyclingPower': 'HKQuantityTypeIdentifierCyclingPower',
-  'CyclingFunctionalThresholdPower': 'HKQuantityTypeIdentifierCyclingFunctionalThresholdPower',
-  'EnvironmentalAudioExposure': 'HKQuantityTypeIdentifierEnvironmentalAudioExposure',
-  'HeadphoneAudioExposure': 'HKQuantityTypeIdentifierHeadphoneAudioExposure',
-  'AppleMoveTime': 'HKQuantityTypeIdentifierAppleMoveTime',
-  'AppleExerciseTime': 'HKQuantityTypeIdentifierAppleExerciseTime',
-  'AppleStandTime': 'HKQuantityTypeIdentifierAppleStandTime',
+  Steps: 'HKQuantityTypeIdentifierStepCount',
+  HeartRate: 'HKQuantityTypeIdentifierHeartRate',
+  ActiveCaloriesBurned: 'HKQuantityTypeIdentifierActiveEnergyBurned',
+  TotalCaloriesBurned: 'HKQuantityTypeIdentifierBasalEnergyBurned',
+  Weight: 'HKQuantityTypeIdentifierBodyMass',
+  Height: 'HKQuantityTypeIdentifierHeight',
+  BodyFat: 'HKQuantityTypeIdentifierBodyFatPercentage',
+  BloodPressure: 'BloodPressure', // Special case, handled separately
+  BloodPressureSystolic: 'HKQuantityTypeIdentifierBloodPressureSystolic',
+  BloodPressureDiastolic: 'HKQuantityTypeIdentifierBloodPressureDiastolic',
+  BodyTemperature: 'HKQuantityTypeIdentifierBodyTemperature',
+  BloodGlucose: 'HKQuantityTypeIdentifierBloodGlucose',
+  OxygenSaturation: 'HKQuantityTypeIdentifierOxygenSaturation',
+  Vo2Max: 'HKQuantityTypeIdentifierVO2Max',
+  RestingHeartRate: 'HKQuantityTypeIdentifierRestingHeartRate',
+  RespiratoryRate: 'HKQuantityTypeIdentifierRespiratoryRate',
+  Distance: 'HKQuantityTypeIdentifierDistanceWalkingRunning',
+  FloorsClimbed: 'HKQuantityTypeIdentifierFlightsClimbed',
+  Hydration: 'HKQuantityTypeIdentifierDietaryWater',
+  LeanBodyMass: 'HKQuantityTypeIdentifierLeanBodyMass',
+  SleepSession: 'HKCategoryTypeIdentifierSleepAnalysis',
+  Stress: 'HKCategoryTypeIdentifierMindfulSession', // Map Stress to MindfulSession for HealthKit
+  Workout: 'HKWorkoutTypeIdentifier', // Map Workout to HKWorkoutTypeIdentifier for HealthKit
+  CervicalMucus: 'HKCategoryTypeIdentifierCervicalMucusQuality',
+  ExerciseRoute: 'HKWorkoutTypeIdentifier',
+  IntermenstrualBleeding: 'HKCategoryTypeIdentifierIntermenstrualBleeding',
+  MenstruationFlow: 'HKCategoryTypeIdentifierMenstrualFlow',
+  OvulationTest: 'HKCategoryTypeIdentifierOvulationTestResult',
+  BloodAlcoholContent: 'HKQuantityTypeIdentifierBloodAlcoholContent',
+  BloodOxygenSaturation: 'HKQuantityTypeIdentifierOxygenSaturation',
+  BasalBodyTemperature: 'HKQuantityTypeIdentifierBasalBodyTemperature',
+  BasalMetabolicRate: 'HKQuantityTypeIdentifierBasalEnergyBurned',
+  ExerciseSession: 'HKWorkoutTypeIdentifier',
+  CyclingCadence: 'HKQuantityTypeIdentifierCyclingCadence',
+  DietaryFatTotal: 'HKQuantityTypeIdentifierDietaryFatTotal',
+  DietaryProtein: 'HKQuantityTypeIdentifierDietaryProtein',
+  DietarySodium: 'HKQuantityTypeIdentifierDietarySodium',
+  WalkingSpeed: 'HKQuantityTypeIdentifierWalkingSpeed',
+  WalkingStepLength: 'HKQuantityTypeIdentifierWalkingStepLength',
+  WalkingAsymmetryPercentage:
+    'HKQuantityTypeIdentifierWalkingAsymmetryPercentage',
+  WalkingDoubleSupportPercentage:
+    'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage',
+  RunningGroundContactTime: 'HKQuantityTypeIdentifierRunningGroundContactTime',
+  RunningStrideLength: 'HKQuantityTypeIdentifierRunningStrideLength',
+  RunningPower: 'HKQuantityTypeIdentifierRunningPower',
+  RunningVerticalOscillation:
+    'HKQuantityTypeIdentifierRunningVerticalOscillation',
+  RunningSpeed: 'HKQuantityTypeIdentifierRunningSpeed',
+  CyclingSpeed: 'HKQuantityTypeIdentifierCyclingSpeed',
+  CyclingPower: 'HKQuantityTypeIdentifierCyclingPower',
+  CyclingFunctionalThresholdPower:
+    'HKQuantityTypeIdentifierCyclingFunctionalThresholdPower',
+  EnvironmentalAudioExposure:
+    'HKQuantityTypeIdentifierEnvironmentalAudioExposure',
+  HeadphoneAudioExposure: 'HKQuantityTypeIdentifierHeadphoneAudioExposure',
+  AppleMoveTime: 'HKQuantityTypeIdentifierAppleMoveTime',
+  AppleExerciseTime: 'HKQuantityTypeIdentifierAppleExerciseTime',
+  AppleStandTime: 'HKQuantityTypeIdentifierAppleStandTime',
 };
-
 
 // Alias for cross-platform compatibility - Android uses initHealthConnect
 export const initHealthConnect = async (): Promise<boolean> => {
@@ -181,25 +188,33 @@ export const initHealthConnect = async (): Promise<boolean> => {
     return isHealthKitAvailable;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[HealthKitService] Failed to check HealthKit availability: ${message}`, 'ERROR');
+    addLog(
+      `[HealthKitService] Failed to check HealthKit availability: ${message}`,
+      'ERROR',
+    );
     isHealthKitAvailable = false;
     return false;
   }
 };
 
 export const requestHealthPermissions = async (
-  permissionsToRequest: PermissionRequest[]
+  permissionsToRequest: PermissionRequest[],
 ): Promise<boolean> => {
   if (!isHealthKitAvailable) {
     Alert.alert(
       'Health App Not Available',
-      'Please install the Apple Health app to sync your health data.'
+      'Please install the Apple Health app to sync your health data.',
     );
     return false;
   }
 
-  const isSimulator = Platform.OS === 'ios' && (Platform.constants as { simulator?: boolean })?.simulator === true;
-  if (isSimulator && !(globalThis as Record<string, unknown>).FORCE_HEALTHKIT_ON_SIM) {
+  const isSimulator =
+    Platform.OS === 'ios' &&
+    (Platform.constants as { simulator?: boolean })?.simulator === true;
+  if (
+    isSimulator &&
+    !(globalThis as Record<string, unknown>).FORCE_HEALTHKIT_ON_SIM
+  ) {
     return true;
   }
 
@@ -216,11 +231,19 @@ export const requestHealthPermissions = async (
       // Special handling for BloodPressure, which involves two identifiers
       if (p.recordType === 'BloodPressure') {
         if (p.accessType === 'read') {
-          readPermissionsSet.add('HKQuantityTypeIdentifierBloodPressureSystolic');
-          readPermissionsSet.add('HKQuantityTypeIdentifierBloodPressureDiastolic');
+          readPermissionsSet.add(
+            'HKQuantityTypeIdentifierBloodPressureSystolic',
+          );
+          readPermissionsSet.add(
+            'HKQuantityTypeIdentifierBloodPressureDiastolic',
+          );
         } else if (p.accessType === 'write') {
-          writePermissionsSet.add('HKQuantityTypeIdentifierBloodPressureSystolic');
-          writePermissionsSet.add('HKQuantityTypeIdentifierBloodPressureDiastolic');
+          writePermissionsSet.add(
+            'HKQuantityTypeIdentifierBloodPressureSystolic',
+          );
+          writePermissionsSet.add(
+            'HKQuantityTypeIdentifierBloodPressureDiastolic',
+          );
         }
       } else if (p.recordType === 'Workout') {
         if (p.accessType === 'read') {
@@ -228,8 +251,7 @@ export const requestHealthPermissions = async (
         } else if (p.accessType === 'write') {
           writePermissionsSet.add('HKWorkoutTypeIdentifier');
         }
-      }
-      else if (SUPPORTED_HK_TYPES.has(healthkitIdentifier)) {
+      } else if (SUPPORTED_HK_TYPES.has(healthkitIdentifier)) {
         if (p.accessType === 'read') {
           readPermissionsSet.add(healthkitIdentifier);
         } else if (p.accessType === 'write') {
@@ -254,13 +276,15 @@ export const requestHealthPermissions = async (
     });
 
     return true;
-
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[HealthKitService] Failed to request permissions: ${message}`, 'ERROR');
+    addLog(
+      `[HealthKitService] Failed to request permissions: ${message}`,
+      'ERROR',
+    );
     Alert.alert(
       'Permission Error',
-      `An unexpected error occurred while trying to request Health permissions: ${message}`
+      `An unexpected error occurred while trying to request Health permissions: ${message}`,
     );
     return false;
   }
@@ -280,25 +304,34 @@ interface AggregationConfig {
   logLabel: string;
   // Optional custom query function for metrics that need special handling (e.g., multi-query metrics)
   // If provided, this is used instead of the default single-query approach
-  queryFn?: (dayStart: Date, dayEnd: Date) => Promise<AggregationQueryResult | null>;
+  queryFn?: (
+    dayStart: Date,
+    dayEnd: Date,
+  ) => Promise<AggregationQueryResult | null>;
 }
 
 // Query function for total calories (basal + active)
 const queryTotalCalories = async (
   dayStart: Date,
-  dayEnd: Date
+  dayEnd: Date,
 ): Promise<AggregationQueryResult | null> => {
   try {
     const [basalStats, activeStats] = await Promise.all([
       queryStatisticsForQuantity(
         'HKQuantityTypeIdentifierBasalEnergyBurned',
         ['cumulativeSum'],
-        { filter: { date: { startDate: dayStart, endDate: dayEnd } }, unit: 'kcal' }
+        {
+          filter: { date: { startDate: dayStart, endDate: dayEnd } },
+          unit: 'kcal',
+        },
       ),
       queryStatisticsForQuantity(
         'HKQuantityTypeIdentifierActiveEnergyBurned',
         ['cumulativeSum'],
-        { filter: { date: { startDate: dayStart, endDate: dayEnd } }, unit: 'kcal' }
+        {
+          filter: { date: { startDate: dayStart, endDate: dayEnd } },
+          unit: 'kcal',
+        },
       ),
     ]);
 
@@ -312,10 +345,16 @@ const queryTotalCalories = async (
   } catch (error) {
     if (isDatabaseInaccessibleError(error)) {
       databaseInaccessibleCount++;
-      addLog('[HealthKitService] Total calories query failed: database inaccessible (device likely locked)', 'WARNING');
+      addLog(
+        '[HealthKitService] Total calories query failed: database inaccessible (device likely locked)',
+        'WARNING',
+      );
     } else {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[HealthKitService] Failed to query total calories: ${message}`, 'ERROR');
+      addLog(
+        `[HealthKitService] Failed to query total calories: ${message}`,
+        'ERROR',
+      );
     }
     return null;
   }
@@ -360,7 +399,7 @@ const defaultAggregationQuery = async (
   dayStart: Date,
   dayEnd: Date,
   identifier: string,
-  unit: string
+  unit: string,
 ): Promise<AggregationQueryResult | null> => {
   const stats = await queryStatisticsForQuantity(
     identifier as Parameters<typeof queryStatisticsForQuantity>[0],
@@ -373,7 +412,7 @@ const defaultAggregationQuery = async (
         },
       },
       unit,
-    }
+    },
   );
 
   if (stats && stats.sumQuantity && stats.sumQuantity.quantity > 0) {
@@ -388,10 +427,13 @@ const defaultAggregationQuery = async (
 const getAggregatedDataByDate = async (
   startDate: Date,
   endDate: Date,
-  config: AggregationConfig
+  config: AggregationConfig,
 ): Promise<AggregatedHealthRecord[]> => {
   if (!isHealthKitAvailable) {
-    addLog(`[HealthKitService] HealthKit not available for ${config.logLabel} aggregation`, 'DEBUG');
+    addLog(
+      `[HealthKitService] HealthKit not available for ${config.logLabel} aggregation`,
+      'DEBUG',
+    );
     return [];
   }
 
@@ -428,7 +470,12 @@ const getAggregatedDataByDate = async (
       // Use custom query function if provided, otherwise use default single-metric query
       const queryResult = config.queryFn
         ? await config.queryFn(dayStart, dayEnd)
-        : await defaultAggregationQuery(dayStart, dayEnd, config.identifier, config.unit);
+        : await defaultAggregationQuery(
+            dayStart,
+            dayEnd,
+            config.identifier,
+            config.unit,
+          );
 
       if (queryResult === null) {
         // null indicates an error occurred in the custom query
@@ -449,10 +496,16 @@ const getAggregatedDataByDate = async (
     } catch (error) {
       if (isDatabaseInaccessibleError(error)) {
         databaseInaccessibleCount++;
-        addLog(`[HealthKitService] Aggregated ${config.logLabel} query failed: database inaccessible (device likely locked)`, 'WARNING');
+        addLog(
+          `[HealthKitService] Aggregated ${config.logLabel} query failed: database inaccessible (device likely locked)`,
+          'WARNING',
+        );
       } else {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[HealthKitService] Failed to get aggregated ${config.logLabel}: ${message}`, 'ERROR');
+        addLog(
+          `[HealthKitService] Failed to get aggregated ${config.logLabel}: ${message}`,
+          'ERROR',
+        );
       }
     }
 
@@ -473,17 +526,38 @@ const getAggregatedDataByDate = async (
 export const getAggregatedStepsByDate = (startDate: Date, endDate: Date) =>
   getAggregatedDataByDate(startDate, endDate, AGGREGATION_CONFIGS.steps);
 
-export const getAggregatedActiveCaloriesByDate = (startDate: Date, endDate: Date) =>
-  getAggregatedDataByDate(startDate, endDate, AGGREGATION_CONFIGS.activeCalories);
+export const getAggregatedActiveCaloriesByDate = (
+  startDate: Date,
+  endDate: Date,
+) =>
+  getAggregatedDataByDate(
+    startDate,
+    endDate,
+    AGGREGATION_CONFIGS.activeCalories,
+  );
 
-export const getAggregatedTotalCaloriesByDate = (startDate: Date, endDate: Date) =>
-  getAggregatedDataByDate(startDate, endDate, AGGREGATION_CONFIGS.totalCalories);
+export const getAggregatedTotalCaloriesByDate = (
+  startDate: Date,
+  endDate: Date,
+) =>
+  getAggregatedDataByDate(
+    startDate,
+    endDate,
+    AGGREGATION_CONFIGS.totalCalories,
+  );
 
 export const getAggregatedDistanceByDate = (startDate: Date, endDate: Date) =>
   getAggregatedDataByDate(startDate, endDate, AGGREGATION_CONFIGS.distance);
 
-export const getAggregatedFloorsClimbedByDate = (startDate: Date, endDate: Date) =>
-  getAggregatedDataByDate(startDate, endDate, AGGREGATION_CONFIGS.floorsClimbed);
+export const getAggregatedFloorsClimbedByDate = (
+  startDate: Date,
+  endDate: Date,
+) =>
+  getAggregatedDataByDate(
+    startDate,
+    endDate,
+    AGGREGATION_CONFIGS.floorsClimbed,
+  );
 
 // ============================================================================
 // Record Handlers - modular handlers for different HealthKit record types
@@ -495,40 +569,66 @@ const QUERY_LIMIT = 20000;
 type RecordHandler = (
   identifier: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ) => Promise<unknown[]>;
 
 // Filter helpers for date range checking
-const isInDateRange = (recordDate: Date, startDate: Date, endDate: Date): boolean =>
-  recordDate >= startDate && recordDate <= endDate;
+const isInDateRange = (
+  recordDate: Date,
+  startDate: Date,
+  endDate: Date,
+): boolean => recordDate >= startDate && recordDate <= endDate;
 
-const overlapsDateRange = (recordStart: Date, recordEnd: Date, rangeStart: Date, rangeEnd: Date): boolean =>
-  recordStart < rangeEnd && recordEnd > rangeStart;
+const overlapsDateRange = (
+  recordStart: Date,
+  recordEnd: Date,
+  rangeStart: Date,
+  rangeEnd: Date,
+): boolean => recordStart < rangeEnd && recordEnd > rangeStart;
 
 // Handler for SleepSession records
-const handleSleepSession: RecordHandler = async (identifier, startDate, endDate) => {
-  const samples = await queryCategorySamples(identifier as Parameters<typeof queryCategorySamples>[0], {
-    ascending: false,
-    limit: QUERY_LIMIT,
-  });
+const handleSleepSession: RecordHandler = async (
+  identifier,
+  startDate,
+  endDate,
+) => {
+  const samples = await queryCategorySamples(
+    identifier as Parameters<typeof queryCategorySamples>[0],
+    {
+      ascending: false,
+      limit: QUERY_LIMIT,
+    },
+  );
 
   // Use overlap check to include sessions that span range boundaries
   // (e.g., overnight sleep starting before midnight, ending after)
   const filteredSamples = samples.filter(s => {
     const recordStartDate = new Date(s.startDate);
     const recordEndDate = new Date(s.endDate);
-    return overlapsDateRange(recordStartDate, recordEndDate, startDate, endDate);
+    return overlapsDateRange(
+      recordStartDate,
+      recordEndDate,
+      startDate,
+      endDate,
+    );
   });
 
   return filteredSamples.map(s => {
     // Normalize timezone: HealthKit exposes timezone as both metadata.HKTimeZone
     // and the flattened metadataTimeZone field. Ensure HKTimeZone is always set
     // so the aggregation layer can find it consistently.
-    const rawMetadata = (s as unknown as { metadata?: Record<string, unknown> }).metadata;
-    const flatTz = (s as unknown as { metadataTimeZone?: string }).metadataTimeZone;
+    const rawMetadata = (s as unknown as { metadata?: Record<string, unknown> })
+      .metadata;
+    const flatTz = (s as unknown as { metadataTimeZone?: string })
+      .metadataTimeZone;
     const metadata = rawMetadata
-      ? { ...rawMetadata, ...(flatTz && !rawMetadata.HKTimeZone ? { HKTimeZone: flatTz } : {}) }
-      : (flatTz ? { HKTimeZone: flatTz } : undefined);
+      ? {
+          ...rawMetadata,
+          ...(flatTz && !rawMetadata.HKTimeZone ? { HKTimeZone: flatTz } : {}),
+        }
+      : flatTz
+        ? { HKTimeZone: flatTz }
+        : undefined;
 
     return {
       startTime: s.startDate,
@@ -543,10 +643,13 @@ const handleSleepSession: RecordHandler = async (identifier, startDate, endDate)
 
 // Handler for Stress (MindfulSession) records
 const handleStress: RecordHandler = async (identifier, startDate, endDate) => {
-  const samples = await queryCategorySamples(identifier as Parameters<typeof queryCategorySamples>[0], {
-    ascending: false,
-    limit: QUERY_LIMIT,
-  });
+  const samples = await queryCategorySamples(
+    identifier as Parameters<typeof queryCategorySamples>[0],
+    {
+      ascending: false,
+      limit: QUERY_LIMIT,
+    },
+  );
 
   const filteredSamples = samples.filter(s => {
     const recordStartDate = new Date(s.startDate);
@@ -561,11 +664,18 @@ const handleStress: RecordHandler = async (identifier, startDate, endDate) => {
 };
 
 // Handler for reproductive health category types
-const handleReproductiveHealth: RecordHandler = async (identifier, startDate, endDate) => {
-  const samples = await queryCategorySamples(identifier as Parameters<typeof queryCategorySamples>[0], {
-    ascending: false,
-    limit: QUERY_LIMIT,
-  });
+const handleReproductiveHealth: RecordHandler = async (
+  identifier,
+  startDate,
+  endDate,
+) => {
+  const samples = await queryCategorySamples(
+    identifier as Parameters<typeof queryCategorySamples>[0],
+    {
+      ascending: false,
+      limit: QUERY_LIMIT,
+    },
+  );
 
   const filteredSamples = samples.filter(s => {
     const recordStartDate = new Date(s.startDate);
@@ -580,7 +690,11 @@ const handleReproductiveHealth: RecordHandler = async (identifier, startDate, en
 };
 
 // Handler for Workout/ExerciseSession records
-const handleWorkout: RecordHandler = async (_identifier, startDate, endDate) => {
+const handleWorkout: RecordHandler = async (
+  _identifier,
+  startDate,
+  endDate,
+) => {
   const workouts = await queryWorkoutSamples({
     ascending: false,
     limit: QUERY_LIMIT,
@@ -594,74 +708,83 @@ const handleWorkout: RecordHandler = async (_identifier, startDate, endDate) => 
   });
 
   // Fetch statistics (calories, distance) for each workout
-  const workoutsWithStats = await Promise.all(filteredWorkouts.map(async (w) => {
-    const workoutAny = w as unknown as {
-      totalEnergyBurned?: number | { quantity?: number };
-      totalDistance?: number | { quantity?: number };
-    };
+  const workoutsWithStats = await Promise.all(
+    filteredWorkouts.map(async w => {
+      const workoutAny = w as unknown as {
+        totalEnergyBurned?: number | { quantity?: number };
+        totalDistance?: number | { quantity?: number };
+      };
 
-    // Start with direct properties from workout sample (fallback for older workouts).
-    // The HealthKit library returns Quantity objects: { unit: string, quantity: number }
-    let totalEnergyBurned = typeof workoutAny.totalEnergyBurned === 'object'
-      ? (workoutAny.totalEnergyBurned?.quantity ?? 0)
-      : (workoutAny.totalEnergyBurned ?? 0);
-    let totalDistance = typeof workoutAny.totalDistance === 'object'
-      ? (workoutAny.totalDistance?.quantity ?? 0)
-      : (workoutAny.totalDistance ?? 0);
+      // Start with direct properties from workout sample (fallback for older workouts).
+      // The HealthKit library returns Quantity objects: { unit: string, quantity: number }
+      let totalEnergyBurned =
+        typeof workoutAny.totalEnergyBurned === 'object'
+          ? (workoutAny.totalEnergyBurned?.quantity ?? 0)
+          : (workoutAny.totalEnergyBurned ?? 0);
+      let totalDistance =
+        typeof workoutAny.totalDistance === 'object'
+          ? (workoutAny.totalDistance?.quantity ?? 0)
+          : (workoutAny.totalDistance ?? 0);
 
-    // Pin units explicitly on each getStatistic call. getAllStatistics returns
-    // values in the user's HealthKit-preferred unit (often miles / kJ), but the
-    // transform layer assumes meters / kcal, so we'd silently store mis-scaled
-    // values otherwise.
-    try {
-      const energyStats = await w.getStatistic(
-        'HKQuantityTypeIdentifierActiveEnergyBurned',
-        'kcal',
-      );
-      if (energyStats?.sumQuantity?.quantity) {
-        totalEnergyBurned = energyStats.sumQuantity.quantity;
-      }
-
-      const distanceTypes = [
-        'HKQuantityTypeIdentifierDistanceWalkingRunning',
-        'HKQuantityTypeIdentifierDistanceCycling',
-        'HKQuantityTypeIdentifierDistanceSwimming',
-        'HKQuantityTypeIdentifierDistanceWheelchair',
-        'HKQuantityTypeIdentifierDistanceDownhillSnowSports',
-      ] as const;
-      for (const distanceType of distanceTypes) {
-        const distanceStats = await w.getStatistic(distanceType, 'm');
-        if (distanceStats?.sumQuantity?.quantity) {
-          totalDistance = distanceStats.sumQuantity.quantity;
-          break;
+      // Pin units explicitly on each getStatistic call. getAllStatistics returns
+      // values in the user's HealthKit-preferred unit (often miles / kJ), but the
+      // transform layer assumes meters / kcal, so we'd silently store mis-scaled
+      // values otherwise.
+      try {
+        const energyStats = await w.getStatistic(
+          'HKQuantityTypeIdentifierActiveEnergyBurned',
+          'kcal',
+        );
+        if (energyStats?.sumQuantity?.quantity) {
+          totalEnergyBurned = energyStats.sumQuantity.quantity;
         }
-      }
-    } catch {
-      // Stats fetch failed - keep using direct properties from workout
-    }
 
-    const record: Record<string, unknown> = {
-      startTime: w.startDate,
-      endTime: w.endDate,
-      activityType: w.workoutActivityType,
-      duration: w.duration,
-      totalEnergyBurned,
-      totalDistance,
-      uuid: (w as unknown as { uuid?: string }).uuid,
-    };
-    // Forward timezone metadata so the transform layer can attach it to output records
-    const tz = (w as unknown as { metadataTimeZone?: string }).metadataTimeZone;
-    if (tz) {
-      record.metadata = { HKTimeZone: tz };
-    }
-    return record;
-  }));
+        const distanceTypes = [
+          'HKQuantityTypeIdentifierDistanceWalkingRunning',
+          'HKQuantityTypeIdentifierDistanceCycling',
+          'HKQuantityTypeIdentifierDistanceSwimming',
+          'HKQuantityTypeIdentifierDistanceWheelchair',
+          'HKQuantityTypeIdentifierDistanceDownhillSnowSports',
+        ] as const;
+        for (const distanceType of distanceTypes) {
+          const distanceStats = await w.getStatistic(distanceType, 'm');
+          if (distanceStats?.sumQuantity?.quantity) {
+            totalDistance = distanceStats.sumQuantity.quantity;
+            break;
+          }
+        }
+      } catch {
+        // Stats fetch failed - keep using direct properties from workout
+      }
+
+      const record: Record<string, unknown> = {
+        startTime: w.startDate,
+        endTime: w.endDate,
+        activityType: w.workoutActivityType,
+        duration: w.duration,
+        totalEnergyBurned,
+        totalDistance,
+        uuid: (w as unknown as { uuid?: string }).uuid,
+      };
+      // Forward timezone metadata so the transform layer can attach it to output records
+      const tz = (w as unknown as { metadataTimeZone?: string })
+        .metadataTimeZone;
+      if (tz) {
+        record.metadata = { HKTimeZone: tz };
+      }
+      return record;
+    }),
+  );
 
   return workoutsWithStats;
 };
 
 // Handler for BloodPressure records (requires merging systolic and diastolic samples)
-const handleBloodPressure: RecordHandler = async (_identifier, startDate, endDate) => {
+const handleBloodPressure: RecordHandler = async (
+  _identifier,
+  startDate,
+  endDate,
+) => {
   const [systolicSamples, diastolicSamples] = await Promise.all([
     queryQuantitySamples('HKQuantityTypeIdentifierBloodPressureSystolic', {
       ascending: false,
@@ -683,13 +806,22 @@ const handleBloodPressure: RecordHandler = async (_identifier, startDate, endDat
   });
 
   // Merge systolic and diastolic readings by timestamp
-  const bpMap = new Map<string, { systolic?: number; diastolic?: number; time: string }>();
+  const bpMap = new Map<
+    string,
+    { systolic?: number; diastolic?: number; time: string }
+  >();
   filteredSystolic.forEach(s => {
-    const timeStr = typeof s.startDate === 'string' ? s.startDate : new Date(s.startDate).toISOString();
+    const timeStr =
+      typeof s.startDate === 'string'
+        ? s.startDate
+        : new Date(s.startDate).toISOString();
     bpMap.set(timeStr, { systolic: s.quantity, time: timeStr });
   });
   filteredDiastolic.forEach(s => {
-    const timeStr = typeof s.startDate === 'string' ? s.startDate : new Date(s.startDate).toISOString();
+    const timeStr =
+      typeof s.startDate === 'string'
+        ? s.startDate
+        : new Date(s.startDate).toISOString();
     const existing = bpMap.get(timeStr);
     if (existing) existing.diastolic = s.quantity;
   });
@@ -704,25 +836,40 @@ const handleBloodPressure: RecordHandler = async (_identifier, startDate, endDat
 };
 
 // Transform map for standard quantity types - maps recordType to output structure
-const QUANTITY_TRANSFORMS: Record<string, (baseRecord: Record<string, unknown>, quantity: number) => Record<string, unknown>> = {
-  'Steps': (base) => base,
-  'ActiveCaloriesBurned': (base, q) => ({ ...base, energy: { inCalories: q } }),
-  'TotalCaloriesBurned': (base, q) => ({ ...base, energy: { inCalories: q } }),
-  'HeartRate': (base, q) => ({ ...base, samples: [{ beatsPerMinute: q }] }),
-  'Weight': (base, q) => ({ ...base, weight: { inKilograms: q } }),
-  'Height': (base, q) => ({ ...base, height: { inMeters: q } }),
-  'BodyFat': (base, q) => ({ ...base, percentage: { inPercent: q * 100 } }),
-  'BodyTemperature': (base, q) => ({ ...base, temperature: { inCelsius: q } }),
-  'BloodGlucose': (base, q) => ({ ...base, level: { inMilligramsPerDeciliter: q } }),
-  'OxygenSaturation': (base, q) => ({ ...base, percentage: { inPercent: q * 100 } }),
-  'BloodOxygenSaturation': (base, q) => ({ ...base, percentage: { inPercent: q * 100 } }),
-  'Vo2Max': (base, q) => ({ ...base, vo2Max: q }),
-  'RestingHeartRate': (base, q) => ({ ...base, beatsPerMinute: q }),
-  'RespiratoryRate': (base, q) => ({ ...base, rate: q }),
-  'Distance': (base, q) => ({ ...base, distance: { inMeters: q } }),
-  'FloorsClimbed': (base, q) => ({ ...base, floors: q }),
-  'Hydration': (base, q) => ({ ...base, volume: { inLiters: q } }),
-  'LeanBodyMass': (base, q) => ({ ...base, mass: { inKilograms: q } }),
+const QUANTITY_TRANSFORMS: Record<
+  string,
+  (
+    baseRecord: Record<string, unknown>,
+    quantity: number,
+  ) => Record<string, unknown>
+> = {
+  Steps: base => base,
+  ActiveCaloriesBurned: (base, q) => ({ ...base, energy: { inCalories: q } }),
+  TotalCaloriesBurned: (base, q) => ({ ...base, energy: { inCalories: q } }),
+  HeartRate: (base, q) => ({ ...base, samples: [{ beatsPerMinute: q }] }),
+  Weight: (base, q) => ({ ...base, weight: { inKilograms: q } }),
+  Height: (base, q) => ({ ...base, height: { inMeters: q } }),
+  BodyFat: (base, q) => ({ ...base, percentage: { inPercent: q * 100 } }),
+  BodyTemperature: (base, q) => ({ ...base, temperature: { inCelsius: q } }),
+  BloodGlucose: (base, q) => ({
+    ...base,
+    level: { inMilligramsPerDeciliter: q },
+  }),
+  OxygenSaturation: (base, q) => ({
+    ...base,
+    percentage: { inPercent: q * 100 },
+  }),
+  BloodOxygenSaturation: (base, q) => ({
+    ...base,
+    percentage: { inPercent: q * 100 },
+  }),
+  Vo2Max: (base, q) => ({ ...base, vo2Max: q }),
+  RestingHeartRate: (base, q) => ({ ...base, beatsPerMinute: q }),
+  RespiratoryRate: (base, q) => ({ ...base, rate: q }),
+  Distance: (base, q) => ({ ...base, distance: { inMeters: q } }),
+  FloorsClimbed: (base, q) => ({ ...base, floors: q }),
+  Hydration: (base, q) => ({ ...base, volume: { inLiters: q } }),
+  LeanBodyMass: (base, q) => ({ ...base, mass: { inKilograms: q } }),
 };
 
 // Handler for standard quantity types (most common metrics)
@@ -741,7 +888,10 @@ const createQuantityHandler = (recordType: string): RecordHandler => {
       queryOptions.unit = unit;
     }
 
-    const samples = await queryQuantitySamples(identifier as Parameters<typeof queryQuantitySamples>[0], queryOptions);
+    const samples = await queryQuantitySamples(
+      identifier as Parameters<typeof queryQuantitySamples>[0],
+      queryOptions,
+    );
 
     if (!Array.isArray(samples)) {
       return [];
@@ -752,7 +902,9 @@ const createQuantityHandler = (recordType: string): RecordHandler => {
       return isInDateRange(recordDate, startDate, endDate);
     });
 
-    const transform = QUANTITY_TRANSFORMS[recordType] || ((base: Record<string, unknown>) => base);
+    const transform =
+      QUANTITY_TRANSFORMS[recordType] ||
+      ((base: Record<string, unknown>) => base);
 
     return filteredSamples.map(s => {
       const baseRecord: Record<string, unknown> = {
@@ -762,7 +914,8 @@ const createQuantityHandler = (recordType: string): RecordHandler => {
         value: s.quantity,
       };
       // Forward timezone metadata so the transform layer can attach it to output records
-      const tz = (s as unknown as { metadataTimeZone?: string }).metadataTimeZone;
+      const tz = (s as unknown as { metadataTimeZone?: string })
+        .metadataTimeZone;
       if (tz) {
         baseRecord.metadata = { HKTimeZone: tz };
       }
@@ -773,22 +926,22 @@ const createQuantityHandler = (recordType: string): RecordHandler => {
 
 // Registry mapping record types to their handlers
 const RECORD_HANDLERS: Record<string, RecordHandler> = {
-  'SleepSession': handleSleepSession,
-  'Stress': handleStress,
-  'IntermenstrualBleeding': handleReproductiveHealth,
-  'MenstruationFlow': handleReproductiveHealth,
-  'OvulationTest': handleReproductiveHealth,
-  'CervicalMucus': handleReproductiveHealth,
-  'Workout': handleWorkout,
-  'ExerciseSession': handleWorkout,
-  'BloodPressure': handleBloodPressure,
+  SleepSession: handleSleepSession,
+  Stress: handleStress,
+  IntermenstrualBleeding: handleReproductiveHealth,
+  MenstruationFlow: handleReproductiveHealth,
+  OvulationTest: handleReproductiveHealth,
+  CervicalMucus: handleReproductiveHealth,
+  Workout: handleWorkout,
+  ExerciseSession: handleWorkout,
+  BloodPressure: handleBloodPressure,
 };
 
 // Read health records from HealthKit
 export const readHealthRecords = async (
   recordType: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<unknown[]> => {
   if (!isHealthKitAvailable) {
     return [];
@@ -801,15 +954,22 @@ export const readHealthRecords = async (
     }
 
     // Use registered handler if available, otherwise create a quantity handler
-    const handler = RECORD_HANDLERS[recordType] || createQuantityHandler(recordType);
+    const handler =
+      RECORD_HANDLERS[recordType] || createQuantityHandler(recordType);
     return await handler(identifier, startDate, endDate);
   } catch (error) {
     if (isDatabaseInaccessibleError(error)) {
       databaseInaccessibleCount++;
-      addLog(`[HealthKitService] ${recordType} read failed: database inaccessible (device likely locked)`, 'WARNING');
+      addLog(
+        `[HealthKitService] ${recordType} read failed: database inaccessible (device likely locked)`,
+        'WARNING',
+      );
     } else {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[HealthKitService] Error reading ${recordType}: ${message}`, 'ERROR');
+      addLog(
+        `[HealthKitService] Error reading ${recordType}: ${message}`,
+        'ERROR',
+      );
     }
     return [];
   }

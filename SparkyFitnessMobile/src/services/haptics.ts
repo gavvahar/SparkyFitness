@@ -18,7 +18,7 @@ export async function initializeHaptics(): Promise<void> {
 
 export async function setHapticsEnabled(enabled: boolean): Promise<void> {
   hapticsEnabled = enabled;
-  listeners.forEach((l) => l(enabled));
+  listeners.forEach(l => l(enabled));
   try {
     await AsyncStorage.setItem(HAPTICS_KEY, String(enabled));
   } catch {
@@ -30,7 +30,7 @@ export function useHapticsEnabled(): boolean {
   const [enabled, setEnabled] = useState<boolean>(hapticsEnabled);
   useEffect(() => {
     listeners.add(setEnabled);
-    AsyncStorage.getItem(HAPTICS_KEY).then((saved) => {
+    AsyncStorage.getItem(HAPTICS_KEY).then(saved => {
       if (saved !== null) setEnabled(saved === 'true');
     });
     return () => {
@@ -42,5 +42,7 @@ export function useHapticsEnabled(): boolean {
 
 export function fireSuccessHaptic(): void {
   if (!hapticsEnabled) return;
-  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+    () => {},
+  );
 }

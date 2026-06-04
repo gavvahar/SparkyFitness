@@ -29,7 +29,7 @@ describe('preferences', () => {
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         '@HealthConnect:stepsEnabled',
-        JSON.stringify(true)
+        JSON.stringify(true),
       );
     });
 
@@ -47,7 +47,7 @@ describe('preferences', () => {
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         '@HealthConnect:syncStatus',
-        JSON.stringify(value)
+        JSON.stringify(value),
       );
     });
 
@@ -66,7 +66,7 @@ describe('preferences', () => {
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         '@HealthConnect:enabledMetrics',
-        JSON.stringify(value)
+        JSON.stringify(value),
       );
     });
 
@@ -95,19 +95,21 @@ describe('preferences', () => {
       expect(result).toBeUndefined();
       expect(mockAddLog).toHaveBeenCalledWith(
         '[HealthConnectService] Failed to save preference testKey: Storage full',
-        'ERROR'
+        'ERROR',
       );
     });
 
     test('logs error and returns null on load error', async () => {
-      mockAsyncStorage.getItem.mockRejectedValueOnce(new Error('Storage error'));
+      mockAsyncStorage.getItem.mockRejectedValueOnce(
+        new Error('Storage error'),
+      );
 
       const result = await loadHealthPreference('testKey');
 
       expect(result).toBeNull();
       expect(mockAddLog).toHaveBeenCalledWith(
         '[HealthConnectService] Failed to load preference testKey: Storage error',
-        'ERROR'
+        'ERROR',
       );
     });
   });
@@ -118,7 +120,7 @@ describe('preferences', () => {
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         '@HealthConnect:serverUrl',
-        'https://example.com' // Not JSON encoded
+        'https://example.com', // Not JSON encoded
       );
     });
 
@@ -128,7 +130,9 @@ describe('preferences', () => {
       const result = await loadStringPreference('serverUrl');
 
       expect(result).toBe('https://example.com');
-      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith('@HealthConnect:serverUrl');
+      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith(
+        '@HealthConnect:serverUrl',
+      );
     });
 
     test('returns null when key does not exist', async () => {
@@ -142,24 +146,29 @@ describe('preferences', () => {
     test('logs error and returns undefined on save error', async () => {
       mockAsyncStorage.setItem.mockRejectedValueOnce(new Error('Storage full'));
 
-      const result = await saveStringPreference('serverUrl', 'https://example.com');
+      const result = await saveStringPreference(
+        'serverUrl',
+        'https://example.com',
+      );
 
       expect(result).toBeUndefined();
       expect(mockAddLog).toHaveBeenCalledWith(
         '[HealthConnectService] Failed to save string preference serverUrl: Storage full',
-        'ERROR'
+        'ERROR',
       );
     });
 
     test('logs error and returns null on load error', async () => {
-      mockAsyncStorage.getItem.mockRejectedValueOnce(new Error('Storage error'));
+      mockAsyncStorage.getItem.mockRejectedValueOnce(
+        new Error('Storage error'),
+      );
 
       const result = await loadStringPreference('serverUrl');
 
       expect(result).toBeNull();
       expect(mockAddLog).toHaveBeenCalledWith(
         '[HealthConnectService] Failed to load string preference serverUrl: Storage error',
-        'ERROR'
+        'ERROR',
       );
     });
   });
@@ -170,7 +179,7 @@ describe('preferences', () => {
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         '@HealthConnect:syncDuration',
-        '7d'
+        '7d',
       );
     });
 
@@ -180,7 +189,9 @@ describe('preferences', () => {
       const result = await loadSyncDuration();
 
       expect(result).toBe('7d');
-      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith('@HealthConnect:syncDuration');
+      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith(
+        '@HealthConnect:syncDuration',
+      );
     });
 
     test("returns '24h' as default when no value stored", async () => {
@@ -192,14 +203,16 @@ describe('preferences', () => {
     });
 
     test("logs error and returns '24h' on load error", async () => {
-      mockAsyncStorage.getItem.mockRejectedValueOnce(new Error('Storage error'));
+      mockAsyncStorage.getItem.mockRejectedValueOnce(
+        new Error('Storage error'),
+      );
 
       const result = await loadSyncDuration();
 
       expect(result).toBe('24h');
       expect(mockAddLog).toHaveBeenCalledWith(
         '[HealthConnectService] Failed to load sync duration: Storage error',
-        'ERROR'
+        'ERROR',
       );
     });
 
@@ -211,19 +224,26 @@ describe('preferences', () => {
       expect(result).toBeUndefined();
       expect(mockAddLog).toHaveBeenCalledWith(
         '[HealthConnectService] Failed to save sync duration: Storage full',
-        'ERROR'
+        'ERROR',
       );
     });
 
     test('stores various duration values correctly', async () => {
-      const durations: SyncDuration[] = ['today', '24h', '3d', '7d', '30d', '90d'];
+      const durations: SyncDuration[] = [
+        'today',
+        '24h',
+        '3d',
+        '7d',
+        '30d',
+        '90d',
+      ];
 
       for (const duration of durations) {
         jest.clearAllMocks();
         await saveSyncDuration(duration);
         expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
           '@HealthConnect:syncDuration',
-          duration
+          duration,
         );
       }
     });

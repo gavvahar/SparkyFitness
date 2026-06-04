@@ -13,7 +13,9 @@ const mockBottomSheetControls = {
   }),
   dismiss: jest.fn(),
   onDismiss: undefined as (() => void) | undefined,
-  onAnimate: undefined as ((fromIndex: number, toIndex: number) => void) | undefined,
+  onAnimate: undefined as
+    | ((fromIndex: number, toIndex: number) => void)
+    | undefined,
 };
 
 jest.mock('@gorhom/bottom-sheet', () => {
@@ -31,16 +33,24 @@ jest.mock('@gorhom/bottom-sheet', () => {
           dismiss: mockBottomSheetControls.dismiss,
         }));
 
-        return React.createElement(View, { testID: 'add-sheet-modal' }, children);
+        return React.createElement(
+          View,
+          { testID: 'add-sheet-modal' },
+          children,
+        );
       },
     ),
-    BottomSheetView: ({ children }: any) => React.createElement(View, null, children),
+    BottomSheetView: ({ children }: any) =>
+      React.createElement(View, null, children),
     BottomSheetBackdrop: () => null,
   };
 });
 
 describe('AddSheet', () => {
-  let requestAnimationFrameSpy: jest.SpyInstance<number, [FrameRequestCallback]>;
+  let requestAnimationFrameSpy: jest.SpyInstance<
+    number,
+    [FrameRequestCallback]
+  >;
   let cancelAnimationFrameSpy: jest.SpyInstance<void, [number]>;
 
   beforeEach(() => {

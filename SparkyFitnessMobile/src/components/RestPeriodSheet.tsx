@@ -56,7 +56,7 @@ const RestPeriodSheet = forwardRef<RestPeriodSheetRef, RestPeriodSheetProps>(
     const [customText, setCustomText] = useState('90');
 
     useImperativeHandle(ref, () => ({
-      present: (sec) => {
+      present: sec => {
         const initial = clampRestSeconds(sec ?? 90);
         setCurrentValue(initial);
         setCustomText(String(initial));
@@ -136,8 +136,11 @@ const RestPeriodSheet = forwardRef<RestPeriodSheetRef, RestPeriodSheetProps>(
             Rest period
           </Text>
 
-          <View className="flex-row flex-wrap justify-center" style={{ gap: 8 }}>
-            {REST_PRESETS.map((preset) => {
+          <View
+            className="flex-row flex-wrap justify-center"
+            style={{ gap: 8 }}
+          >
+            {REST_PRESETS.map(preset => {
               const selected = preset === currentValue;
               return (
                 <TouchableOpacity
@@ -164,7 +167,7 @@ const RestPeriodSheet = forwardRef<RestPeriodSheetRef, RestPeriodSheetProps>(
           <CollapsibleSection
             title="Custom"
             expanded={customOpen}
-            onToggle={() => setCustomOpen((v) => !v)}
+            onToggle={() => setCustomOpen(v => !v)}
             itemCount={1}
           >
             <View className="py-3">
@@ -179,7 +182,9 @@ const RestPeriodSheet = forwardRef<RestPeriodSheetRef, RestPeriodSheetProps>(
                   InputComponent={BottomSheetTextInput}
                 />
                 <Text className="text-text-secondary text-base ml-3">
-                  {formatRest(Number.isNaN(parsedCustom) ? currentValue : parsedCustom)}
+                  {formatRest(
+                    Number.isNaN(parsedCustom) ? currentValue : parsedCustom,
+                  )}
                 </Text>
               </View>
               <Button variant="primary" onPress={handleCustomSave}>

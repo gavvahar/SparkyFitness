@@ -21,7 +21,7 @@ export async function initializeSounds(): Promise<void> {
   } finally {
     if (!initialized) {
       initialized = true;
-      listeners.forEach((l) => l(soundsEnabled));
+      listeners.forEach(l => l(soundsEnabled));
     }
   }
 }
@@ -30,7 +30,7 @@ export async function setSoundsEnabled(enabled: boolean): Promise<void> {
   // An explicit user toggle wins over any still-pending initializeSounds().
   initialized = true;
   soundsEnabled = enabled;
-  listeners.forEach((l) => l(enabled));
+  listeners.forEach(l => l(enabled));
   try {
     await AsyncStorage.setItem(SOUNDS_KEY, String(enabled));
   } catch {
@@ -40,7 +40,7 @@ export async function setSoundsEnabled(enabled: boolean): Promise<void> {
 
 export function useSoundsEnabled(): boolean {
   return useSyncExternalStore(
-    (callback) => {
+    callback => {
       listeners.add(callback);
       return () => {
         listeners.delete(callback);

@@ -1,7 +1,14 @@
-import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
-import type { CreatePresetSessionRequest, UpdatePresetSessionRequest } from '@workspace/shared';
+import type {
+  CreatePresetSessionRequest,
+  UpdatePresetSessionRequest,
+} from '@workspace/shared';
 import {
   createWorkout,
   updateWorkout,
@@ -56,7 +63,11 @@ function useCrudMutation<TPayload, TResult>({
       ? (data: TResult) => onMutationSuccess(data, queryClient)
       : undefined,
     onError: () => {
-      Toast.show({ type: 'error', text1: errorTitle, text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: errorTitle,
+        text2: 'Please try again.',
+      });
     },
   });
 
@@ -93,7 +104,11 @@ function useDeleteMutation({
       onSuccess?.();
     },
     onError: () => {
-      Toast.show({ type: 'error', text1: 'Failed to delete', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to delete',
+        text2: 'Please try again.',
+      });
     },
   });
 
@@ -132,8 +147,13 @@ export function useCreateWorkout() {
 
 export function useUpdateWorkout() {
   const { mutate, ...rest } = useCrudMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdatePresetSessionRequest }) =>
-      updateWorkout(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: UpdatePresetSessionRequest;
+    }) => updateWorkout(id, payload),
     errorTitle: 'Failed to update workout',
     onMutationSuccess: (updatedSession, queryClient) => {
       syncExerciseSessionInCache(queryClient, updatedSession);
@@ -144,7 +164,8 @@ export function useUpdateWorkout() {
 
 export function useCreateExerciseEntry() {
   const { mutate, ...rest } = useCrudMutation({
-    mutationFn: (payload: CreateExerciseEntryPayload) => createExerciseEntry(payload),
+    mutationFn: (payload: CreateExerciseEntryPayload) =>
+      createExerciseEntry(payload),
     errorTitle: 'Failed to save activity',
   });
   return { createEntry: mutate, ...rest };
@@ -152,8 +173,13 @@ export function useCreateExerciseEntry() {
 
 export function useUpdateExerciseEntry() {
   const { mutate, ...rest } = useCrudMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: CreateExerciseEntryPayload }) =>
-      updateExerciseEntry(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: CreateExerciseEntryPayload;
+    }) => updateExerciseEntry(id, payload),
     errorTitle: 'Failed to update activity',
   });
   return { updateEntry: mutate, ...rest };
@@ -176,25 +202,40 @@ export function useCreateExercise() {
       });
     },
   });
-  return { createExerciseAsync: mutation.mutateAsync, isPending: mutation.isPending };
+  return {
+    createExerciseAsync: mutation.mutateAsync,
+    isPending: mutation.isPending,
+  };
 }
 
 export function useUpdateExercise() {
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateExercisePayload }) =>
-      updateExercise(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: UpdateExercisePayload;
+    }) => updateExercise(id, payload),
     onSuccess: () => {
       invalidateExerciseLibraryCaches(queryClient);
     },
-    onError: (error) => {
+    onError: error => {
       const message = isAuthzError(error)
         ? "You don't have permission to edit this exercise."
         : 'Please try again.';
-      Toast.show({ type: 'error', text1: 'Failed to update exercise', text2: message });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to update exercise',
+        text2: message,
+      });
     },
   });
-  return { updateExerciseAsync: mutation.mutateAsync, isPending: mutation.isPending };
+  return {
+    updateExerciseAsync: mutation.mutateAsync,
+    isPending: mutation.isPending,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -207,13 +248,18 @@ interface UseDeleteWorkoutOptions {
   onSuccess?: () => void;
 }
 
-export function useDeleteWorkout({ sessionId, entryDate, onSuccess }: UseDeleteWorkoutOptions) {
+export function useDeleteWorkout({
+  sessionId,
+  entryDate,
+  onSuccess,
+}: UseDeleteWorkoutOptions) {
   return useDeleteMutation({
     deleteFn: deleteWorkoutApi,
     id: sessionId,
     entryDate,
     confirmTitle: 'Delete Workout?',
-    confirmMessage: 'This workout and all its exercises will be permanently removed.',
+    confirmMessage:
+      'This workout and all its exercises will be permanently removed.',
     onSuccess,
   });
 }
@@ -255,11 +301,15 @@ export function useDeleteExerciseLibrary({
       invalidateExerciseLibraryCaches(queryClient);
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: error => {
       const message = isAuthzError(error)
         ? "You don't have permission to delete this exercise."
         : 'Please try again.';
-      Toast.show({ type: 'error', text1: 'Failed to delete exercise', text2: message });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to delete exercise',
+        text2: message,
+      });
     },
   });
 
@@ -269,7 +319,11 @@ export function useDeleteExerciseLibrary({
       'This exercise will be removed from your library. Past logged sessions are preserved.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => mutation.mutate() },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => mutation.mutate(),
+        },
       ],
     );
   };

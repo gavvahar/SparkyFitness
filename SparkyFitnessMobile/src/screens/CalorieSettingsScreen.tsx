@@ -45,7 +45,9 @@ function normalizePreferences(prefs: UserPreferences | undefined) {
   };
 }
 
-const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigation }) => {
+const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentPrimary, formEnabled, formDisabled] = useCSSVariable([
@@ -58,8 +60,8 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
   const { preferences } = usePreferences();
   const normalized = normalizePreferences(preferences);
 
-  const [percentageText, setPercentageText] = useState(
-    () => String(normalized.exerciseCaloriePercentage),
+  const [percentageText, setPercentageText] = useState(() =>
+    String(normalized.exerciseCaloriePercentage),
   );
 
   useEffect(() => {
@@ -68,11 +70,12 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
 
   const mutation = useMutation({
     mutationFn: (data: Partial<UserPreferences>) => updatePreferences(data),
-    onMutate: async (data) => {
+    onMutate: async data => {
       await queryClient.cancelQueries({ queryKey: preferencesQueryKey });
-      const previous = queryClient.getQueryData<UserPreferences>(preferencesQueryKey);
-      queryClient.setQueryData<UserPreferences>(preferencesQueryKey, (old) =>
-        old ? { ...old, ...data } : data as UserPreferences,
+      const previous =
+        queryClient.getQueryData<UserPreferences>(preferencesQueryKey);
+      queryClient.setQueryData<UserPreferences>(preferencesQueryKey, old =>
+        old ? { ...old, ...data } : (data as UserPreferences),
       );
       return { previous };
     },
@@ -80,7 +83,11 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
       if (context?.previous) {
         queryClient.setQueryData(preferencesQueryKey, context.previous);
       }
-      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to update setting.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update setting.',
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailySummary'] });
@@ -90,21 +97,33 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
     },
   });
 
-  const handleModeChange = useCallback((value: string) => {
-    mutation.mutate({ calorie_goal_adjustment_mode: value });
-  }, [mutation]);
+  const handleModeChange = useCallback(
+    (value: string) => {
+      mutation.mutate({ calorie_goal_adjustment_mode: value });
+    },
+    [mutation],
+  );
 
-  const handleActivityLevelChange = useCallback((value: string) => {
-    mutation.mutate({ activity_level: value });
-  }, [mutation]);
+  const handleActivityLevelChange = useCallback(
+    (value: string) => {
+      mutation.mutate({ activity_level: value });
+    },
+    [mutation],
+  );
 
-  const handleBmrToggle = useCallback((value: boolean) => {
-    mutation.mutate({ include_bmr_in_net_calories: value });
-  }, [mutation]);
+  const handleBmrToggle = useCallback(
+    (value: boolean) => {
+      mutation.mutate({ include_bmr_in_net_calories: value });
+    },
+    [mutation],
+  );
 
-  const handleNegativeAdjustmentToggle = useCallback((value: boolean) => {
-    mutation.mutate({ tdee_allow_negative_adjustment: value });
-  }, [mutation]);
+  const handleNegativeAdjustmentToggle = useCallback(
+    (value: boolean) => {
+      mutation.mutate({ tdee_allow_negative_adjustment: value });
+    },
+    [mutation],
+  );
 
   const handlePercentageBlur = useCallback(() => {
     const parsed = parseInt(percentageText, 10);
@@ -115,12 +134,12 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
     }
   }, [percentageText, normalized.exerciseCaloriePercentage, mutation]);
 
-
   const optionsLayout = LinearTransition.delay(0).duration(250);
   const pipelineLayout = LinearTransition.delay(50).duration(250);
 
   const showPercentage = normalized.mode === 'percentage';
-  const showActivityLevel = normalized.mode === 'tdee' || normalized.mode === 'adaptive';
+  const showActivityLevel =
+    normalized.mode === 'tdee' || normalized.mode === 'adaptive';
   const showNegativeAdjustment = normalized.mode === 'tdee';
 
   const explanation = useMemo(() => {
@@ -128,9 +147,7 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
     const bmr = normalized.includeBmrInNetCalories;
     const pct = normalized.exerciseCaloriePercentage;
 
-    const burned = bmr
-      ? 'Activity + BMR'
-      : 'Activity only (exercise + steps)';
+    const burned = bmr ? 'Activity + BMR' : 'Activity only (exercise + steps)';
 
     const net = 'Eaten \u2212 Burned';
 
@@ -162,12 +179,20 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
     }
 
     return { burned, net, remainingFormula, remainingNote };
-  }, [normalized.mode, normalized.includeBmrInNetCalories, normalized.exerciseCaloriePercentage]);
+  }, [
+    normalized.mode,
+    normalized.includeBmrInNetCalories,
+    normalized.exerciseCaloriePercentage,
+  ]);
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingTop: 16, paddingBottom: insets.bottom + 80 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          padding: 16,
+          paddingTop: 16,
+          paddingBottom: insets.bottom + 80 + activeWorkoutBarPadding,
+        }}
         contentInsetAdjustmentBehavior="never"
       >
         {/* Header */}
@@ -180,13 +205,17 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
           >
             <Icon name="chevron-back" size={22} color={accentPrimary} />
           </Button>
-          <Text className="text-2xl font-bold text-text-primary">Calorie Settings</Text>
+          <Text className="text-2xl font-bold text-text-primary">
+            Calorie Settings
+          </Text>
         </View>
 
         {/* Mode */}
         <View className="bg-surface rounded-xl p-3 mb-4 shadow-sm">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-text-primary">Calorie Mode</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Calorie Mode
+            </Text>
             <BottomSheetPicker
               value={normalized.mode}
               options={modeOptions}
@@ -201,7 +230,10 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
         </View>
 
         {/* Options */}
-        <Animated.View className="bg-surface rounded-xl p-4 mb-4 shadow-sm" layout={optionsLayout}>
+        <Animated.View
+          className="bg-surface rounded-xl p-4 mb-4 shadow-sm"
+          layout={optionsLayout}
+        >
           {/* Percentage Input */}
           {showPercentage && (
             <Animated.View layout={optionsLayout}>
@@ -217,7 +249,8 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
                 returnKeyType="done"
               />
               <Text className="text-text-secondary text-sm mt-3">
-                How much of your exercise calories are added back to your daily goal.
+                How much of your exercise calories are added back to your daily
+                goal.
               </Text>
               <View className="border-t border-border-subtle my-3" />
             </Animated.View>
@@ -227,7 +260,9 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
           {showActivityLevel && (
             <Animated.View layout={optionsLayout}>
               <View className="flex-row items-center justify-between">
-                <Text className="text-base font-semibold text-text-primary">Activity Level</Text>
+                <Text className="text-base font-semibold text-text-primary">
+                  Activity Level
+                </Text>
                 <BottomSheetPicker
                   value={normalized.activityLevel}
                   options={activityLevelOptions}
@@ -252,7 +287,9 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
           {showNegativeAdjustment && (
             <Animated.View layout={optionsLayout}>
               <View className="flex-row justify-between items-center">
-                <Text className="text-base font-semibold text-text-primary">Allow Negative Adjustment</Text>
+                <Text className="text-base font-semibold text-text-primary">
+                  Allow Negative Adjustment
+                </Text>
                 <Switch
                   onValueChange={handleNegativeAdjustmentToggle}
                   value={normalized.tdeeAllowNegativeAdjustment}
@@ -270,7 +307,9 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
           {/* BMR Toggle */}
           <Animated.View layout={optionsLayout}>
             <View className="flex-row justify-between items-center">
-              <Text className="text-base font-semibold text-text-primary">Include Resting Calories</Text>
+              <Text className="text-base font-semibold text-text-primary">
+                Include Resting Calories
+              </Text>
               <Switch
                 onValueChange={handleBmrToggle}
                 value={normalized.includeBmrInNetCalories}
@@ -288,7 +327,7 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
         <Animated.View
           className="rounded-xl p-4 mb-4"
           layout={pipelineLayout}
-          style={{ backgroundColor: `${accentPrimary}15`}}
+          style={{ backgroundColor: `${accentPrimary}15` }}
         >
           <View className="flex-row items-center mb-4">
             <Icon name="info-circle" size={18} color={accentPrimary} />
@@ -299,41 +338,55 @@ const CalorieSettingsScreen: React.FC<CalorieSettingsScreenProps> = ({ navigatio
 
           <Animated.View className="items-center" layout={pipelineLayout}>
             {/* Step 1: Burned */}
-            <Text className="text-base font-semibold text-text-primary">Burned Calories</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Burned Calories
+            </Text>
             <Animated.View
               key={`burned-${explanation.burned}`}
               layout={pipelineLayout}
             >
-              <Text className="text-sm text-text-secondary">{explanation.burned}</Text>
+              <Text className="text-sm text-text-secondary">
+                {explanation.burned}
+              </Text>
             </Animated.View>
 
             <Text className="text-text-muted text-lg my-1">{'\u2193'}</Text>
 
             {/* Step 2: Net */}
-            <Text className="text-base font-semibold text-text-primary">Net Energy</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Net Energy
+            </Text>
             <Animated.View
               key={`net-${explanation.net}`}
               layout={pipelineLayout}
             >
-              <Text className="text-sm text-text-secondary">{explanation.net}</Text>
+              <Text className="text-sm text-text-secondary">
+                {explanation.net}
+              </Text>
             </Animated.View>
 
             <Text className="text-text-muted text-lg my-1">{'\u2193'}</Text>
 
             {/* Step 3: Remaining */}
-            <Text className="text-base font-semibold text-text-primary">Remaining Calories</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Remaining Calories
+            </Text>
             <Animated.View
               key={`remaining-${explanation.remainingFormula}`}
               layout={pipelineLayout}
             >
-              <Text className="text-sm text-text-secondary">{explanation.remainingFormula}</Text>
+              <Text className="text-sm text-text-secondary">
+                {explanation.remainingFormula}
+              </Text>
             </Animated.View>
             {explanation.remainingNote && (
               <Animated.View
                 key={`note-${explanation.remainingNote}`}
                 layout={pipelineLayout}
               >
-                <Text className="text-sm text-text-secondary mt-2 italic">({explanation.remainingNote})</Text>
+                <Text className="text-sm text-text-secondary mt-2 italic">
+                  ({explanation.remainingNote})
+                </Text>
               </Animated.View>
             )}
           </Animated.View>

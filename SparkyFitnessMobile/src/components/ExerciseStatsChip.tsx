@@ -9,9 +9,14 @@ interface ExerciseStatsChipProps {
   weightUnit: 'kg' | 'lbs';
 }
 
-function formatLabel(bestSet: ExerciseSetStats, weightUnit: 'kg' | 'lbs'): string | null {
+function formatLabel(
+  bestSet: ExerciseSetStats,
+  weightUnit: 'kg' | 'lbs',
+): string | null {
   if (bestSet.weight == null) return null;
-  const weight = parseFloat(weightFromKg(bestSet.weight, weightUnit).toFixed(1));
+  const weight = parseFloat(
+    weightFromKg(bestSet.weight, weightUnit).toFixed(1),
+  );
   if (bestSet.reps != null) {
     return `PB ${weight} × ${bestSet.reps}`;
   }
@@ -19,7 +24,9 @@ function formatLabel(bestSet: ExerciseSetStats, weightUnit: 'kg' | 'lbs'): strin
 }
 
 function ExerciseStatsChip({ bestSet, weightUnit }: ExerciseStatsChipProps) {
-  const [textSecondary] = useCSSVariable(['--color-text-secondary']) as [string];
+  const [textSecondary] = useCSSVariable(['--color-text-secondary']) as [
+    string,
+  ];
 
   if (!bestSet) return null;
   const label = formatLabel(bestSet, weightUnit);

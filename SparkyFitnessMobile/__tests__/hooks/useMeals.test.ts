@@ -24,7 +24,11 @@ import {
   fetchRecentMeals,
   updateMeal,
 } from '../../src/services/api/mealsApi';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/mealsApi', () => ({
   createMeal: jest.fn(),
@@ -39,9 +43,14 @@ jest.mock('../../src/services/api/mealsApi', () => ({
 const mockCreateMeal = createMeal as jest.MockedFunction<typeof createMeal>;
 const mockDeleteMeal = deleteMeal as jest.MockedFunction<typeof deleteMeal>;
 const mockFetchMeal = fetchMeal as jest.MockedFunction<typeof fetchMeal>;
-const mockFetchMealDeletionImpact = fetchMealDeletionImpact as jest.MockedFunction<typeof fetchMealDeletionImpact>;
+const mockFetchMealDeletionImpact =
+  fetchMealDeletionImpact as jest.MockedFunction<
+    typeof fetchMealDeletionImpact
+  >;
 const mockFetchMeals = fetchMeals as jest.MockedFunction<typeof fetchMeals>;
-const mockFetchRecentMeals = fetchRecentMeals as jest.MockedFunction<typeof fetchRecentMeals>;
+const mockFetchRecentMeals = fetchRecentMeals as jest.MockedFunction<
+  typeof fetchRecentMeals
+>;
 const mockUpdateMeal = updateMeal as jest.MockedFunction<typeof updateMeal>;
 
 const mealData = {
@@ -222,9 +231,16 @@ describe('meal mutations', () => {
       expect(mockCreateMeal).toHaveBeenCalled();
     });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: mealsQueryKey });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: recentMealsQueryKeyRoot, refetchType: 'all' });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: mealSearchQueryKeyRoot });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: mealDetailQueryKey('meal-1') });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: recentMealsQueryKeyRoot,
+      refetchType: 'all',
+    });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: mealSearchQueryKeyRoot,
+    });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: mealDetailQueryKey('meal-1'),
+    });
   });
 
   test('update invalidates meal caches and calls onSuccess', async () => {
@@ -232,16 +248,23 @@ describe('meal mutations', () => {
     const onSuccess = jest.fn();
     mockUpdateMeal.mockResolvedValue(mealData);
 
-    const { result } = renderHook(() => useUpdateMeal({ mealId: 'meal-1', onSuccess }), {
-      wrapper: createQueryWrapper(queryClient),
-    });
+    const { result } = renderHook(
+      () => useUpdateMeal({ mealId: 'meal-1', onSuccess }),
+      {
+        wrapper: createQueryWrapper(queryClient),
+      },
+    );
 
     await act(async () => {
       await result.current.updateMealAsync({ name: 'Overnight Oats' });
     });
 
-    expect(mockUpdateMeal).toHaveBeenCalledWith('meal-1', { name: 'Overnight Oats' });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: mealDetailQueryKey('meal-1') });
+    expect(mockUpdateMeal).toHaveBeenCalledWith('meal-1', {
+      name: 'Overnight Oats',
+    });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: mealDetailQueryKey('meal-1'),
+    });
     expect(onSuccess).toHaveBeenCalledWith(mealData);
   });
 
@@ -277,7 +300,9 @@ describe('meal mutations', () => {
     await waitFor(() => {
       expect(mockDeleteMeal).toHaveBeenCalledWith('meal-1');
     });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: mealDetailQueryKey('meal-1') });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: mealDetailQueryKey('meal-1'),
+    });
   });
 });
 

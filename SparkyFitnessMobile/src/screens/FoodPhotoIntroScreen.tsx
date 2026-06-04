@@ -99,7 +99,6 @@ const FoodPhotoIntroScreen: React.FC<Props> = ({ navigation, route }) => {
           Photo estimates are a starting point. You&apos;ll be able to edit
           everything before it&apos;s logged.
         </Bullet>
-
       </View>
 
       <View

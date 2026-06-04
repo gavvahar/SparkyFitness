@@ -2,9 +2,10 @@ import * as Haptics from 'expo-haptics';
 import { fireSuccessHaptic } from '../../src/services/haptics';
 
 describe('haptics service', () => {
-  const mockNotificationAsync = Haptics.notificationAsync as jest.MockedFunction<
-    typeof Haptics.notificationAsync
-  >;
+  const mockNotificationAsync =
+    Haptics.notificationAsync as jest.MockedFunction<
+      typeof Haptics.notificationAsync
+    >;
 
   beforeEach(() => {
     mockNotificationAsync.mockClear();

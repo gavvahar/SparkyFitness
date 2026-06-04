@@ -15,7 +15,11 @@ import { useServerConfigs, useServerConnection } from '../../src/hooks';
 
 const mockGoBack = jest.fn();
 const mockNavigation = { goBack: mockGoBack, navigate: jest.fn() } as any;
-const mockRoute = { key: 'server-settings', name: 'ServerSettings' as const, params: undefined };
+const mockRoute = {
+  key: 'server-settings',
+  name: 'ServerSettings' as const,
+  params: undefined,
+};
 
 jest.mock('../../src/services/storage', () => ({
   deleteServerConfig: jest.fn().mockResolvedValue(undefined),
@@ -63,12 +67,24 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
-const mockUseServerConfigs = useServerConfigs as jest.MockedFunction<typeof useServerConfigs>;
-const mockUseServerConnection = useServerConnection as jest.MockedFunction<typeof useServerConnection>;
-const mockGetAllServerConfigs = getAllServerConfigs as jest.MockedFunction<typeof getAllServerConfigs>;
-const mockSetActiveServerConfig = setActiveServerConfig as jest.MockedFunction<typeof setActiveServerConfig>;
-const mockDeleteServerConfig = deleteServerConfig as jest.MockedFunction<typeof deleteServerConfig>;
-const mockNotifyNoConfigs = notifyNoConfigs as jest.MockedFunction<typeof notifyNoConfigs>;
+const mockUseServerConfigs = useServerConfigs as jest.MockedFunction<
+  typeof useServerConfigs
+>;
+const mockUseServerConnection = useServerConnection as jest.MockedFunction<
+  typeof useServerConnection
+>;
+const mockGetAllServerConfigs = getAllServerConfigs as jest.MockedFunction<
+  typeof getAllServerConfigs
+>;
+const mockSetActiveServerConfig = setActiveServerConfig as jest.MockedFunction<
+  typeof setActiveServerConfig
+>;
+const mockDeleteServerConfig = deleteServerConfig as jest.MockedFunction<
+  typeof deleteServerConfig
+>;
+const mockNotifyNoConfigs = notifyNoConfigs as jest.MockedFunction<
+  typeof notifyNoConfigs
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -163,7 +179,7 @@ describe('ServerSettingsScreen', () => {
 
     // The "Success" alert should have buttons; press OK to fire notifyNoConfigs
     const successCall = (Alert.alert as jest.Mock).mock.calls.find(
-      (call) => call[0] === 'Success',
+      call => call[0] === 'Success',
     );
     expect(successCall).toBeTruthy();
     const okButton = successCall![2].find((b: any) => b.text === 'OK');

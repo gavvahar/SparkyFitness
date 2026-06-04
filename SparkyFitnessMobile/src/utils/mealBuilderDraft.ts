@@ -1,4 +1,8 @@
-import type { MealFood, MealFoodPayload, MealIngredientDraft } from '../types/meals';
+import type {
+  MealFood,
+  MealFoodPayload,
+  MealIngredientDraft,
+} from '../types/meals';
 import type { FoodEntryMealFood } from '../types/foodEntryMeals';
 import type { FoodItem } from '../types/foods';
 import type { FoodDisplayValues } from './foodDetails';
@@ -43,9 +47,13 @@ function normalizeMealIngredientDraft(
     carbs: toFiniteNumber(draft.carbs),
     fat: toFiniteNumber(draft.fat),
     dietary_fiber:
-      draft.dietary_fiber == null ? undefined : toFiniteNumber(draft.dietary_fiber),
+      draft.dietary_fiber == null
+        ? undefined
+        : toFiniteNumber(draft.dietary_fiber),
     saturated_fat:
-      draft.saturated_fat == null ? undefined : toFiniteNumber(draft.saturated_fat),
+      draft.saturated_fat == null
+        ? undefined
+        : toFiniteNumber(draft.saturated_fat),
     sodium: draft.sodium == null ? undefined : toFiniteNumber(draft.sodium),
     sugars: draft.sugars == null ? undefined : toFiniteNumber(draft.sugars),
     trans_fat:
@@ -166,7 +174,9 @@ export function toMealFoodPayload(food: FoodEntryMealFood): MealFoodPayload {
   };
 }
 
-export function buildMealIngredientDraftFromMealFood(food: MealFood): MealIngredientDraft {
+export function buildMealIngredientDraftFromMealFood(
+  food: MealFood,
+): MealIngredientDraft {
   return normalizeMealIngredientDraft({
     food_id: food.food_id,
     variant_id: food.variant_id,

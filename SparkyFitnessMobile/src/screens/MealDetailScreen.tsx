@@ -8,7 +8,13 @@ import FoodNutritionSummary from '../components/FoodNutritionSummary';
 import SegmentedControl, { type Segment } from '../components/SegmentedControl';
 import StatusView from '../components/StatusView';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
-import { useDeleteMeal, useMeal, useProfile, useServerConnection, usePreferences } from '../hooks';
+import {
+  useDeleteMeal,
+  useMeal,
+  useProfile,
+  useServerConnection,
+  usePreferences,
+} from '../hooks';
 import { mealToFoodInfo } from '../types/foodInfo';
 import type { FoodDisplayValues } from '../utils/foodDetails';
 import type { Meal, MealFood } from '../types/meals';
@@ -48,11 +54,13 @@ const ingredientScale = (food: MealFood) =>
 const sumMealField = (meal: Meal, field: MealFoodNumericField) =>
   meal.foods.reduce((sum, food) => {
     const value = food[field];
-    return typeof value === 'number' ? sum + value * ingredientScale(food) : sum;
+    return typeof value === 'number'
+      ? sum + value * ingredientScale(food)
+      : sum;
   }, 0);
 
 const hasMealField = (meal: Meal, field: MealFoodNumericField) =>
-  meal.foods.some((food) => food[field] != null);
+  meal.foods.some(food => food[field] != null);
 
 const divide = (value: number | undefined, divisor: number) =>
   value == null ? undefined : value / divisor;
@@ -68,14 +76,17 @@ function buildMealDisplayValues(
   const divisor = mode === 'perServing' ? totalServings : 1;
   const safeDivisor = divisor > 0 ? divisor : 1;
   const optionalField = (field: MealFoodNumericField) =>
-    hasMealField(meal, field) ? divide(sumMealField(meal, field), safeDivisor) : undefined;
+    hasMealField(meal, field)
+      ? divide(sumMealField(meal, field), safeDivisor)
+      : undefined;
 
   const servingSize = meal.serving_size || 1;
 
   return {
     // Per-serving mode shows one serving's quantity; total mode shows the
     // whole recipe quantity (serving_size × total_servings).
-    servingSize: mode === 'perServing' ? servingSize : servingSize * totalServings,
+    servingSize:
+      mode === 'perServing' ? servingSize : servingSize * totalServings,
     servingUnit: meal.serving_unit,
     calories: sumMealField(meal, 'calories') / safeDivisor,
     protein: sumMealField(meal, 'protein') / safeDivisor,
@@ -95,7 +106,10 @@ function buildMealDisplayValues(
   };
 }
 
-const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }) => {
+const MealDetailScreen: React.FC<MealDetailScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { mealId, initialMeal } = route.params;
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
@@ -124,7 +138,8 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
     () => (meal ? buildMealDisplayValues(meal, 'perServing') : null),
     [meal],
   );
-  const displayValues = viewMode === 'perServing' ? perServingValues : totalValues;
+  const displayValues =
+    viewMode === 'perServing' ? perServingValues : totalValues;
 
   const renderContent = () => {
     if (!isConnectionLoading && !isConnected) {
@@ -156,7 +171,11 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
           iconSize={64}
           title="Failed to load meal"
           subtitle="Please check your connection and try again."
-          action={{ label: 'Retry', onPress: () => void refetch(), variant: 'primary' }}
+          action={{
+            label: 'Retry',
+            onPress: () => void refetch(),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -167,7 +186,9 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-4 py-4 gap-4"
-        contentContainerStyle={{ paddingBottom: insets.bottom + activeWorkoutBarPadding + 16 }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + activeWorkoutBarPadding + 16,
+        }}
       >
         <View className="gap-2">
           <SegmentedControl
@@ -191,7 +212,9 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
 
         <View className="bg-surface rounded-xl p-4 shadow-sm">
           <View className="flex-row items-center mb-3">
-            <Text className="text-base font-bold text-text-secondary flex-1">Foods in Meal</Text>
+            <Text className="text-base font-bold text-text-secondary flex-1">
+              Foods in Meal
+            </Text>
             <Text className="text-xs text-text-muted font-medium">
               {meal.foods.length} {meal.foods.length === 1 ? 'item' : 'items'}
             </Text>
@@ -211,7 +234,10 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
                 }`}
               >
                 <View className="flex-1">
-                  <Text className="text-text-primary text-base font-semibold" numberOfLines={1}>
+                  <Text
+                    className="text-text-primary text-base font-semibold"
+                    numberOfLines={1}
+                  >
                     {food.food_name || 'Food'}
                     {food.brand ? (
                       <Text className="text-text-secondary font-normal">
@@ -221,7 +247,9 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
                     ) : null}
                   </Text>
                   <Text className="text-text-muted text-sm mt-1">
-                    {protein}g protein{' · '}{carbs}g carbs{' · '}{fat}g fat
+                    {protein}g protein{' · '}
+                    {carbs}g carbs{' · '}
+                    {fat}g fat
                   </Text>
                 </View>
                 <View className="items-end">
@@ -239,7 +267,9 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
 
         <Button
           variant="primary"
-          onPress={() => navigation.navigate('FoodEntryAdd', { item: mealToFoodInfo(meal) })}
+          onPress={() =>
+            navigation.navigate('FoodEntryAdd', { item: mealToFoodInfo(meal) })
+          }
         >
           <Text className="text-white text-base font-semibold">Log Meal</Text>
         </Button>
@@ -276,11 +306,13 @@ const MealDetailScreen: React.FC<MealDetailScreenProps> = ({ navigation, route }
           <View className="ml-auto z-10">
             <Button
               variant="ghost"
-              onPress={() => navigation.navigate('MealAdd', {
-                mode: 'edit',
-                mealId: meal!.id,
-                initialMeal: meal,
-              })}
+              onPress={() =>
+                navigation.navigate('MealAdd', {
+                  mode: 'edit',
+                  mealId: meal!.id,
+                  initialMeal: meal,
+                })
+              }
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               textClassName="font-medium"
             >

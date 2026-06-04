@@ -6,13 +6,13 @@ import {
 import fs from 'fs';
 import path from 'path';
 
-const withNetworkSecurityConfig: ConfigPlugin = (config) => {
+const withNetworkSecurityConfig: ConfigPlugin = config => {
   config = withDangerousMod(config, [
     'android',
-    async (config) => {
+    async config => {
       const filePath = path.join(
         config.modRequest.platformProjectRoot,
-        'app/src/main/res/xml/network_security_config.xml'
+        'app/src/main/res/xml/network_security_config.xml',
       );
 
       fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -27,19 +27,18 @@ const withNetworkSecurityConfig: ConfigPlugin = (config) => {
       <certificates src="user" />
     </trust-anchors>
   </base-config>
-</network-security-config>`
+</network-security-config>`,
       );
 
       return config;
     },
   ]);
 
-  config = withAndroidManifest(config, (config) => {
+  config = withAndroidManifest(config, config => {
     const app = config.modResults.manifest.application?.[0];
 
     if (app) {
-      app.$['android:networkSecurityConfig'] =
-        '@xml/network_security_config';
+      app.$['android:networkSecurityConfig'] = '@xml/network_security_config';
     }
 
     return config;

@@ -22,9 +22,16 @@ import SegmentedControl, { type Segment } from '../components/SegmentedControl';
 import type { RootStackScreenProps } from '../types/navigation';
 import type { FoodInfoItem } from '../types/foodInfo';
 import { useCSSVariable } from 'uniwind';
-import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
+import {
+  CameraView,
+  useCameraPermissions,
+  type BarcodeScanningResult,
+} from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
-import { lookupBarcodeV2, scanNutritionLabel } from '../services/api/externalFoodSearchApi';
+import {
+  lookupBarcodeV2,
+  scanNutritionLabel,
+} from '../services/api/externalFoodSearchApi';
 import { getApiErrorMessage } from '../services/api/errors';
 import { fireSuccessHaptic } from '../services/haptics';
 import { useSoundsEnabled } from '../services/sounds';
@@ -58,7 +65,10 @@ const CORNER_STYLE = {
   borderColor: '#fff',
 };
 
-const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) => {
+const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const insets = useSafeAreaInsets();
   const accentPrimary = String(useCSSVariable('--color-accent-primary'));
   const [permission, requestPermission] = useCameraPermissions();
@@ -87,9 +97,15 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
     return requested;
   });
   const [notFoundBarcode, setNotFoundBarcode] = useState<string | null>(null);
-  const [lookupError, setLookupError] = useState<{ barcode: string; message: string } | null>(null);
+  const [lookupError, setLookupError] = useState<{
+    barcode: string;
+    message: string;
+  } | null>(null);
   const [labelProcessing, setLabelProcessing] = useState(false);
-  const [capturedPhoto, setCapturedPhoto] = useState<{ base64: string; uri: string } | null>(null);
+  const [capturedPhoto, setCapturedPhoto] = useState<{
+    base64: string;
+    uri: string;
+  } | null>(null);
   const [manualEntryVisible, setManualEntryVisible] = useState(false);
   const [manualBarcode, setManualBarcode] = useState('');
   const [photoGateVisible, setPhotoGateVisible] = useState(false);
@@ -105,10 +121,10 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
   // capture-barcode mode is barcode-only.
   const scanSegments = useMemo(() => {
     if (isCaptureBarcodeMode) {
-      return SCAN_SEGMENTS.filter((segment) => segment.key === 'barcode');
+      return SCAN_SEGMENTS.filter(segment => segment.key === 'barcode');
     }
     return isMealBuilderMode
-      ? SCAN_SEGMENTS.filter((segment) => segment.key !== 'photo')
+      ? SCAN_SEGMENTS.filter(segment => segment.key !== 'photo')
       : SCAN_SEGMENTS;
   }, [isCaptureBarcodeMode, isMealBuilderMode]);
 
@@ -125,8 +141,16 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
   const photoModeLoading = scanMode === 'photo' && aiSettingQuery.isLoading;
 
   const buildFoodFormParams = (
-    extra: Partial<Extract<RootStackScreenProps<'FoodForm'>['route']['params'], { mode: 'create-food' }>>,
-  ): Extract<RootStackScreenProps<'FoodForm'>['route']['params'], { mode: 'create-food' }> => ({
+    extra: Partial<
+      Extract<
+        RootStackScreenProps<'FoodForm'>['route']['params'],
+        { mode: 'create-food' }
+      >
+    >,
+  ): Extract<
+    RootStackScreenProps<'FoodForm'>['route']['params'],
+    { mode: 'create-food' }
+  > => ({
     mode: 'create-food',
     date,
     pickerMode: isMealBuilderMode ? 'meal-builder' : undefined,
@@ -136,7 +160,9 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
 
   const performBarcodeLookup = async (
     barcode: string,
-    { shouldFireSuccessHaptic = false }: { shouldFireSuccessHaptic?: boolean } = {},
+    {
+      shouldFireSuccessHaptic = false,
+    }: { shouldFireSuccessHaptic?: boolean } = {},
   ) => {
     setNotFoundBarcode(null);
     setLookupError(null);
@@ -217,7 +243,8 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
       }
     } catch (error) {
       const message =
-        getApiErrorMessage(error) ?? "Couldn't look up this barcode. Please try again.";
+        getApiErrorMessage(error) ??
+        "Couldn't look up this barcode. Please try again.";
       setLookupError({ barcode, message });
     } finally {
       setLoading(false);
@@ -267,14 +294,26 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
   const handleLabelCapture = async () => {
     if (!cameraRef.current) return;
     try {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.7, shutterSound: soundsEnabled });
+      const photo = await cameraRef.current.takePictureAsync({
+        base64: true,
+        quality: 0.7,
+        shutterSound: soundsEnabled,
+      });
       if (!photo?.base64) {
-        Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to capture photo.' });
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to capture photo.',
+        });
         return;
       }
       setCapturedPhoto({ base64: photo.base64, uri: photo.uri });
     } catch {
-      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to capture photo.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to capture photo.',
+      });
     }
   };
 
@@ -282,7 +321,10 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
     if (!capturedPhoto) return;
     setLabelProcessing(true);
     try {
-      const result = await scanNutritionLabel(capturedPhoto.base64, 'image/jpeg');
+      const result = await scanNutritionLabel(
+        capturedPhoto.base64,
+        'image/jpeg',
+      );
       navigation.replace(
         'FoodForm',
         buildFoodFormParams({
@@ -370,14 +412,29 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
         navigation.navigate('FoodPhotoIntro', { date });
       }
     })();
-  }, [isCaptureBarcodeMode, scanMode, aiSettingQuery.isLoading, photoModeAvailable, navigation, date]);
+  }, [
+    isCaptureBarcodeMode,
+    scanMode,
+    aiSettingQuery.isLoading,
+    photoModeAvailable,
+    navigation,
+    date,
+  ]);
 
   const handlePhotoCapture = async () => {
     if (!cameraRef.current) return;
     try {
-      const photo = await cameraRef.current.takePictureAsync({ base64: false, quality: 0.7, shutterSound: soundsEnabled });
+      const photo = await cameraRef.current.takePictureAsync({
+        base64: false,
+        quality: 0.7,
+        shutterSound: soundsEnabled,
+      });
       if (!photo?.uri) {
-        Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to capture photo.' });
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to capture photo.',
+        });
         return;
       }
       // Mark seen even if user retakes — the intro shouldn't reappear later.
@@ -387,7 +444,11 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
         params: { date, photo: { uri: photo.uri } },
       });
     } catch {
-      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to capture photo.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to capture photo.',
+      });
     }
   };
 
@@ -404,7 +465,11 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
       if (result.canceled) return;
       const asset = result.assets?.[0];
       if (!asset?.uri) {
-        Toast.show({ type: 'error', text1: 'Error', text2: 'No photo returned by picker.' });
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No photo returned by picker.',
+        });
         return;
       }
       await markFoodPhotoIntroSeen();
@@ -457,7 +522,9 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
     return (
       <View
         className="flex-1 justify-center items-center px-6"
-        style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}
+        style={
+          Platform.OS === 'android' ? { paddingTop: insets.top } : undefined
+        }
       >
         <Text className="text-text-primary text-base text-center mb-4">
           We need your permission to show the camera
@@ -471,21 +538,77 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
     <View className="flex-1 flex-col justify-center">
       <CameraView
         ref={cameraRef}
-        onBarcodeScanned={scanMode === 'barcode' && !scanned ? handleBarcodeScanned : undefined}
-        barcodeScannerSettings={scanMode === 'barcode' ? {
-          barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e'],
-        } : undefined}
+        onBarcodeScanned={
+          scanMode === 'barcode' && !scanned ? handleBarcodeScanned : undefined
+        }
+        barcodeScannerSettings={
+          scanMode === 'barcode'
+            ? {
+                barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e'],
+              }
+            : undefined
+        }
         style={StyleSheet.absoluteFillObject}
         enableTorch={flashlight}
       />
 
-      {scanMode === 'barcode' && !notFoundBarcode && !lookupError && !loading && !manualEntryVisible ? (
-        <View pointerEvents="none" style={StyleSheet.absoluteFillObject} className="justify-center items-center">
-          <View style={{ width: GUIDE_WIDTH, height: GUIDE_HEIGHT, marginBottom: 120 }}>
-            <View style={{ ...CORNER_STYLE, top: 0, left: 0, borderTopWidth: CORNER_BORDER, borderLeftWidth: CORNER_BORDER, borderTopLeftRadius: 4 }} />
-            <View style={{ ...CORNER_STYLE, top: 0, right: 0, borderTopWidth: CORNER_BORDER, borderRightWidth: CORNER_BORDER, borderTopRightRadius: 4 }} />
-            <View style={{ ...CORNER_STYLE, bottom: 0, left: 0, borderBottomWidth: CORNER_BORDER, borderLeftWidth: CORNER_BORDER, borderBottomLeftRadius: 4 }} />
-            <View style={{ ...CORNER_STYLE, bottom: 0, right: 0, borderBottomWidth: CORNER_BORDER, borderRightWidth: CORNER_BORDER, borderBottomRightRadius: 4 }} />
+      {scanMode === 'barcode' &&
+      !notFoundBarcode &&
+      !lookupError &&
+      !loading &&
+      !manualEntryVisible ? (
+        <View
+          pointerEvents="none"
+          style={StyleSheet.absoluteFillObject}
+          className="justify-center items-center"
+        >
+          <View
+            style={{
+              width: GUIDE_WIDTH,
+              height: GUIDE_HEIGHT,
+              marginBottom: 120,
+            }}
+          >
+            <View
+              style={{
+                ...CORNER_STYLE,
+                top: 0,
+                left: 0,
+                borderTopWidth: CORNER_BORDER,
+                borderLeftWidth: CORNER_BORDER,
+                borderTopLeftRadius: 4,
+              }}
+            />
+            <View
+              style={{
+                ...CORNER_STYLE,
+                top: 0,
+                right: 0,
+                borderTopWidth: CORNER_BORDER,
+                borderRightWidth: CORNER_BORDER,
+                borderTopRightRadius: 4,
+              }}
+            />
+            <View
+              style={{
+                ...CORNER_STYLE,
+                bottom: 0,
+                left: 0,
+                borderBottomWidth: CORNER_BORDER,
+                borderLeftWidth: CORNER_BORDER,
+                borderBottomLeftRadius: 4,
+              }}
+            />
+            <View
+              style={{
+                ...CORNER_STYLE,
+                bottom: 0,
+                right: 0,
+                borderBottomWidth: CORNER_BORDER,
+                borderRightWidth: CORNER_BORDER,
+                borderBottomRightRadius: 4,
+              }}
+            />
           </View>
         </View>
       ) : null}
@@ -518,15 +641,24 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
         <View className="absolute inset-0 justify-center items-center bg-black/40">
           <ActivityIndicator size="large" color="#fff" />
           {labelProcessing ? (
-            <Text className="text-white text-base mt-3">Analyzing label...</Text>
+            <Text className="text-white text-base mt-3">
+              Analyzing label...
+            </Text>
           ) : null}
         </View>
       ) : null}
 
       {capturedPhoto && !labelProcessing ? (
         <View className="absolute inset-0">
-          <Image source={{ uri: capturedPhoto.uri }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
-          <View className="absolute bottom-12 left-4 right-4 flex-row gap-3" style={{ paddingBottom: insets.bottom }}>
+          <Image
+            source={{ uri: capturedPhoto.uri }}
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+          />
+          <View
+            className="absolute bottom-12 left-4 right-4 flex-row gap-3"
+            style={{ paddingBottom: insets.bottom }}
+          >
             <TouchableOpacity
               onPress={handleRetake}
               className="flex-1 bg-white/20 py-4 rounded-lg items-center"
@@ -546,7 +678,13 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
         </View>
       ) : null}
 
-      {!isCaptureBarcodeMode && !capturedPhoto && !labelProcessing && !loading && !manualEntryVisible && scanMode === 'barcode' && (notFoundBarcode || lookupError) ? (
+      {!isCaptureBarcodeMode &&
+      !capturedPhoto &&
+      !labelProcessing &&
+      !loading &&
+      !manualEntryVisible &&
+      scanMode === 'barcode' &&
+      (notFoundBarcode || lookupError) ? (
         <View
           className="absolute left-0 right-0 items-center px-8"
           style={{ bottom: Math.max(insets.bottom + 8, 24) + 76 }}
@@ -571,15 +709,24 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
               </UIButton>
               <UIButton
                 variant="outline"
-                onPress={() => navigation.replace(
-                  'FoodForm',
-                  buildFoodFormParams({
-                    barcode: lookupError?.barcode ?? notFoundBarcode ?? undefined,
-                  }),
-                )}
+                onPress={() =>
+                  navigation.replace(
+                    'FoodForm',
+                    buildFoodFormParams({
+                      barcode:
+                        lookupError?.barcode ?? notFoundBarcode ?? undefined,
+                    }),
+                  )
+                }
                 className="rounded-lg"
               >
-                <Text style={{ fontSize: 14, fontWeight: '600', color: accentPrimary }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: accentPrimary,
+                  }}
+                >
                   Add Food Manually
                 </Text>
               </UIButton>
@@ -588,8 +735,17 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
         </View>
       ) : null}
 
-      {scanMode === 'photo' && !capturedPhoto && !loading && !manualEntryVisible && !photoGateVisible && photoModeAvailable ? (
-        <View pointerEvents="none" style={StyleSheet.absoluteFillObject} className="justify-center items-center">
+      {scanMode === 'photo' &&
+      !capturedPhoto &&
+      !loading &&
+      !manualEntryVisible &&
+      !photoGateVisible &&
+      photoModeAvailable ? (
+        <View
+          pointerEvents="none"
+          style={StyleSheet.absoluteFillObject}
+          className="justify-center items-center"
+        >
           <View
             style={{
               width: GUIDE_WIDTH,
@@ -665,7 +821,9 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
                   onPress={handleShowManualEntry}
                   className="bg-raised px-6 py-3 rounded-xl"
                 >
-                  <Text className="text-text-primary text-sm font-semibold">Type Barcode Instead</Text>
+                  <Text className="text-text-primary text-sm font-semibold">
+                    Type Barcode Instead
+                  </Text>
                 </TouchableOpacity>
               ) : null}
 
@@ -721,7 +879,9 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
                   ) : null}
                   {/* Centered between the capture button and the segmented control's right edge. */}
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('FoodPhotoIntro', { date })}
+                    onPress={() =>
+                      navigation.navigate('FoodPhotoIntro', { date })
+                    }
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     accessibilityLabel="How photo estimation works"
                     accessibilityRole="button"
@@ -762,7 +922,9 @@ const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ navigation, route }) =>
             bounces={false}
           >
             <View className="w-full max-w-90 rounded-2xl p-6 bg-surface shadow-sm gap-4">
-              <Text className="text-text-primary text-base font-semibold text-center">Enter Barcode</Text>
+              <Text className="text-text-primary text-base font-semibold text-center">
+                Enter Barcode
+              </Text>
               <FormInput
                 placeholder="Barcode number"
                 keyboardType="number-pad"

@@ -1,11 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { useCSSVariable } from 'uniwind';
 import Button from './ui/Button';
-import { buildNutrientDisplayList, type NutrientDisplayItem } from '../types/foodInfo';
+import {
+  buildNutrientDisplayList,
+  type NutrientDisplayItem,
+} from '../types/foodInfo';
 import type { FoodDisplayValues } from '../utils/foodDetails';
-import NutritionMacroCard, { type NutritionGoalPercentages } from './NutritionMacroCard';
+import NutritionMacroCard, {
+  type NutritionGoalPercentages,
+} from './NutritionMacroCard';
 
 interface FoodNutritionSummaryProps {
   name: string;
@@ -41,15 +50,16 @@ const FoodNutritionSummary: React.FC<FoodNutritionSummaryProps> = ({
   // uses to swap the macro bar to "Net Carbs" — if fiber is unavailable the
   // bar falls back to total carbs and the row would otherwise duplicate it.
   const useNetCarbs = showNetCarbs && values.fiber !== undefined;
-  const { primary: primaryNutrients, additional: additionalNutrients } = useMemo(
-    () =>
-      buildNutrientDisplayList(values, {
-        showNetCarbs: useNetCarbs,
-        // Pass raw carbs; renderRow scales by `servings` like every other row.
-        carbs: useNetCarbs ? values.carbs : undefined,
-      }),
-    [values, useNetCarbs],
-  );
+  const { primary: primaryNutrients, additional: additionalNutrients } =
+    useMemo(
+      () =>
+        buildNutrientDisplayList(values, {
+          showNetCarbs: useNetCarbs,
+          // Pass raw carbs; renderRow scales by `servings` like every other row.
+          carbs: useNetCarbs ? values.carbs : undefined,
+        }),
+      [values, useNetCarbs],
+    );
 
   const renderRow = (nutrient: NutrientDisplayItem, showBorder: boolean) => (
     <View
@@ -113,12 +123,17 @@ const FoodNutritionSummary: React.FC<FoodNutritionSummaryProps> = ({
         <Animated.View layout={layoutTransition}>
           <Button
             variant="ghost"
-            onPress={() => setShowMoreNutrients((prev) => !prev)}
+            onPress={() => setShowMoreNutrients(prev => !prev)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             className="self-start py-0 px-0"
           >
-            <Text style={{ color: accentColor }} className="text-sm font-medium">
-              {showMoreNutrients ? 'Hide extra nutrients ▴' : 'Show more nutrients ▾'}
+            <Text
+              style={{ color: accentColor }}
+              className="text-sm font-medium"
+            >
+              {showMoreNutrients
+                ? 'Hide extra nutrients ▴'
+                : 'Show more nutrients ▾'}
             </Text>
           </Button>
         </Animated.View>

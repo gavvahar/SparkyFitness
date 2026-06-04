@@ -42,7 +42,9 @@ export default function StatusView({
   const accentColor = useCSSVariable('--color-accent-primary') as string;
 
   return (
-    <View className={`flex-1 justify-center items-center px-6 ${className ?? ''}`}>
+    <View
+      className={`flex-1 justify-center items-center px-6 ${className ?? ''}`}
+    >
       {loading ? (
         <ActivityIndicator size="large" color={accentColor} />
       ) : icon ? (

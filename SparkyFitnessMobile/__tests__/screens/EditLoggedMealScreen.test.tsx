@@ -22,7 +22,12 @@ jest.mock('../../src/hooks/useDeleteFoodEntryMeal', () => ({
 
 jest.mock('../../src/hooks', () => ({
   useMealTypes: jest.fn(),
-  usePreferences: jest.fn(() => ({ preferences: undefined, isLoading: false, isError: false, refetch: jest.fn() })),
+  usePreferences: jest.fn(() => ({
+    preferences: undefined,
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  })),
 }));
 
 jest.mock('../../src/components/ActiveWorkoutBar', () => ({
@@ -99,7 +104,11 @@ jest.mock('../../src/components/BottomSheetPicker', () => {
           selectedOption: options.find((o: any) => o.value === value),
         })}
         {options.map((opt: any) => (
-          <Pressable key={opt.value} onPress={() => onSelect(opt.value)} testID={`mealtype-${opt.value}`}>
+          <Pressable
+            key={opt.value}
+            onPress={() => onSelect(opt.value)}
+            testID={`mealtype-${opt.value}`}
+          >
             <Text>{opt.label}</Text>
           </Pressable>
         ))}
@@ -120,10 +129,17 @@ jest.mock('../../src/components/CalendarSheet', () => {
   };
 });
 
-const mockUseFoodEntryMealDetails = useFoodEntryMealDetails as jest.MockedFunction<typeof useFoodEntryMealDetails>;
-const mockUseUpdateFoodEntryMeal = useUpdateFoodEntryMeal as jest.MockedFunction<typeof useUpdateFoodEntryMeal>;
-const mockUseDeleteFoodEntryMeal = useDeleteFoodEntryMeal as jest.MockedFunction<typeof useDeleteFoodEntryMeal>;
-const mockUseMealTypes = useMealTypes as jest.MockedFunction<typeof useMealTypes>;
+const mockUseFoodEntryMealDetails =
+  useFoodEntryMealDetails as jest.MockedFunction<
+    typeof useFoodEntryMealDetails
+  >;
+const mockUseUpdateFoodEntryMeal =
+  useUpdateFoodEntryMeal as jest.MockedFunction<typeof useUpdateFoodEntryMeal>;
+const mockUseDeleteFoodEntryMeal =
+  useDeleteFoodEntryMeal as jest.MockedFunction<typeof useDeleteFoodEntryMeal>;
+const mockUseMealTypes = useMealTypes as jest.MockedFunction<
+  typeof useMealTypes
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -192,7 +208,12 @@ describe('EditLoggedMealScreen', () => {
     });
     mockUseMealTypes.mockReturnValue({
       mealTypes: [
-        { id: 'mt-breakfast', name: 'breakfast', is_visible: true, sort_order: 1 },
+        {
+          id: 'mt-breakfast',
+          name: 'breakfast',
+          is_visible: true,
+          sort_order: 1,
+        },
         { id: 'mt-lunch', name: 'lunch', is_visible: true, sort_order: 2 },
       ] as any,
       defaultMealTypeId: 'mt-breakfast',
@@ -206,7 +227,13 @@ describe('EditLoggedMealScreen', () => {
       <SafeAreaProvider initialMetrics={{ insets, frame }}>
         <EditLoggedMealScreen
           navigation={navigation}
-          route={{ key: 'k', name: 'EditLoggedMeal', params: { foodEntryMealId: 'fem-1' } } as any}
+          route={
+            {
+              key: 'k',
+              name: 'EditLoggedMeal',
+              params: { foodEntryMealId: 'fem-1' },
+            } as any
+          }
         />
       </SafeAreaProvider>,
     );
@@ -214,7 +241,10 @@ describe('EditLoggedMealScreen', () => {
   it('saves merged payload (name, meal_type, meal_type_id, foods) on Save', () => {
     const screen = renderScreen();
 
-    fireEvent.changeText(screen.getByTestId('meal-name-input'), 'Updated Meal Name');
+    fireEvent.changeText(
+      screen.getByTestId('meal-name-input'),
+      'Updated Meal Name',
+    );
     fireEvent.changeText(screen.getByTestId('quantity-input'), '2');
     fireEvent.press(screen.getByTestId('mealtype-mt-lunch'));
 

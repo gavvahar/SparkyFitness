@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Alert, View, Text, TextInput, TouchableOpacity, InputAccessoryView, Platform } from 'react-native';
+import {
+  Alert,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  InputAccessoryView,
+  Platform,
+} from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useCSSVariable } from 'uniwind';
 import Button from './ui/Button';
@@ -21,7 +29,12 @@ interface EditableSetRowProps {
   nextSetKey?: string | null;
   onActivateSet: (setKey: string, field: 'weight' | 'reps') => void;
   onDeactivate: () => void;
-  onUpdateSetField: (exerciseClientId: string, setClientId: string, field: 'weight' | 'reps', value: string) => void;
+  onUpdateSetField: (
+    exerciseClientId: string,
+    setClientId: string,
+    field: 'weight' | 'reps',
+    value: string,
+  ) => void;
   onRemoveSet: (exerciseClientId: string, setClientId: string) => void;
   onAddSet: (exerciseClientId: string) => void;
 }
@@ -70,25 +83,37 @@ function EditableSetRow({
     ref.current?.focus();
   }, [isActive, activeField]);
 
-  const handleUpdateWeight = useCallback((value: string) => {
-    onUpdateSetField(exerciseClientId, setClientId, 'weight', value);
-  }, [exerciseClientId, onUpdateSetField, setClientId]);
+  const handleUpdateWeight = useCallback(
+    (value: string) => {
+      onUpdateSetField(exerciseClientId, setClientId, 'weight', value);
+    },
+    [exerciseClientId, onUpdateSetField, setClientId],
+  );
 
-  const handleUpdateReps = useCallback((value: string) => {
-    onUpdateSetField(exerciseClientId, setClientId, 'reps', value);
-  }, [exerciseClientId, onUpdateSetField, setClientId]);
+  const handleUpdateReps = useCallback(
+    (value: string) => {
+      onUpdateSetField(exerciseClientId, setClientId, 'reps', value);
+    },
+    [exerciseClientId, onUpdateSetField, setClientId],
+  );
 
-  const handleStepWeight = useCallback((direction: number) => {
-    const current = parseDecimalInput(weight) || 0;
-    const next = Math.max(0, current + direction * 5);
-    handleUpdateWeight(String(next));
-  }, [weight, handleUpdateWeight]);
+  const handleStepWeight = useCallback(
+    (direction: number) => {
+      const current = parseDecimalInput(weight) || 0;
+      const next = Math.max(0, current + direction * 5);
+      handleUpdateWeight(String(next));
+    },
+    [weight, handleUpdateWeight],
+  );
 
-  const handleStepReps = useCallback((direction: number) => {
-    const current = parseInt(reps, 10) || 0;
-    const next = Math.max(0, current + direction);
-    handleUpdateReps(String(next));
-  }, [reps, handleUpdateReps]);
+  const handleStepReps = useCallback(
+    (direction: number) => {
+      const current = parseInt(reps, 10) || 0;
+      const next = Math.max(0, current + direction);
+      handleUpdateReps(String(next));
+    },
+    [reps, handleUpdateReps],
+  );
 
   const handleRemove = useCallback(() => {
     onRemoveSet(exerciseClientId, setClientId);
@@ -138,7 +163,9 @@ function EditableSetRow({
     return (
       <>
         <View className="flex-row items-center py-3">
-          <Text className="text-base text-text-muted w-10 text-center">{setNumber}</Text>
+          <Text className="text-base text-text-muted w-10 text-center">
+            {setNumber}
+          </Text>
           <View className="flex-1 items-center">
             <StepperInput
               compact
@@ -186,13 +213,31 @@ function EditableSetRow({
                 borderTopColor: chromeBorder,
               }}
             >
-              <TouchableOpacity onPress={onDeactivate} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={{ color: accentPrimary, fontWeight: '600', fontSize: 16 }}>
+              <TouchableOpacity
+                onPress={onDeactivate}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text
+                  style={{
+                    color: accentPrimary,
+                    fontWeight: '600',
+                    fontSize: 16,
+                  }}
+                >
                   Done
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleAdvance} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={{ color: accentPrimary, fontWeight: '600', fontSize: 16 }}>
+              <TouchableOpacity
+                onPress={handleAdvance}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text
+                  style={{
+                    color: accentPrimary,
+                    fontWeight: '600',
+                    fontSize: 16,
+                  }}
+                >
                   {advanceLabel}
                 </Text>
               </TouchableOpacity>
@@ -222,14 +267,18 @@ function EditableSetRow({
       rightThreshold={40}
     >
       <View className="flex-row items-center py-3 bg-background">
-        <Text className="text-base text-text-muted w-10 text-center">{setNumber}</Text>
+        <Text className="text-base text-text-muted w-10 text-center">
+          {setNumber}
+        </Text>
         <TouchableOpacity
           className="flex-1 py-1"
           onPress={handleActivateWeight}
           onLongPress={handleConfirmRemove}
           activeOpacity={0.6}
         >
-          <Text className="text-base text-text-primary text-center">{displayWeight}</Text>
+          <Text className="text-base text-text-primary text-center">
+            {displayWeight}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           className="flex-1 py-1"
@@ -237,7 +286,9 @@ function EditableSetRow({
           onLongPress={handleConfirmRemove}
           activeOpacity={0.6}
         >
-          <Text className="text-base text-text-primary text-center">{displayReps}</Text>
+          <Text className="text-base text-text-primary text-center">
+            {displayReps}
+          </Text>
         </TouchableOpacity>
         {/* Reserve space for the remove button so rows don't shift when activated */}
         <View style={{ width: 18 }} />

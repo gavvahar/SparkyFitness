@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text } from 'react-native';
-import Animated, { useSharedValue, useDerivedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useDerivedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCSSVariable } from 'uniwind';
 
@@ -13,7 +19,14 @@ interface MacroCardProps {
   unit?: string;
 }
 
-const MacroCard: React.FC<MacroCardProps> = ({ label, consumed, goal, color, overfillColor, unit = 'g' }) => {
+const MacroCard: React.FC<MacroCardProps> = ({
+  label,
+  consumed,
+  goal,
+  color,
+  overfillColor,
+  unit = 'g',
+}) => {
   const [barWidth, setBarWidth] = useState(0);
   const progress = goal > 0 ? consumed / goal : 0;
   const barHeight = 8;
@@ -29,7 +42,7 @@ const MacroCard: React.FC<MacroCardProps> = ({ label, consumed, goal, color, ove
         duration: 500,
         easing: Easing.out(Easing.cubic),
       });
-    }, [progress, animatedProgress])
+    }, [progress, animatedProgress]),
   );
 
   const fillWidth = useDerivedValue(() => {
@@ -65,13 +78,15 @@ const MacroCard: React.FC<MacroCardProps> = ({ label, consumed, goal, color, ove
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-sm font-medium text-text-primary">{label}</Text>
         <Text className="text-xs text-text-secondary">
-          {Math.round(consumed)}{unit} / {Math.round(goal)}{unit}
+          {Math.round(consumed)}
+          {unit} / {Math.round(goal)}
+          {unit}
         </Text>
       </View>
       {/* Progress bar container */}
       <View
         className="h-2"
-        onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
+        onLayout={e => setBarWidth(e.nativeEvent.layout.width)}
       >
         {barWidth > 0 && (
           <View
@@ -85,13 +100,25 @@ const MacroCard: React.FC<MacroCardProps> = ({ label, consumed, goal, color, ove
           >
             <Animated.View
               style={[
-                { position: 'absolute', left: 0, top: 0, height: barHeight, backgroundColor: color },
+                {
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  height: barHeight,
+                  backgroundColor: color,
+                },
                 fillStyle,
               ]}
             />
             <Animated.View
               style={[
-                { position: 'absolute', top: 0, height: barHeight, backgroundColor: color, opacity: 0.65 },
+                {
+                  position: 'absolute',
+                  top: 0,
+                  height: barHeight,
+                  backgroundColor: color,
+                  opacity: 0.65,
+                },
                 overflowStyle,
               ]}
             />

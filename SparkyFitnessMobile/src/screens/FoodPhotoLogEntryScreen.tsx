@@ -16,7 +16,9 @@ import FoodNutritionSummary from '../components/FoodNutritionSummary';
 import Icon from '../components/Icon';
 import StepperInput from '../components/StepperInput';
 import BottomSheetPicker from '../components/BottomSheetPicker';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
 import { useAddFoodEntry } from '../hooks/useAddFoodEntry';
 import { useMealTypes } from '../hooks/useMealTypes';
 import { usePreferences } from '../hooks';
@@ -30,7 +32,10 @@ import type { FoodDisplayValues } from '../utils/foodDetails';
 import { parseDecimalInput, DECIMAL_INPUT_REGEX } from '../utils/numericInput';
 import type { SaveFoodPayload } from '../services/api/foodsApi';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { FoodPhotoFlowScreenProps, RootStackParamList } from '../types/navigation';
+import type {
+  FoodPhotoFlowScreenProps,
+  RootStackParamList,
+} from '../types/navigation';
 
 function saveFoodPayloadToDisplayValues(p: SaveFoodPayload): FoodDisplayValues {
   return {
@@ -66,8 +71,12 @@ const FoodPhotoLogEntryScreen: React.FC<Props> = ({ navigation, route }) => {
   const { saveFoodPayload } = route.params;
 
   const { mealTypes, defaultMealTypeId } = useMealTypes();
-  const [selectedMealTypeId, setSelectedMealTypeId] = useState<string | null>(null);
-  const [entryDate, setEntryDate] = useState<string>(route.params.date ?? getTodayDate());
+  const [selectedMealTypeId, setSelectedMealTypeId] = useState<string | null>(
+    null,
+  );
+  const [entryDate, setEntryDate] = useState<string>(
+    route.params.date ?? getTodayDate(),
+  );
   const [quantity, setQuantity] = useState<string>('1');
 
   const calendarRef = useRef<CalendarSheetRef>(null);
@@ -100,8 +109,14 @@ const FoodPhotoLogEntryScreen: React.FC<Props> = ({ navigation, route }) => {
       ? getNetCarbsValue(displayValues.carbs, displayValues.fiber)
       : displayValues.carbs;
   const goalPercentages = {
-    calories: goalPercent(displayValues.calories * servingsNumber, goals?.calories),
-    protein: goalPercent(displayValues.protein * servingsNumber, goals?.protein),
+    calories: goalPercent(
+      displayValues.calories * servingsNumber,
+      goals?.calories,
+    ),
+    protein: goalPercent(
+      displayValues.protein * servingsNumber,
+      goals?.protein,
+    ),
     carbs: goalPercent(carbsForGoal * servingsNumber, goals?.carbs),
     fat: goalPercent(displayValues.fat * servingsNumber, goals?.fat),
   };
@@ -116,7 +131,9 @@ const FoodPhotoLogEntryScreen: React.FC<Props> = ({ navigation, route }) => {
     onSuccess: () => {
       fireSuccessHaptic();
       Toast.show({ type: 'success', text1: 'Estimate saved' });
-      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.popToTop();
+      navigation
+        .getParent<NativeStackNavigationProp<RootStackParamList>>()
+        ?.popToTop();
     },
   });
 
@@ -133,14 +150,14 @@ const FoodPhotoLogEntryScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const mealPickerOptions = useMemo(
     () =>
-      mealTypes.map((mt) => ({
+      mealTypes.map(mt => ({
         label: getMealTypeLabel(mt.name),
         value: mt.id,
       })),
     [mealTypes],
   );
   const selectedMealLabel = useMemo(() => {
-    const found = mealTypes.find((mt) => mt.id === selectedMealTypeId);
+    const found = mealTypes.find(mt => mt.id === selectedMealTypeId);
     return found ? getMealTypeLabel(found.name) : 'Select meal';
   }, [mealTypes, selectedMealTypeId]);
 
@@ -224,7 +241,7 @@ const FoodPhotoLogEntryScreen: React.FC<Props> = ({ navigation, route }) => {
           <BottomSheetPicker
             value={selectedMealTypeId ?? ''}
             options={mealPickerOptions}
-            onSelect={(value) => setSelectedMealTypeId(value)}
+            onSelect={value => setSelectedMealTypeId(value)}
             title="Select Meal"
             renderTrigger={({ onPress }) => (
               <TouchableOpacity
@@ -305,7 +322,7 @@ const FoodPhotoLogEntryScreen: React.FC<Props> = ({ navigation, route }) => {
       <CalendarSheet
         ref={calendarRef}
         selectedDate={entryDate}
-        onSelectDate={(date) => setEntryDate(date)}
+        onSelectDate={date => setEntryDate(date)}
       />
     </View>
   );

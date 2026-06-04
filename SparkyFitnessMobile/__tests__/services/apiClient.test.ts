@@ -1,10 +1,14 @@
 import { normalizeUrl, apiFetch } from '../../src/services/api/apiClient';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 import { notifySessionExpired } from '../../src/services/api/authService';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/api/authService', () => ({
@@ -48,11 +52,15 @@ describe('apiClient', () => {
     });
 
     test('handles URL with path and trailing slash', () => {
-      expect(normalizeUrl('https://example.com/api/')).toBe('https://example.com/api');
+      expect(normalizeUrl('https://example.com/api/')).toBe(
+        'https://example.com/api',
+      );
     });
 
     test('handles URL with path and no trailing slash', () => {
-      expect(normalizeUrl('https://example.com/api')).toBe('https://example.com/api');
+      expect(normalizeUrl('https://example.com/api')).toBe(
+        'https://example.com/api',
+      );
     });
   });
 
@@ -88,7 +96,7 @@ describe('apiClient', () => {
           endpoint: '/api/test',
           serviceName: 'Test API',
           operation: 'fetch test',
-        })
+        }),
       ).rejects.toThrow('Server configuration not found.');
     });
 
@@ -105,7 +113,7 @@ describe('apiClient', () => {
           endpoint: '/api/test',
           serviceName: 'Test API',
           operation: 'fetch test',
-        })
+        }),
       ).rejects.toThrow('Server error: 500 - Internal Server Error');
     });
 
@@ -118,7 +126,7 @@ describe('apiClient', () => {
           endpoint: '/api/test',
           serviceName: 'Test API',
           operation: 'fetch test',
-        })
+        }),
       ).rejects.toThrow('Network request failed');
     });
 
@@ -144,7 +152,7 @@ describe('apiClient', () => {
 
             'X-Meal-Model-Version': '2',
           },
-        })
+        }),
       );
     });
 
@@ -175,7 +183,7 @@ describe('apiClient', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(body),
-        })
+        }),
       );
     });
 
@@ -203,7 +211,7 @@ describe('apiClient', () => {
             'X-Meal-Model-Version': '2',
             'x-provider-id': 'provider-123',
           },
-        })
+        }),
       );
     });
 
@@ -225,7 +233,7 @@ describe('apiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/test',
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -257,7 +265,7 @@ describe('apiClient', () => {
             headers: expect.objectContaining({
               Authorization: 'Bearer my-session-token',
             }),
-          })
+          }),
         );
       });
 
@@ -274,10 +282,12 @@ describe('apiClient', () => {
             endpoint: '/api/test',
             serviceName: 'Test API',
             operation: 'fetch test',
-          })
+          }),
         ).rejects.toThrow();
 
-        expect(mockNotifySessionExpired).toHaveBeenCalledWith('session-config-id');
+        expect(mockNotifySessionExpired).toHaveBeenCalledWith(
+          'session-config-id',
+        );
       });
 
       test('401 with API key config does NOT call notifySessionExpired', async () => {
@@ -293,7 +303,7 @@ describe('apiClient', () => {
             endpoint: '/api/test',
             serviceName: 'Test API',
             operation: 'fetch test',
-          })
+          }),
         ).rejects.toThrow();
 
         expect(mockNotifySessionExpired).not.toHaveBeenCalled();
@@ -312,7 +322,7 @@ describe('apiClient', () => {
             endpoint: '/api/test',
             serviceName: 'Test API',
             operation: 'fetch test',
-          })
+          }),
         ).rejects.toThrow();
 
         expect(mockNotifySessionExpired).not.toHaveBeenCalled();
@@ -338,7 +348,7 @@ describe('apiClient', () => {
             endpoint: '/api/test',
             serviceName: 'Test API',
             operation: 'fetch test',
-          })
+          }),
         ).rejects.toThrow('HTTPS is required');
 
         expect(mockFetch).not.toHaveBeenCalled();
@@ -356,7 +366,7 @@ describe('apiClient', () => {
             endpoint: '/api/test',
             serviceName: 'Test API',
             operation: 'fetch test',
-          })
+          }),
         ).rejects.toThrow('HTTPS is required');
 
         expect(mockFetch).not.toHaveBeenCalled();

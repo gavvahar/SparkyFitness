@@ -17,12 +17,20 @@ import Icon from '../components/Icon';
 import Button from '../components/ui/Button';
 import FormInput from '../components/FormInput';
 import WorkoutEditableExerciseList from '../components/WorkoutEditableExerciseList';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
-import { useWorkoutForm, getWorkoutDraftSubmission } from '../hooks/useWorkoutForm';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
+import {
+  useWorkoutForm,
+  getWorkoutDraftSubmission,
+} from '../hooks/useWorkoutForm';
 import { useSelectedExercise } from '../hooks/useSelectedExercise';
 import { useExerciseSetEditing } from '../hooks/useExerciseSetEditing';
 import { formatDateLabel } from '../utils/dateUtils';
-import { useCreateWorkout, useUpdateWorkout } from '../hooks/useExerciseMutations';
+import {
+  useCreateWorkout,
+  useUpdateWorkout,
+} from '../hooks/useExerciseMutations';
 import { usePreferences } from '../hooks/usePreferences';
 import { useExerciseImageSource } from '../hooks/useExerciseImageSource';
 import { addLog } from '../services/LogService';
@@ -97,7 +105,11 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
     handleAddSet,
     activateSet,
     deactivateSet,
-  } = useExerciseSetEditing({ addExercise: wrappedAddExercise, removeExercise, addSet });
+  } = useExerciseSetEditing({
+    addExercise: wrappedAddExercise,
+    removeExercise,
+    addSet,
+  });
 
   const isEligibleForPrefill = useCallback(
     (clientId: string) => eligibleIds.has(clientId),
@@ -118,7 +130,10 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
   const { preferences, isLoading: isPreferencesLoading } = usePreferences();
   const weightUnit = preferences?.default_weight_unit ?? 'kg';
   const { getImageSource } = useExerciseImageSource();
-  const submission = getWorkoutDraftSubmission(state, weightUnit as 'kg' | 'lbs');
+  const submission = getWorkoutDraftSubmission(
+    state,
+    weightUnit as 'kg' | 'lbs',
+  );
 
   // Populate the edit form once after the preferences query settles so
   // the initial unit conversion is correct without overwriting later edits.
@@ -140,15 +155,32 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
   // Populate from preset once after preferences load
   const hasPopulatedPresetRef = useRef(false);
   useEffect(() => {
-    if (!preset || isEditMode || hasPopulatedPresetRef.current || isPreferencesLoading) return;
+    if (
+      !preset ||
+      isEditMode ||
+      hasPopulatedPresetRef.current ||
+      isPreferencesLoading
+    )
+      return;
     hasPopulatedPresetRef.current = true;
-    const populatedIds = populateFromPreset(preset, weightUnit as 'kg' | 'lbs', initialDate);
+    const populatedIds = populateFromPreset(
+      preset,
+      weightUnit as 'kg' | 'lbs',
+      initialDate,
+    );
     setEligibleIds(prev => {
       const next = new Set(prev);
       populatedIds.forEach(id => next.add(id));
       return next;
     });
-  }, [preset, isEditMode, isPreferencesLoading, populateFromPreset, weightUnit, initialDate]);
+  }, [
+    preset,
+    isEditMode,
+    isPreferencesLoading,
+    populateFromPreset,
+    weightUnit,
+    initialDate,
+  ]);
 
   const isInitializingEditForm = isEditMode && !hasPopulatedRef.current;
 
@@ -167,7 +199,11 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const handleFinish = useCallback(() => {
     if (!submission.canSave) {
-      Toast.show({ type: 'error', text1: 'Add an Exercise', text2: 'Add at least one exercise with a set before saving.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Add an Exercise',
+        text2: 'Add at least one exercise with a set before saving.',
+      });
       return;
     }
 
@@ -205,7 +241,11 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
             }
           } catch (error) {
             addLog(`Failed to save workout: ${error}`, 'ERROR');
-            Toast.show({ type: 'error', text1: 'Failed to save workout', text2: 'Please try again.' });
+            Toast.show({
+              type: 'error',
+              text1: 'Failed to save workout',
+              text2: 'Please try again.',
+            });
           }
         },
       },
@@ -249,72 +289,82 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
             bottomOffset={80}
             keyboardShouldPersistTaps="handled"
           >
-              <Pressable onPress={() => { deactivateSet(); Keyboard.dismiss(); }}>
-                {/* Workout name */}
-                <View className="mb-4">
-                  {isNameEditing ? (
-                    <FadeView key="name-edit">
-                      <FormInput
-                        className="text-xl font-bold text-text-primary rounded-lg"
-                        value={state.name}
-                        onChangeText={setName}
-                        placeholder="Workout"
-                        returnKeyType="done"
-                        autoFocus
-                        selectTextOnFocus
-                        onBlur={() => setIsNameEditing(false)}
-                        onSubmitEditing={() => setIsNameEditing(false)}
-                      />
-                    </FadeView>
-                  ) : (
-                    <FadeView key="name-view">
-                      <TouchableOpacity
-                        className="flex-row items-center self-start gap-2"
-                        onPress={() => setIsNameEditing(true)}
-                        activeOpacity={0.6}
-                      >
-                        <Text className="text-xl font-bold text-text-primary">
-                          {state.name || 'Workout'}
-                        </Text>
-                        <Icon name="pencil" size={20} color={textMuted} />
-                      </TouchableOpacity>
-                    </FadeView>
-                  )}
-                </View>
+            <Pressable
+              onPress={() => {
+                deactivateSet();
+                Keyboard.dismiss();
+              }}
+            >
+              {/* Workout name */}
+              <View className="mb-4">
+                {isNameEditing ? (
+                  <FadeView key="name-edit">
+                    <FormInput
+                      className="text-xl font-bold text-text-primary rounded-lg"
+                      value={state.name}
+                      onChangeText={setName}
+                      placeholder="Workout"
+                      returnKeyType="done"
+                      autoFocus
+                      selectTextOnFocus
+                      onBlur={() => setIsNameEditing(false)}
+                      onSubmitEditing={() => setIsNameEditing(false)}
+                    />
+                  </FadeView>
+                ) : (
+                  <FadeView key="name-view">
+                    <TouchableOpacity
+                      className="flex-row items-center self-start gap-2"
+                      onPress={() => setIsNameEditing(true)}
+                      activeOpacity={0.6}
+                    >
+                      <Text className="text-xl font-bold text-text-primary">
+                        {state.name || 'Workout'}
+                      </Text>
+                      <Icon name="pencil" size={20} color={textMuted} />
+                    </TouchableOpacity>
+                  </FadeView>
+                )}
+              </View>
 
-                {/* Date row */}
-                <TouchableOpacity
-                  onPress={() => calendarSheetRef.current?.present()}
-                  activeOpacity={0.7}
-                  className="flex-row items-center mb-4"
-                >
-                  <Text className="text-text-secondary text-base">Date</Text>
-                  <Text className="text-text-primary text-base font-medium mx-1.5">
-                    {formatDateLabel(state.entryDate)}
-                  </Text>
-                  <Icon name="chevron-down" size={12} color={textPrimary} weight="medium" />
-                </TouchableOpacity>
-
-                <WorkoutEditableExerciseList
-                  exercises={state.exercises}
-                  getImageSource={getImageSource}
-                  weightUnit={weightUnit as 'kg' | 'lbs'}
-                  activeSetKey={activeSetKey}
-                  activeSetField={activeSetField}
-                  onActivateSet={activateSet}
-                  onDeactivateSet={deactivateSet}
-                  onUpdateSetField={updateSetField}
-                  onRemoveSet={removeSet}
-                  onAddSet={handleAddSet}
-                  onRemoveExercise={handleRemoveExercise}
-                  onAddExercisePress={openExerciseSearch}
-                  onChangeRest={setExerciseRest}
-                  isEligibleForPrefill={isEligibleForPrefill}
+              {/* Date row */}
+              <TouchableOpacity
+                onPress={() => calendarSheetRef.current?.present()}
+                activeOpacity={0.7}
+                className="flex-row items-center mb-4"
+              >
+                <Text className="text-text-secondary text-base">Date</Text>
+                <Text className="text-text-primary text-base font-medium mx-1.5">
+                  {formatDateLabel(state.entryDate)}
+                </Text>
+                <Icon
+                  name="chevron-down"
+                  size={12}
+                  color={textPrimary}
+                  weight="medium"
                 />
+              </TouchableOpacity>
 
-                {/* Bottom spacer so content isn't hidden behind footer */}
-                <View style={{ height: 80 }} />
-              </Pressable>
+              <WorkoutEditableExerciseList
+                exercises={state.exercises}
+                getImageSource={getImageSource}
+                weightUnit={weightUnit as 'kg' | 'lbs'}
+                activeSetKey={activeSetKey}
+                activeSetField={activeSetField}
+                onActivateSet={activateSet}
+                onDeactivateSet={deactivateSet}
+                onUpdateSetField={updateSetField}
+                onRemoveSet={removeSet}
+                onAddSet={handleAddSet}
+                onRemoveExercise={handleRemoveExercise}
+                onAddExercisePress={openExerciseSearch}
+                onChangeRest={setExerciseRest}
+                isEligibleForPrefill={isEligibleForPrefill}
+              />
+
+              {/* Bottom spacer so content isn't hidden behind footer */}
+              <View style={{ height: 80 }} />
+            </Pressable>
           </KeyboardAwareScrollView>
 
           {/* Sticky footer */}
@@ -335,13 +385,15 @@ const WorkoutAddScreen: React.FC<Props> = ({ navigation, route }) => {
               {isPending ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text className="text-sm font-semibold text-center" style={{ color: '#fff' }}>
+                <Text
+                  className="text-sm font-semibold text-center"
+                  style={{ color: '#fff' }}
+                >
                   {isEditMode ? 'Save' : 'Finish'}
                 </Text>
               )}
             </Button>
           </View>
-
         </>
       )}
 

@@ -78,11 +78,11 @@ export function useUnitConversion({
 }: UseUnitConversionOptions): UseUnitConversionResult {
   const convertibleUnits = useMemo(() => {
     const existingUnits = new Set(
-      variants.map((variant) => variant.serving_unit.toLowerCase()),
+      variants.map(variant => variant.serving_unit.toLowerCase()),
     );
 
     return ALL_CONVERSION_UNITS.filter(
-      (unit) => !existingUnits.has(unit.toLowerCase()),
+      unit => !existingUnits.has(unit.toLowerCase()),
     );
   }, [variants]);
 
@@ -104,9 +104,7 @@ export function useUnitConversion({
 
       const { baseVariant, factor } = autoConversion;
       const ratio =
-        baseVariant.serving_size > 0
-          ? factor / baseVariant.serving_size
-          : 0;
+        baseVariant.serving_size > 0 ? factor / baseVariant.serving_size : 0;
 
       return {
         serving_size: 1,

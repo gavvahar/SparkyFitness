@@ -20,7 +20,11 @@ interface RestPeriodChipProps {
   readOnly?: boolean;
 }
 
-function RestPeriodChip({ value, onPress, readOnly = false }: RestPeriodChipProps) {
+function RestPeriodChip({
+  value,
+  onPress,
+  readOnly = false,
+}: RestPeriodChipProps) {
   const [textSecondary, accentPrimary] = useCSSVariable([
     '--color-text-secondary',
     '--color-accent-primary',
@@ -30,7 +34,9 @@ function RestPeriodChip({ value, onPress, readOnly = false }: RestPeriodChipProp
     return (
       <View className="flex-row items-center">
         <Icon name="timer" size={14} color={textSecondary} />
-        <Text className="text-sm text-text-secondary ml-1">Rest · {formatRest(value)}</Text>
+        <Text className="text-sm text-text-secondary ml-1">
+          Rest · {formatRest(value)}
+        </Text>
       </View>
     );
   }

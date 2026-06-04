@@ -31,7 +31,9 @@ function makeItem(overrides: Partial<FoodInfoItem> = {}): FoodInfoItem {
   };
 }
 
-function makeLocalVariant(overrides: Partial<FoodVariantDetail> = {}): FoodVariantDetail {
+function makeLocalVariant(
+  overrides: Partial<FoodVariantDetail> = {},
+): FoodVariantDetail {
   return {
     id: 'variant-1',
     food_id: 'food-1',
@@ -45,7 +47,9 @@ function makeLocalVariant(overrides: Partial<FoodVariantDetail> = {}): FoodVaria
   };
 }
 
-function makeExternalVariant(overrides: Partial<ExternalFoodVariant> = {}): ExternalFoodVariant {
+function makeExternalVariant(
+  overrides: Partial<ExternalFoodVariant> = {},
+): ExternalFoodVariant {
   return {
     serving_size: 1,
     serving_unit: 'piece',
@@ -60,9 +64,9 @@ function makeExternalVariant(overrides: Partial<ExternalFoodVariant> = {}): Exte
 
 describe('formatVariantLabel', () => {
   test('formats as "{size} {unit} ({cal} cal)"', () => {
-    expect(formatVariantLabel({ servingSize: 100, servingUnit: 'g', calories: 52 })).toBe(
-      '100 g (52 cal)',
-    );
+    expect(
+      formatVariantLabel({ servingSize: 100, servingUnit: 'g', calories: 52 }),
+    ).toBe('100 g (52 cal)');
   });
 });
 
@@ -111,7 +115,7 @@ describe('buildExternalVariantOptions', () => {
       makeExternalVariant({ serving_description: '1 large', calories: 120 }),
     ]);
 
-    expect(options.map((option) => option.id)).toEqual(['ext-0', 'ext-1']);
+    expect(options.map(option => option.id)).toEqual(['ext-0', 'ext-1']);
     expect(options[0].label).toBe('1 small (60 cal)');
     expect(options[1].label).toBe('1 large (120 cal)');
   });
@@ -120,10 +124,19 @@ describe('buildExternalVariantOptions', () => {
 describe('resolveFoodDisplayValues', () => {
   const item = makeItem({ calories: 52, servingSize: 100, servingUnit: 'g' });
   const localOptions = buildLocalVariantOptions([
-    makeLocalVariant({ id: 'local-1', calories: 150, serving_size: 1, serving_unit: 'cup' }),
+    makeLocalVariant({
+      id: 'local-1',
+      calories: 150,
+      serving_size: 1,
+      serving_unit: 'cup',
+    }),
   ]);
   const externalOptions = buildExternalVariantOptions([
-    makeExternalVariant({ calories: 95, serving_size: 1, serving_unit: 'piece' }),
+    makeExternalVariant({
+      calories: 95,
+      serving_size: 1,
+      serving_unit: 'piece',
+    }),
   ]);
 
   test('returns the matching local variant when selectedVariantId matches a local option', () => {
@@ -213,7 +226,12 @@ describe('applyDisplayValuesToFoodInfo', () => {
 
 describe('nutritionMatches', () => {
   test('identical variants match', () => {
-    const v = makeLocalVariant({ calories: 100, protein: 10, carbs: 20, fat: 5 });
+    const v = makeLocalVariant({
+      calories: 100,
+      protein: 10,
+      carbs: 20,
+      fat: 5,
+    });
     expect(nutritionMatches(v, { ...v })).toBe(true);
   });
 
@@ -254,20 +272,40 @@ describe('groupEquivalentVariants', () => {
   });
 
   test('groups variants with byte-equal nutrition; preserves stable order', () => {
-    const base = makeLocalVariant({ id: 'a', serving_size: 100, serving_unit: 'g', calories: 100 });
-    const equivOne = makeLocalVariant({ id: 'b', serving_size: 1, serving_unit: 'cup', calories: 100 });
-    const equivTwo = makeLocalVariant({ id: 'c', serving_size: 1, serving_unit: 'oz', calories: 100 });
+    const base = makeLocalVariant({
+      id: 'a',
+      serving_size: 100,
+      serving_unit: 'g',
+      calories: 100,
+    });
+    const equivOne = makeLocalVariant({
+      id: 'b',
+      serving_size: 1,
+      serving_unit: 'cup',
+      calories: 100,
+    });
+    const equivTwo = makeLocalVariant({
+      id: 'c',
+      serving_size: 1,
+      serving_unit: 'oz',
+      calories: 100,
+    });
 
     const groups = groupEquivalentVariants([base, equivOne, equivTwo]);
 
     expect(groups).toHaveLength(1);
     expect(groups[0].base.id).toBe('a');
-    expect(groups[0].equivalents.map((eq) => eq.id)).toEqual(['b', 'c']);
+    expect(groups[0].equivalents.map(eq => eq.id)).toEqual(['b', 'c']);
   });
 
   test('splits into separate groups when nutrition differs', () => {
     const groupA = makeLocalVariant({ id: 'a', calories: 100 });
-    const groupB = makeLocalVariant({ id: 'b', calories: 200, serving_unit: 'cup', serving_size: 1 });
+    const groupB = makeLocalVariant({
+      id: 'b',
+      calories: 200,
+      serving_unit: 'cup',
+      serving_size: 1,
+    });
 
     const groups = groupEquivalentVariants([groupA, groupB]);
 
@@ -279,8 +317,18 @@ describe('groupEquivalentVariants', () => {
 
 describe('diffSiblingRows', () => {
   test('active-row-is-base — sibling edits classified correctly', () => {
-    const base = makeLocalVariant({ id: 'a', serving_unit: 'g', serving_size: 100, calories: 100 });
-    const sibling = makeLocalVariant({ id: 'b', serving_unit: 'cup', serving_size: 1, calories: 100 });
+    const base = makeLocalVariant({
+      id: 'a',
+      serving_unit: 'g',
+      serving_size: 100,
+      calories: 100,
+    });
+    const sibling = makeLocalVariant({
+      id: 'b',
+      serving_unit: 'cup',
+      serving_size: 1,
+      calories: 100,
+    });
     const current = [base, sibling];
 
     const desired = [
@@ -289,12 +337,20 @@ describe('diffSiblingRows', () => {
       // Sibling — serving_size changed → update
       { ...sibling, serving_size: 2 },
       // New equivalent — create
-      { food_id: 'food-1', serving_size: 1, serving_unit: 'oz', calories: 100, protein: 0.3, carbs: 14, fat: 0.2 },
+      {
+        food_id: 'food-1',
+        serving_size: 1,
+        serving_unit: 'oz',
+        calories: 100,
+        protein: 0.3,
+        carbs: 14,
+        fat: 0.2,
+      },
     ];
 
     const { creates, updates, deletes } = diffSiblingRows(current, desired);
 
-    expect(updates.map((u) => u.id)).toEqual(['b']);
+    expect(updates.map(u => u.id)).toEqual(['b']);
     expect(updates[0].serving_size).toBe(2);
     expect(creates).toHaveLength(1);
     expect(creates[0].serving_unit).toBe('oz');
@@ -303,8 +359,18 @@ describe('diffSiblingRows', () => {
 
   test('active-row-is-equivalent — base preserved as desired sibling, not deleted', () => {
     // Regression: active is "cup"; user keeps "g" (base) as an equivalent.
-    const base = makeLocalVariant({ id: 'a', serving_unit: 'g', serving_size: 100, calories: 100 });
-    const cup = makeLocalVariant({ id: 'b', serving_unit: 'cup', serving_size: 1, calories: 100 });
+    const base = makeLocalVariant({
+      id: 'a',
+      serving_unit: 'g',
+      serving_size: 100,
+      calories: 100,
+    });
+    const cup = makeLocalVariant({
+      id: 'b',
+      serving_unit: 'cup',
+      serving_size: 1,
+      calories: 100,
+    });
     const current = [base, cup];
 
     const desired = [
@@ -322,7 +388,12 @@ describe('diffSiblingRows', () => {
   });
 
   test('byte-equal updates filtered out', () => {
-    const variant = makeLocalVariant({ id: 'a', calories: 100, protein: 10, custom_nutrients: { magnesium: 50 } });
+    const variant = makeLocalVariant({
+      id: 'a',
+      calories: 100,
+      protein: 10,
+      custom_nutrients: { magnesium: 50 },
+    });
     const { updates } = diffSiblingRows(
       [variant],
       [{ ...variant, custom_nutrients: { magnesium: 50 } }],
@@ -331,10 +402,28 @@ describe('diffSiblingRows', () => {
   });
 
   test('pure adds: every desired sibling without id is a create', () => {
-    const current: typeof makeLocalVariant extends (...args: any[]) => infer R ? R[] : never = [];
+    const current: typeof makeLocalVariant extends (...args: any[]) => infer R
+      ? R[]
+      : never = [];
     const { creates, updates, deletes } = diffSiblingRows(current, [
-      { food_id: 'food-1', serving_size: 1, serving_unit: 'cup', calories: 100, protein: 0.3, carbs: 14, fat: 0.2 },
-      { food_id: 'food-1', serving_size: 1, serving_unit: 'oz', calories: 100, protein: 0.3, carbs: 14, fat: 0.2 },
+      {
+        food_id: 'food-1',
+        serving_size: 1,
+        serving_unit: 'cup',
+        calories: 100,
+        protein: 0.3,
+        carbs: 14,
+        fat: 0.2,
+      },
+      {
+        food_id: 'food-1',
+        serving_size: 1,
+        serving_unit: 'oz',
+        calories: 100,
+        protein: 0.3,
+        carbs: 14,
+        fat: 0.2,
+      },
     ]);
     expect(creates).toHaveLength(2);
     expect(updates).toEqual([]);

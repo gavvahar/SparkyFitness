@@ -13,7 +13,10 @@ import type { DailySummary } from '../types/dailySummary';
 import type { DailyGoals } from '../types/goals';
 import type { FoodEntry } from '../types/foodEntries';
 import type { FoodEntryMeal } from '../types/foodEntryMeals';
-import type { ExerciseSessionResponse, CalorieBalance } from '@workspace/shared';
+import type {
+  ExerciseSessionResponse,
+  CalorieBalance,
+} from '@workspace/shared';
 import type { WaterIntake } from '../types/measurements';
 
 import { useRefetchOnFocus } from './useRefetchOnFocus';
@@ -34,7 +37,7 @@ interface UseDailySummaryOptions {
 }
 
 function hasLoggedMealComponents(foodEntries: FoodEntry[]): boolean {
-  return foodEntries.some((entry) => !!entry.food_entry_meal_id);
+  return foodEntries.some(entry => !!entry.food_entry_meal_id);
 }
 
 function loggedMealToFoodEntry(meal: FoodEntryMeal): FoodEntry {
@@ -83,7 +86,7 @@ function collapseLoggedMealComponents(
     return foodEntries;
   }
 
-  const mealById = new Map(loggedMeals.map((meal) => [meal.id, meal]));
+  const mealById = new Map(loggedMeals.map(meal => [meal.id, meal]));
   const addedMealIds = new Set<string>();
   const collapsedEntries: FoodEntry[] = [];
 
@@ -115,7 +118,10 @@ function collapseLoggedMealComponents(
   return collapsedEntries;
 }
 
-export function useDailySummary({ date, enabled = true }: UseDailySummaryOptions) {
+export function useDailySummary({
+  date,
+  enabled = true,
+}: UseDailySummaryOptions) {
   const query = useQuery({
     queryKey: dailySummaryQueryKey(date),
     queryFn: async () => {
@@ -125,7 +131,10 @@ export function useDailySummary({ date, enabled = true }: UseDailySummaryOptions
       if (hasLoggedMealComponents(data.foodEntries)) {
         try {
           const loggedMeals = await fetchFoodEntryMealsByDate(date);
-          foodEntries = collapseLoggedMealComponents(data.foodEntries, loggedMeals);
+          foodEntries = collapseLoggedMealComponents(
+            data.foodEntries,
+            loggedMeals,
+          );
         } catch {
           foodEntries = data.foodEntries;
         }
@@ -141,12 +150,20 @@ export function useDailySummary({ date, enabled = true }: UseDailySummaryOptions
       };
     },
     select: (raw): DailySummary => {
-      const { goals, foodEntries, exerciseEntries, waterIntake, stepCalories, calorieBalance } = raw;
+      const {
+        goals,
+        foodEntries,
+        exerciseEntries,
+        waterIntake,
+        stepCalories,
+        calorieBalance,
+      } = raw;
 
       const calorieGoal = goals.calories || 0;
       const caloriesConsumed = calculateCaloriesConsumed(foodEntries);
       const exerciseStats = calculateExerciseStats(exerciseEntries);
-      const { caloriesBurned, activeCalories, otherExerciseCalories } = exerciseStats;
+      const { caloriesBurned, activeCalories, otherExerciseCalories } =
+        exerciseStats;
       const exerciseMinutes = exerciseStats.durationMinutes;
       const netCalories = caloriesConsumed - caloriesBurned;
       const remainingCalories = calorieGoal - netCalories;
@@ -161,7 +178,10 @@ export function useDailySummary({ date, enabled = true }: UseDailySummaryOptions
         remaining: Math.round(fallbackRemaining),
         goal: Math.round(calorieGoal),
         net: Math.round(netCalories),
-        progress: calorieGoal > 0 ? Math.max(0, Math.round((caloriesConsumed / calorieGoal) * 100)) : 0,
+        progress:
+          calorieGoal > 0
+            ? Math.max(0, Math.round((caloriesConsumed / calorieGoal) * 100))
+            : 0,
         bmr: 0,
         exerciseSource: 'none',
         tdeeProjection: null,

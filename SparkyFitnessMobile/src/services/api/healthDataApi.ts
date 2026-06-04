@@ -1,4 +1,8 @@
-import { getActiveServerConfig, proxyHeadersToRecord, ServerConfig } from '../storage';
+import {
+  getActiveServerConfig,
+  proxyHeadersToRecord,
+  ServerConfig,
+} from '../storage';
 import { addLog } from '../LogService';
 import { normalizeUrl } from './apiClient';
 import { ApiError } from './errors';
@@ -56,7 +60,7 @@ export const RETRY_BASE_DELAY_MS = 1_000;
 
 // --- Internal helpers ---
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Wraps fetch with an AbortController that auto-aborts after timeoutMs.
@@ -70,7 +74,10 @@ export const fetchWithTimeout = async (
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
     return response;
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
@@ -115,7 +122,11 @@ export const fetchWithRetry = async (
           notifySessionExpired(serverConfig.id);
         }
         const errorText = await response.text();
-        throw new ApiError(`Server error: ${response.status} - ${errorText}`, response.status, errorText);
+        throw new ApiError(
+          `Server error: ${response.status} - ${errorText}`,
+          response.status,
+          errorText,
+        );
       }
 
       // 5xx — retryable
@@ -133,7 +144,10 @@ export const fetchWithRetry = async (
     // Retry with exponential backoff (skip delay after last attempt)
     if (attempt < maxRetries - 1) {
       const delay = baseDelayMs * Math.pow(2, attempt);
-      addLog(`[API] Retry ${attempt + 1}/${maxRetries - 1}: waiting ${delay}ms`, 'WARNING');
+      addLog(
+        `[API] Retry ${attempt + 1}/${maxRetries - 1}: waiting ${delay}ms`,
+        'WARNING',
+      );
       await sleep(delay);
     }
   }
@@ -164,7 +178,9 @@ const sendHealthDataChunked = async (
 
   for (const record of data) {
     if (SESSION_TYPES.has(record.type)) {
-      const source = (record as unknown as Record<string, unknown>).source as string ?? 'manual';
+      const source =
+        ((record as unknown as Record<string, unknown>).source as string) ??
+        'manual';
       const group = sessionsBySource.get(source);
       if (group) {
         group.push(record);
@@ -239,7 +255,9 @@ const sendHealthDataChunked = async (
 /**
  * Sends health data to the server.
  */
-export const syncHealthData = async (data: HealthDataPayload): Promise<unknown> => {
+export const syncHealthData = async (
+  data: HealthDataPayload,
+): Promise<unknown> => {
   const config = await getActiveServerConfig();
   if (!config) {
     throw new Error('Server configuration not found.');
@@ -248,7 +266,9 @@ export const syncHealthData = async (data: HealthDataPayload): Promise<unknown> 
   const url = normalizeUrl(config.url);
 
   if (!__DEV__ && url.toLowerCase().startsWith('http://')) {
-    throw new Error('HTTPS is required for server connections. Please update your server URL in Settings.');
+    throw new Error(
+      'HTTPS is required for server connections. Please update your server URL in Settings.',
+    );
   }
 
   if (data.length === 0) {
@@ -258,7 +278,9 @@ export const syncHealthData = async (data: HealthDataPayload): Promise<unknown> 
 
   await ensureTimezoneBootstrapped({ throwOnFailure: true });
 
-  console.log(`[API Service] Attempting to sync to URL: ${url}/api/health-data`);
+  console.log(
+    `[API Service] Attempting to sync to URL: ${url}/api/health-data`,
+  );
 
   addLog(`[API] Starting sync of ${data.length} records to server`, 'DEBUG');
 
@@ -274,7 +296,10 @@ export const syncHealthData = async (data: HealthDataPayload): Promise<unknown> 
       config,
     );
 
-    addLog(`[API] Sync successful: ${data.length} records sent to server`, 'INFO');
+    addLog(
+      `[API] Sync successful: ${data.length} records sent to server`,
+      'INFO',
+    );
     return result;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -289,7 +314,9 @@ export const syncHealthData = async (data: HealthDataPayload): Promise<unknown> 
 export const checkServerConnection = async (): Promise<boolean> => {
   const config = await getActiveServerConfig();
   if (!config || !config.url) {
-    console.log('[API Service] No active server configuration found for connection check.');
+    console.log(
+      '[API Service] No active server configuration found for connection check.',
+    );
     return false; // No configuration, so no connection
   }
 
@@ -315,7 +342,11 @@ export const checkServerConnection = async (): Promise<boolean> => {
         notifySessionExpired(config.id);
       }
       const errorText = await response.text();
-      addLog(`[API] Server connection check failed: status ${response.status}`, 'WARNING', [errorText]);
+      addLog(
+        `[API] Server connection check failed: status ${response.status}`,
+        'WARNING',
+        [errorText],
+      );
       return false;
     }
   } catch (error) {

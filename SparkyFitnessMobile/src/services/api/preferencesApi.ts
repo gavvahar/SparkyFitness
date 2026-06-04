@@ -49,9 +49,9 @@ export const updatePreferences = async (
  * only fills timezone when it is currently NULL and otherwise returns the
  * existing explicit preference unchanged.
  */
-export async function ensureTimezoneBootstrapped(
-  { throwOnFailure = false }: EnsureTimezoneBootstrappedOptions = {},
-): Promise<string | undefined> {
+export async function ensureTimezoneBootstrapped({
+  throwOnFailure = false,
+}: EnsureTimezoneBootstrappedOptions = {}): Promise<string | undefined> {
   if (timezoneBootstrapPromise) {
     const result = await timezoneBootstrapPromise;
     if (result.error) {
@@ -64,7 +64,9 @@ export async function ensureTimezoneBootstrapped(
   timezoneBootstrapPromise = (async () => {
     const deviceTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (!deviceTz || !isValidTimeZone(deviceTz)) {
-      const error = new Error(`Device timezone invalid or unavailable: ${deviceTz}`);
+      const error = new Error(
+        `Device timezone invalid or unavailable: ${deviceTz}`,
+      );
       addLog(`[Preferences] ${error.message}`, 'WARNING');
       return { error };
     }
@@ -79,7 +81,9 @@ export async function ensureTimezoneBootstrapped(
       });
 
       if (!prefs.timezone) {
-        const error = new Error('Server did not return a timezone after bootstrap');
+        const error = new Error(
+          'Server did not return a timezone after bootstrap',
+        );
         addLog(`[Preferences] ${error.message}`, 'WARNING');
         return { error };
       }

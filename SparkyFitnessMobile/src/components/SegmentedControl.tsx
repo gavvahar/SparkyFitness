@@ -19,7 +19,7 @@ const SegmentedControl = <T extends string>({
 }: SegmentedControlProps<T>) => (
   <View>
     <View className="flex-row bg-raised p-1 rounded-lg">
-      {segments.map((segment) => (
+      {segments.map(segment => (
         <TouchableOpacity
           key={segment.key}
           onPress={() => onSelect(segment.key)}
@@ -30,7 +30,9 @@ const SegmentedControl = <T extends string>({
         >
           <Text
             className={`text-sm font-medium ${
-              activeKey === segment.key ? 'text-text-primary' : 'text-text-muted'
+              activeKey === segment.key
+                ? 'text-text-primary'
+                : 'text-text-muted'
             }`}
           >
             {segment.label}

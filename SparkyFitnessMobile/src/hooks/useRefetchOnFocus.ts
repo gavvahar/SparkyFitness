@@ -27,6 +27,6 @@ export function useRefetchOnFocus(
         lastRefetchedAt.current = Date.now();
         refetch();
       }
-    }, [refetch, enabled, staleTime])
+    }, [refetch, enabled, staleTime]),
   );
 }

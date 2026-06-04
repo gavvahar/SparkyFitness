@@ -15,22 +15,30 @@ import {
 } from '../hooks';
 import { weightFromKg } from '../utils/unitConversions';
 import type { RootStackScreenProps } from '../types/navigation';
-import type { WorkoutPresetExercise, WorkoutPresetSet } from '../types/workoutPresets';
+import type {
+  WorkoutPresetExercise,
+  WorkoutPresetSet,
+} from '../types/workoutPresets';
 
-type WorkoutPresetDetailScreenProps = RootStackScreenProps<'WorkoutPresetDetail'>;
+type WorkoutPresetDetailScreenProps =
+  RootStackScreenProps<'WorkoutPresetDetail'>;
 
 const EM_DASH = '—';
 
-function formatSetSummary(set: WorkoutPresetSet, weightUnit: 'kg' | 'lbs'): string {
+function formatSetSummary(
+  set: WorkoutPresetSet,
+  weightUnit: 'kg' | 'lbs',
+): string {
   // Time-based set: render duration only — these are stored without reps/weight,
   // so falling back to "— × —" would look like missing data.
   if (set.duration != null) {
     return formatRest(set.duration);
   }
   const repsText = set.reps != null ? String(set.reps) : EM_DASH;
-  const weightText = set.weight != null
-    ? `${parseFloat(weightFromKg(set.weight, weightUnit).toFixed(1))} ${weightUnit}`
-    : EM_DASH;
+  const weightText =
+    set.weight != null
+      ? `${parseFloat(weightFromKg(set.weight, weightUnit).toFixed(1))} ${weightUnit}`
+      : EM_DASH;
   return `${repsText} × ${weightText}`;
 }
 
@@ -39,7 +47,10 @@ interface PresetExerciseRowProps {
   weightUnit: 'kg' | 'lbs';
 }
 
-const PresetExerciseRow: React.FC<PresetExerciseRowProps> = ({ exercise, weightUnit }) => {
+const PresetExerciseRow: React.FC<PresetExerciseRowProps> = ({
+  exercise,
+  weightUnit,
+}) => {
   return (
     <View className="bg-surface rounded-xl px-4 py-4 mb-3">
       <Text className="text-base font-semibold text-text-primary mb-2">
@@ -52,11 +63,15 @@ const PresetExerciseRow: React.FC<PresetExerciseRowProps> = ({ exercise, weightU
           <View
             key={set.id}
             className={`flex-row items-center justify-between py-2 ${
-              index < exercise.sets.length - 1 ? 'border-b border-border-subtle' : ''
+              index < exercise.sets.length - 1
+                ? 'border-b border-border-subtle'
+                : ''
             }`}
           >
             <View className="flex-row items-center flex-1">
-              <Text className="text-sm text-text-muted w-10">{set.set_number}</Text>
+              <Text className="text-sm text-text-muted w-10">
+                {set.set_number}
+              </Text>
               <Text className="text-sm text-text-primary ml-2">
                 {formatSetSummary(set, weightUnit)}
               </Text>
@@ -89,16 +104,19 @@ const WorkoutPresetDetailScreen: React.FC<WorkoutPresetDetailScreenProps> = ({
   // WorkoutPreset uses snake_case `user_id` (it's a thin wrapper over server
   // JSON), unlike Exercise/FoodInfoItem which use camelCase `userId`.
   const canManagePreset = !!(
-    isConnected && preset.user_id && profile?.id === preset.user_id
+    isConnected &&
+    preset.user_id &&
+    profile?.id === preset.user_id
   );
 
-  const { confirmAndDelete, isPending: isDeletePending } = useDeleteWorkoutPreset({
-    presetId: preset.id,
-    onSuccess: () => {
-      Toast.show({ type: 'success', text1: 'Workout preset deleted' });
-      navigation.goBack();
-    },
-  });
+  const { confirmAndDelete, isPending: isDeletePending } =
+    useDeleteWorkoutPreset({
+      presetId: preset.id,
+      onSuccess: () => {
+        Toast.show({ type: 'success', text1: 'Workout preset deleted' });
+        navigation.goBack();
+      },
+    });
 
   const handleStartWorkout = () => {
     navigation.navigate('WorkoutAdd', { preset, popCount: 2 });
@@ -143,15 +161,19 @@ const WorkoutPresetDetailScreen: React.FC<WorkoutPresetDetailScreenProps> = ({
           paddingBottom: insets.bottom + activeWorkoutBarPadding + 16,
         }}
       >
-        <Text className="text-2xl font-bold text-text-primary">{preset.name}</Text>
+        <Text className="text-2xl font-bold text-text-primary">
+          {preset.name}
+        </Text>
         {preset.description ? (
-          <Text className="text-base text-text-secondary mt-2">{preset.description}</Text>
+          <Text className="text-base text-text-secondary mt-2">
+            {preset.description}
+          </Text>
         ) : null}
         <Text className="text-sm text-text-muted mt-2 mb-4">
           {exerciseCount} {exerciseCount === 1 ? 'exercise' : 'exercises'}
         </Text>
 
-        {preset.exercises?.map((exercise) => (
+        {preset.exercises?.map(exercise => (
           <PresetExerciseRow
             key={exercise.id}
             exercise={exercise}
@@ -160,7 +182,9 @@ const WorkoutPresetDetailScreen: React.FC<WorkoutPresetDetailScreenProps> = ({
         ))}
 
         <Button variant="primary" onPress={handleStartWorkout} className="mt-4">
-          <Text className="text-white text-base font-semibold">Start workout</Text>
+          <Text className="text-white text-base font-semibold">
+            Start workout
+          </Text>
         </Button>
 
         {canManagePreset && (

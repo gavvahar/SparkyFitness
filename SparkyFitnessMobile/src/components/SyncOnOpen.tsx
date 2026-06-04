@@ -15,7 +15,9 @@ const SyncOnOpen: React.FC<SyncOnOpenProps> = ({ isEnabled, onToggle }) => {
 
   return (
     <View className="bg-surface rounded-xl p-4 mb-4 shadow-sm">
-      <Text className="text-lg font-bold mb-3 text-text-primary">Sync on Open</Text>
+      <Text className="text-lg font-bold mb-3 text-text-primary">
+        Sync on Open
+      </Text>
       <View className="flex-row justify-between items-center">
         <Text className="text-base text-text-primary">Sync when app opens</Text>
         <Switch

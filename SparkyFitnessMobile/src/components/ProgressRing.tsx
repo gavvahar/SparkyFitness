@@ -1,6 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
-import { Canvas, Path, Circle as SkiaCircle, Skia } from '@shopify/react-native-skia';
-import { useSharedValue, useDerivedValue, withTiming, Easing } from 'react-native-reanimated';
+import {
+  Canvas,
+  Path,
+  Circle as SkiaCircle,
+  Skia,
+} from '@shopify/react-native-skia';
+import {
+  useSharedValue,
+  useDerivedValue,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 
 interface ProgressRingProps {
@@ -31,15 +41,18 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
         duration: 500,
         easing: Easing.out(Easing.cubic),
       });
-    }, [progressCapped, animatedProgress])
+    }, [progressCapped, animatedProgress]),
   );
 
-  const oval = useMemo(() => ({
-    x: center - radius,
-    y: center - radius,
-    width: radius * 2,
-    height: radius * 2,
-  }), [center, radius]);
+  const oval = useMemo(
+    () => ({
+      x: center - radius,
+      y: center - radius,
+      width: radius * 2,
+      height: radius * 2,
+    }),
+    [center, radius],
+  );
 
   const progressPath = useDerivedValue(() => {
     const path = Skia.Path.Make();

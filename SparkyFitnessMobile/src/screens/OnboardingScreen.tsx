@@ -17,7 +17,10 @@ import Button from '../components/ui/Button';
 import Icon from '../components/Icon';
 import FormInput from '../components/FormInput';
 import SegmentedControl from '../components/SegmentedControl';
-import MfaForm, { ErrorBanner, PrimaryButton } from '../components/auth/MfaForm';
+import MfaForm, {
+  ErrorBanner,
+  PrimaryButton,
+} from '../components/auth/MfaForm';
 import {
   login,
   LoginError,
@@ -56,7 +59,10 @@ const checkReachability = async (url: string): Promise<boolean> => {
     return response.ok;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[Onboarding] Reachability check failed for ${url}: ${message}`, 'WARNING');
+    addLog(
+      `[Onboarding] Reachability check failed for ${url}: ${message}`,
+      'WARNING',
+    );
     return false;
   }
 };
@@ -65,12 +71,13 @@ type Props = RootStackScreenProps<'Onboarding'>;
 
 export default function OnboardingScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const [textMuted, textSecondary, accentPrimary, borderSubtle] = useCSSVariable([
-    '--color-text-muted',
-    '--color-text-secondary',
-    '--color-accent-primary',
-    '--color-border-subtle',
-  ]) as [string, string, string, string];
+  const [textMuted, textSecondary, accentPrimary, borderSubtle] =
+    useCSSVariable([
+      '--color-text-muted',
+      '--color-text-secondary',
+      '--color-accent-primary',
+      '--color-border-subtle',
+    ]) as [string, string, string, string];
 
   // Page state
   const [page, setPage] = useState<1 | 2>(1);
@@ -161,7 +168,10 @@ export default function OnboardingScreen({ navigation }: Props) {
 
   const getConfigId = () => Date.now().toString();
 
-  const saveConfig = async (url: string, overrides: Record<string, unknown>) => {
+  const saveConfig = async (
+    url: string,
+    overrides: Record<string, unknown>,
+  ) => {
     await saveServerConfig({
       id: getConfigId(),
       url,
@@ -198,7 +208,10 @@ export default function OnboardingScreen({ navigation }: Props) {
         } catch (err) {
           // Fallback: assume TOTP only
           const message = err instanceof Error ? err.message : String(err);
-          addLog(`[Onboarding] Failed to fetch MFA factors, falling back to TOTP: ${message}`, 'WARNING');
+          addLog(
+            `[Onboarding] Failed to fetch MFA factors, falling back to TOTP: ${message}`,
+            'WARNING',
+          );
         }
         setMfaFactors(factors);
         setMfaMethod(factors.mfaTotpEnabled ? 'totp' : 'email');
@@ -368,7 +381,7 @@ export default function OnboardingScreen({ navigation }: Props) {
 
   const toggleLearnMore = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setLearnMoreExpanded((prev) => !prev);
+    setLearnMoreExpanded(prev => !prev);
   };
 
   // --- Render ---
@@ -392,10 +405,15 @@ export default function OnboardingScreen({ navigation }: Props) {
 
       {/* Server URL input */}
       <View className="mb-6">
-        <Text className="text-sm mb-2 text-text-secondary">SparkyFitness URL</Text>
+        <Text className="text-sm mb-2 text-text-secondary">
+          SparkyFitness URL
+        </Text>
         <View
           className="flex-row items-center rounded-lg pr-2.5 bg-raised"
-          style={{ borderWidth: 1, borderColor: isServerUrlFocused ? accentPrimary : borderSubtle }}
+          style={{
+            borderWidth: 1,
+            borderColor: isServerUrlFocused ? accentPrimary : borderSubtle,
+          }}
         >
           <View className="flex-1">
             <TextInput
@@ -404,7 +422,7 @@ export default function OnboardingScreen({ navigation }: Props) {
               placeholder="https://your-sparky-app.com"
               placeholderTextColor={textMuted}
               value={serverUrl}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setServerUrl(text);
                 if (error) setError('');
               }}
@@ -435,11 +453,7 @@ export default function OnboardingScreen({ navigation }: Props) {
           onPress={handleNext}
           loading={checkingUrl}
         />
-        <Button
-          variant="ghost"
-          onPress={finishOnboarding}
-          className="py-2.5"
-        >
+        <Button variant="ghost" onPress={finishOnboarding} className="py-2.5">
           Later
         </Button>
       </View>
@@ -460,18 +474,15 @@ export default function OnboardingScreen({ navigation }: Props) {
             size={14}
             color={accentPrimary}
           />
-          <Text
-            className="text-sm ml-1"
-            style={{ color: accentPrimary }}
-          >
+          <Text className="text-sm ml-1" style={{ color: accentPrimary }}>
             Learn more about SparkyFitness
           </Text>
         </Pressable>
         {learnMoreExpanded && (
           <View className="mt-4 rounded-2xl bg-raised p-4 shadow-sm">
             <Text className="text-sm text-text-secondary leading-relaxed">
-              SparkyFitness helps you track your food, workouts, and health data in one place.
-              
+              SparkyFitness helps you track your food, workouts, and health data
+              in one place.
             </Text>
             <Text className="mt-2 text-sm text-text-secondary leading-relaxed">
               It runs on your own server so your data stays private.
@@ -489,10 +500,7 @@ export default function OnboardingScreen({ navigation }: Props) {
         <Text className="text-2xl font-bold text-text-primary">
           Connect to SparkyFitness
         </Text>
-        <Text
-          className="text-base text-text-secondary mt-1"
-          numberOfLines={1}
-        >
+        <Text className="text-base text-text-secondary mt-1" numberOfLines={1}>
           {normalizeUrl(serverUrl)}
         </Text>
       </View>
@@ -539,7 +547,10 @@ export default function OnboardingScreen({ navigation }: Props) {
           <Text className="text-sm mb-2 text-text-secondary">API Key</Text>
           <View
             className="flex-row items-center rounded-lg pr-2.5 bg-raised"
-            style={{ borderWidth: 1, borderColor: isApiKeyFocused ? accentPrimary : borderSubtle }}
+            style={{
+              borderWidth: 1,
+              borderColor: isApiKeyFocused ? accentPrimary : borderSubtle,
+            }}
           >
             <View className="flex-1">
               <TextInput
@@ -575,10 +586,7 @@ export default function OnboardingScreen({ navigation }: Props) {
           onPress={handleConnect}
           loading={loading}
         />
-        <Button
-          variant="ghost"
-          onPress={finishOnboarding}
-        >
+        <Button variant="ghost" onPress={finishOnboarding}>
           Later
         </Button>
       </View>
@@ -616,10 +624,7 @@ export default function OnboardingScreen({ navigation }: Props) {
   };
 
   return (
-    <View
-      className="flex-1 bg-background"
-      style={{ paddingTop: insets.top }}
-    >
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       <KeyboardAwareScrollView
         className="flex-1"
         contentContainerStyle={{
@@ -648,7 +653,9 @@ export default function OnboardingScreen({ navigation }: Props) {
                 className="self-start flex-row items-center gap-1 py-2 px-2"
               >
                 <Icon name="chevron-back" size={18} color={accentPrimary} />
-                <Text className="text-base text-accent-primary font-semibold">Back</Text>
+                <Text className="text-base text-accent-primary font-semibold">
+                  Back
+                </Text>
               </Pressable>
             </View>
           )}
@@ -657,7 +664,6 @@ export default function OnboardingScreen({ navigation }: Props) {
           </View>
         </View>
       </KeyboardAwareScrollView>
-
     </View>
   );
 }

@@ -31,7 +31,8 @@ const BAR_CONTENT_HEIGHT = 76;
  */
 const EMBEDDED_FAB_CLEARANCE = 8;
 
-export const ACTIVE_WORKOUT_BAR_HEIGHT = BAR_CONTENT_HEIGHT + EMBEDDED_FAB_CLEARANCE;
+export const ACTIVE_WORKOUT_BAR_HEIGHT =
+  BAR_CONTENT_HEIGHT + EMBEDDED_FAB_CLEARANCE;
 
 /**
  * Extra bottom padding screens should reserve when the active workout bar is
@@ -45,7 +46,7 @@ export const ACTIVE_WORKOUT_BAR_HEIGHT = BAR_CONTENT_HEIGHT + EMBEDDED_FAB_CLEAR
 export function useActiveWorkoutBarPadding(
   context: 'tabs' | 'stack' = 'tabs',
 ): number {
-  const active = useActiveWorkoutStore((s) => s.sessionId !== null);
+  const active = useActiveWorkoutStore(s => s.sessionId !== null);
   if (!active) return 0;
   return context === 'tabs' ? ACTIVE_WORKOUT_BAR_HEIGHT : BAR_CONTENT_HEIGHT;
 }
@@ -104,25 +105,29 @@ interface ActiveWorkoutBarProps {
 const ActiveWorkoutBar: React.FC<ActiveWorkoutBarProps> = ({
   variant = 'floating',
 }) => {
-  const sessionId = useActiveWorkoutStore((s) => s.sessionId);
-  const activeSession = useActiveWorkoutStore((s) => s.session);
-  const activeSetId = useActiveWorkoutStore((s) => s.activeSetId);
-  const restState = useActiveWorkoutStore((s) => s.rest.state);
-  const endsAt = useActiveWorkoutStore((s) => s.rest.endsAt);
-  const pausedRemainingMs = useActiveWorkoutStore((s) => s.rest.pausedRemainingMs);
-  const durationSec = useActiveWorkoutStore((s) => s.rest.durationSec);
+  const sessionId = useActiveWorkoutStore(s => s.sessionId);
+  const activeSession = useActiveWorkoutStore(s => s.session);
+  const activeSetId = useActiveWorkoutStore(s => s.activeSetId);
+  const restState = useActiveWorkoutStore(s => s.rest.state);
+  const endsAt = useActiveWorkoutStore(s => s.rest.endsAt);
+  const pausedRemainingMs = useActiveWorkoutStore(
+    s => s.rest.pausedRemainingMs,
+  );
+  const durationSec = useActiveWorkoutStore(s => s.rest.durationSec);
   const { preferences } = usePreferences();
   const weightUnit = (preferences?.default_weight_unit ?? 'kg') as 'kg' | 'lbs';
 
   const [navInfo, setNavInfo] = useState(() =>
-    computeNavInfo(navigationRef.isReady() ? navigationRef.getRootState() : undefined),
+    computeNavInfo(
+      navigationRef.isReady() ? navigationRef.getRootState() : undefined,
+    ),
   );
 
   useEffect(() => {
     const update = () => {
       if (!navigationRef.isReady()) return;
       const next = computeNavInfo(navigationRef.getRootState());
-      setNavInfo((prev) =>
+      setNavInfo(prev =>
         prev.suppressed === next.suppressed && prev.isOnTabs === next.isOnTabs
           ? prev
           : next,
@@ -153,7 +158,7 @@ const ActiveWorkoutBar: React.FC<ActiveWorkoutBarProps> = ({
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (restState !== 'resting') return;
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    const id = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(id);
   }, [restState]);
 
@@ -173,7 +178,7 @@ const ActiveWorkoutBar: React.FC<ActiveWorkoutBarProps> = ({
   const activeSetLabel = useMemo(() => {
     if (activeSession == null || activeSetId == null) return null;
     for (const exercise of activeSession.exercises) {
-      const set = exercise.sets.find((st) => String(st.id) === activeSetId);
+      const set = exercise.sets.find(st => String(st.id) === activeSetId);
       if (!set) continue;
       const exerciseName = exercise.exercise_snapshot?.name ?? 'Exercise';
       const setNumber = `Set ${set.set_number}/${exercise.sets.length}`;
@@ -209,12 +214,15 @@ const ActiveWorkoutBar: React.FC<ActiveWorkoutBarProps> = ({
       // starts (the `tick` state only advances via the 1s interval).
       return Math.max(0, endsAt - Date.now());
     }
-    if (restState === 'paused' && pausedRemainingMs != null) return pausedRemainingMs;
+    if (restState === 'paused' && pausedRemainingMs != null)
+      return pausedRemainingMs;
     return 0;
   })();
   const displaySeconds = Math.ceil(remainingMs / 1000);
   const progress =
-    durationSec > 0 ? Math.max(0, Math.min(1, remainingMs / (durationSec * 1000))) : 0;
+    durationSec > 0
+      ? Math.max(0, Math.min(1, remainingMs / (durationSec * 1000)))
+      : 0;
 
   const handlePausePlay = () => {
     if (restState === 'resting') {
@@ -333,7 +341,12 @@ const ActiveWorkoutBar: React.FC<ActiveWorkoutBarProps> = ({
           accessibilityLabel="Finish workout"
           className="p-2"
         >
-          <Icon name="checkmark" size={22} color={accentPrimary} weight="bold" />
+          <Icon
+            name="checkmark"
+            size={22}
+            color={accentPrimary}
+            weight="bold"
+          />
         </Pressable>
       );
     }
@@ -348,7 +361,12 @@ const ActiveWorkoutBar: React.FC<ActiveWorkoutBarProps> = ({
           // the muted pause icon on the left and the countdown digits.
           className="h-9 w-9 items-center justify-center rounded-full border-2 border-accent-primary"
         >
-          <Icon name="checkmark" size={20} color={accentPrimary} weight="bold" />
+          <Icon
+            name="checkmark"
+            size={20}
+            color={accentPrimary}
+            weight="bold"
+          />
         </Pressable>
       );
     }

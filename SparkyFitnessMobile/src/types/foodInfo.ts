@@ -10,7 +10,7 @@ export const toFormString = (v: number | null | undefined): string =>
 
 /** Parse an optional form string to a number. Returns undefined for empty strings. */
 export const parseOptional = (s: string): number | undefined =>
-  s === '' ? undefined : (parseDecimalInput(s) || 0);
+  s === '' ? undefined : parseDecimalInput(s) || 0;
 
 function toFiniteNumber(value: unknown): number {
   const numericValue =
@@ -51,7 +51,7 @@ export const EXTRA_NUTRIENT_FIELDS = [
   { key: 'vitaminC', label: 'Vitamin C', unit: 'mg', additional: true },
 ] as const;
 
-type ExtraNutrientKey = typeof EXTRA_NUTRIENT_FIELDS[number]['key'];
+type ExtraNutrientKey = (typeof EXTRA_NUTRIENT_FIELDS)[number]['key'];
 
 export interface NutrientDisplayItem {
   label: string;
@@ -78,7 +78,11 @@ export function buildNutrientDisplayList(
   for (const field of EXTRA_NUTRIENT_FIELDS) {
     const value = source[field.key];
     if (value == null) continue;
-    const item: NutrientDisplayItem = { label: field.label, value, unit: field.unit };
+    const item: NutrientDisplayItem = {
+      label: field.label,
+      value,
+      unit: field.unit,
+    };
     if ('additional' in field && field.additional) {
       additional.push(item);
     } else {
@@ -145,7 +149,9 @@ export interface FoodInfoItem {
     | BarcodeFood;
 }
 
-export const foodItemToFoodInfo = (item: FoodItem | TopFoodItem ): FoodInfoItem => ({
+export const foodItemToFoodInfo = (
+  item: FoodItem | TopFoodItem,
+): FoodInfoItem => ({
   id: item.id,
   name: item.name,
   brand: item.brand,
@@ -175,7 +181,9 @@ export const foodItemToFoodInfo = (item: FoodItem | TopFoodItem ): FoodInfoItem 
   originalItem: item,
 });
 
-export const externalFoodItemToFoodInfo = (item: ExternalFoodItem): FoodInfoItem => ({
+export const externalFoodItemToFoodInfo = (
+  item: ExternalFoodItem,
+): FoodInfoItem => ({
   id: item.id,
   name: item.name,
   brand: item.brand,
@@ -225,7 +233,7 @@ export const mealToFoodInfo = (meal: Meal): FoodInfoItem => {
   const fat = perServing(sumField('fat'));
 
   const hasField = (field: keyof Meal['foods'][number]) =>
-    meal.foods.some((f) => f[field] != null);
+    meal.foods.some(f => f[field] != null);
 
   return {
     id: meal.id,
@@ -237,17 +245,39 @@ export const mealToFoodInfo = (meal: Meal): FoodInfoItem => {
     protein: Math.round(protein),
     carbs: Math.round(carbs),
     fat: Math.round(fat),
-    fiber: hasField('dietary_fiber') ? Math.round(perServing(sumField('dietary_fiber'))) : undefined,
-    saturatedFat: hasField('saturated_fat') ? Math.round(perServing(sumField('saturated_fat'))) : undefined,
-    sodium: hasField('sodium') ? Math.round(perServing(sumField('sodium'))) : undefined,
-    sugars: hasField('sugars') ? Math.round(perServing(sumField('sugars'))) : undefined,
-    transFat: hasField('trans_fat') ? Math.round(perServing(sumField('trans_fat'))) : undefined,
-    potassium: hasField('potassium') ? Math.round(perServing(sumField('potassium'))) : undefined,
-    calcium: hasField('calcium') ? Math.round(perServing(sumField('calcium'))) : undefined,
-    iron: hasField('iron') ? Math.round(perServing(sumField('iron'))) : undefined,
-    cholesterol: hasField('cholesterol') ? Math.round(perServing(sumField('cholesterol'))) : undefined,
-    vitaminA: hasField('vitamin_a') ? Math.round(perServing(sumField('vitamin_a'))) : undefined,
-    vitaminC: hasField('vitamin_c') ? Math.round(perServing(sumField('vitamin_c'))) : undefined,
+    fiber: hasField('dietary_fiber')
+      ? Math.round(perServing(sumField('dietary_fiber')))
+      : undefined,
+    saturatedFat: hasField('saturated_fat')
+      ? Math.round(perServing(sumField('saturated_fat')))
+      : undefined,
+    sodium: hasField('sodium')
+      ? Math.round(perServing(sumField('sodium')))
+      : undefined,
+    sugars: hasField('sugars')
+      ? Math.round(perServing(sumField('sugars')))
+      : undefined,
+    transFat: hasField('trans_fat')
+      ? Math.round(perServing(sumField('trans_fat')))
+      : undefined,
+    potassium: hasField('potassium')
+      ? Math.round(perServing(sumField('potassium')))
+      : undefined,
+    calcium: hasField('calcium')
+      ? Math.round(perServing(sumField('calcium')))
+      : undefined,
+    iron: hasField('iron')
+      ? Math.round(perServing(sumField('iron')))
+      : undefined,
+    cholesterol: hasField('cholesterol')
+      ? Math.round(perServing(sumField('cholesterol')))
+      : undefined,
+    vitaminA: hasField('vitamin_a')
+      ? Math.round(perServing(sumField('vitamin_a')))
+      : undefined,
+    vitaminC: hasField('vitamin_c')
+      ? Math.round(perServing(sumField('vitamin_c')))
+      : undefined,
     mealTotalServings: totalServings,
     source: 'meal',
     originalItem: meal,

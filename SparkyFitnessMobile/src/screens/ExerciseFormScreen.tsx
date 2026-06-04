@@ -14,7 +14,10 @@ import type {
   RootStackParamList,
   RootStackScreenProps,
 } from '../types/navigation';
-import type { CreateExercisePayload, UpdateExercisePayload } from '../services/api/exerciseApi';
+import type {
+  CreateExercisePayload,
+  UpdateExercisePayload,
+} from '../services/api/exerciseApi';
 
 const CATEGORY_OPTIONS = [
   { label: 'General', value: 'general' },
@@ -46,18 +49,31 @@ const MECHANIC_OPTIONS = [
   { label: 'Isolation', value: 'isolation' },
 ] as const;
 
-type EditParams = Extract<RootStackParamList['ExerciseForm'], { mode: 'edit-exercise' }>;
+type EditParams = Extract<
+  RootStackParamList['ExerciseForm'],
+  { mode: 'edit-exercise' }
+>;
 
 type ExerciseFormScreenProps = RootStackScreenProps<'ExerciseForm'>;
 type Navigation = ExerciseFormScreenProps['navigation'];
 
 const splitCsvList = (s: string): string[] =>
-  Array.from(new Set(s.split(',').map((v) => v.trim()).filter(Boolean)));
+  Array.from(
+    new Set(
+      s
+        .split(',')
+        .map(v => v.trim())
+        .filter(Boolean),
+    ),
+  );
 
 const joinCsvList = (xs?: string[] | null): string => (xs ?? []).join(', ');
 
 const splitLines = (s: string): string[] =>
-  s.split('\n').map((v) => v.trim()).filter(Boolean);
+  s
+    .split('\n')
+    .map(v => v.trim())
+    .filter(Boolean);
 
 const joinLines = (xs?: string[] | null): string => (xs ?? []).join('\n');
 
@@ -65,7 +81,7 @@ const titleCase = (value: string): string =>
   value
     .split(/\s+/)
     .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 
 interface ExerciseFormState {
@@ -91,12 +107,12 @@ interface ExerciseFormBodyProps {
 const hasAdvancedContent = (state: ExerciseFormState): boolean =>
   Boolean(
     state.equipment ||
-      state.primaryMuscles ||
-      state.secondaryMuscles ||
-      state.instructions ||
-      state.level ||
-      state.force ||
-      state.mechanic,
+    state.primaryMuscles ||
+    state.secondaryMuscles ||
+    state.instructions ||
+    state.level ||
+    state.force ||
+    state.mechanic,
   );
 
 const SectionHeader: React.FC<{ children: string }> = ({ children }) => (
@@ -110,7 +126,7 @@ const labelForOption = (
   value: string | null,
 ): string => {
   if (!value) return 'Select…';
-  const match = options.find((opt) => opt.value === value);
+  const match = options.find(opt => opt.value === value);
   return match ? match.label : titleCase(value);
 };
 
@@ -120,19 +136,27 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
   showCategory,
 }) => {
   const textMuted = useCSSVariable('--color-text-muted') as string;
-  const [showAdvanced, setShowAdvanced] = useState(() => hasAdvancedContent(state));
+  const [showAdvanced, setShowAdvanced] = useState(() =>
+    hasAdvancedContent(state),
+  );
 
   const categoryOptions = useMemo(() => {
     if (
       state.category &&
-      !CATEGORY_OPTIONS.some((opt) => opt.value === state.category)
+      !CATEGORY_OPTIONS.some(opt => opt.value === state.category)
     ) {
       return [
-        ...CATEGORY_OPTIONS.map((opt) => ({ label: opt.label, value: opt.value })),
+        ...CATEGORY_OPTIONS.map(opt => ({
+          label: opt.label,
+          value: opt.value,
+        })),
         { label: titleCase(state.category), value: state.category },
       ];
     }
-    return CATEGORY_OPTIONS.map((opt) => ({ label: opt.label, value: opt.value }));
+    return CATEGORY_OPTIONS.map(opt => ({
+      label: opt.label,
+      value: opt.value,
+    }));
   }, [state.category]);
 
   const renderPicker = (
@@ -145,7 +169,7 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
       <Text className="text-text-secondary text-sm font-medium">{label}</Text>
       <BottomSheetPicker<string>
         value={value ?? ''}
-        options={options.map((opt) => ({ label: opt.label, value: opt.value }))}
+        options={options.map(opt => ({ label: opt.label, value: opt.value }))}
         onSelect={onSelect}
         title={`Select ${label}`}
         renderTrigger={({ onPress }) => (
@@ -172,7 +196,7 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
         <FormInput
           placeholder="e.g. Bulgarian Split Squat"
           value={state.name}
-          onChangeText={(name) => setState((prev) => ({ ...prev, name }))}
+          onChangeText={name => setState(prev => ({ ...prev, name }))}
           autoCapitalize="words"
           autoCorrect={false}
           autoFocus
@@ -181,8 +205,8 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
       </View>
 
       {showCategory
-        ? renderPicker('Category', categoryOptions, state.category, (category) =>
-            setState((prev) => ({ ...prev, category })),
+        ? renderPicker('Category', categoryOptions, state.category, category =>
+            setState(prev => ({ ...prev, category })),
           )
         : null}
 
@@ -193,9 +217,9 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
         <FormInput
           placeholder="0"
           value={state.caloriesPerHourText}
-          onChangeText={(v) => {
+          onChangeText={v => {
             if (DECIMAL_INPUT_REGEX.test(v)) {
-              setState((prev) => ({ ...prev, caloriesPerHourText: v }));
+              setState(prev => ({ ...prev, caloriesPerHourText: v }));
             }
           }}
           keyboardType="decimal-pad"
@@ -204,12 +228,14 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
       </View>
 
       <View className="gap-1.5">
-        <Text className="text-text-secondary text-sm font-medium">Description</Text>
+        <Text className="text-text-secondary text-sm font-medium">
+          Description
+        </Text>
         <FormInput
           placeholder="Optional notes about the exercise"
           value={state.description}
-          onChangeText={(description) =>
-            setState((prev) => ({ ...prev, description }))
+          onChangeText={description =>
+            setState(prev => ({ ...prev, description }))
           }
           multiline
           numberOfLines={4}
@@ -218,13 +244,16 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
       </View>
 
       <TouchableOpacity
-        onPress={() => setShowAdvanced((prev) => !prev)}
+        onPress={() => setShowAdvanced(prev => !prev)}
         activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityState={{ expanded: showAdvanced }}
         className="flex-row items-center justify-between py-2"
       >
-        <Text className="text-text-primary font-medium" style={{ fontSize: 16 }}>
+        <Text
+          className="text-text-primary font-medium"
+          style={{ fontSize: 16 }}
+        >
           Advanced
         </Text>
         <Icon
@@ -245,8 +274,8 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
             <FormInput
               placeholder="Comma-separated (e.g. quadriceps, glutes)"
               value={state.primaryMuscles}
-              onChangeText={(primaryMuscles) =>
-                setState((prev) => ({ ...prev, primaryMuscles }))
+              onChangeText={primaryMuscles =>
+                setState(prev => ({ ...prev, primaryMuscles }))
               }
               autoCapitalize="none"
               autoCorrect={false}
@@ -260,8 +289,8 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
             <FormInput
               placeholder="Comma-separated"
               value={state.secondaryMuscles}
-              onChangeText={(secondaryMuscles) =>
-                setState((prev) => ({ ...prev, secondaryMuscles }))
+              onChangeText={secondaryMuscles =>
+                setState(prev => ({ ...prev, secondaryMuscles }))
               }
               autoCapitalize="none"
               autoCorrect={false}
@@ -270,14 +299,17 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
 
           <SectionHeader>Classification</SectionHeader>
 
-          {renderPicker('Level', LEVEL_OPTIONS, state.level, (level) =>
-            setState((prev) => ({ ...prev, level })),
+          {renderPicker('Level', LEVEL_OPTIONS, state.level, level =>
+            setState(prev => ({ ...prev, level })),
           )}
-          {renderPicker('Force', FORCE_OPTIONS, state.force, (force) =>
-            setState((prev) => ({ ...prev, force })),
+          {renderPicker('Force', FORCE_OPTIONS, state.force, force =>
+            setState(prev => ({ ...prev, force })),
           )}
-          {renderPicker('Mechanic', MECHANIC_OPTIONS, state.mechanic, (mechanic) =>
-            setState((prev) => ({ ...prev, mechanic })),
+          {renderPicker(
+            'Mechanic',
+            MECHANIC_OPTIONS,
+            state.mechanic,
+            mechanic => setState(prev => ({ ...prev, mechanic })),
           )}
 
           <SectionHeader>Details</SectionHeader>
@@ -289,8 +321,8 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
             <FormInput
               placeholder="Comma-separated (e.g. dumbbell, bench)"
               value={state.equipment}
-              onChangeText={(equipment) =>
-                setState((prev) => ({ ...prev, equipment }))
+              onChangeText={equipment =>
+                setState(prev => ({ ...prev, equipment }))
               }
               autoCapitalize="none"
               autoCorrect={false}
@@ -304,8 +336,8 @@ const ExerciseFormBody: React.FC<ExerciseFormBodyProps> = ({
             <FormInput
               placeholder="One step per line"
               value={state.instructions}
-              onChangeText={(instructions) =>
-                setState((prev) => ({ ...prev, instructions }))
+              onChangeText={instructions =>
+                setState(prev => ({ ...prev, instructions }))
               }
               multiline
               numberOfLines={6}
@@ -368,7 +400,9 @@ interface CreateExerciseModeProps {
   navigation: Navigation;
 }
 
-const CreateExerciseMode: React.FC<CreateExerciseModeProps> = ({ navigation }) => {
+const CreateExerciseMode: React.FC<CreateExerciseModeProps> = ({
+  navigation,
+}) => {
   const [state, setState] = useState<ExerciseFormState>({
     name: '',
     category: 'general',
@@ -461,13 +495,16 @@ const buildEditPayload = (
   }
 
   const equipmentList = splitCsvList(state.equipment);
-  if (JSON.stringify(equipmentList) !== JSON.stringify(initial.equipment ?? [])) {
+  if (
+    JSON.stringify(equipmentList) !== JSON.stringify(initial.equipment ?? [])
+  ) {
     payload.equipment = equipmentList;
   }
 
   const primaryList = splitCsvList(state.primaryMuscles);
   if (
-    JSON.stringify(primaryList) !== JSON.stringify(initial.primary_muscles ?? [])
+    JSON.stringify(primaryList) !==
+    JSON.stringify(initial.primary_muscles ?? [])
   ) {
     payload.primary_muscles = primaryList;
   }
@@ -481,7 +518,9 @@ const buildEditPayload = (
   }
 
   const stepsList = splitLines(state.instructions);
-  if (JSON.stringify(stepsList) !== JSON.stringify(initial.instructions ?? [])) {
+  if (
+    JSON.stringify(stepsList) !== JSON.stringify(initial.instructions ?? [])
+  ) {
     payload.instructions = stepsList;
   }
 

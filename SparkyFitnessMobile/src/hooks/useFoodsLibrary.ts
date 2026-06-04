@@ -29,13 +29,13 @@ export function useFoodsLibrary(
       }),
     enabled,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: lastPage =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     staleTime: 1000 * 60 * 5,
   });
 
   const foods = useMemo(
-    () => query.data?.pages.flatMap((page) => page.foods) ?? [],
+    () => query.data?.pages.flatMap(page => page.foods) ?? [],
     [query.data?.pages],
   );
 
@@ -60,7 +60,7 @@ export function useFoodsLibrary(
     if (query.hasNextPage && !query.isFetching) {
       void query.fetchNextPage();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- spreading `query` causes infinite re-renders; stable sub-properties are sufficient
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- spreading `query` causes infinite re-renders; stable sub-properties are sufficient
   }, [query.fetchNextPage, query.hasNextPage, query.isFetching]);
 
   useRefetchOnFocus(refetch, enabled);

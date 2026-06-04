@@ -8,7 +8,10 @@ import {
 export { SyncDuration, SyncInterval };
 
 // Create preference functions with Health Connect-specific prefix and log tag
-const preferences = createPreferenceFunctions('@HealthConnect', '[HealthConnectService]');
+const preferences = createPreferenceFunctions(
+  '@HealthConnect',
+  '[HealthConnectService]',
+);
 
 export const saveHealthPreference = preferences.saveHealthPreference;
 export const loadHealthPreference = preferences.loadHealthPreference;

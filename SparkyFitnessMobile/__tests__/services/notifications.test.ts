@@ -14,34 +14,44 @@ import {
 const mockGetPerms = Notifications.getPermissionsAsync as jest.MockedFunction<
   typeof Notifications.getPermissionsAsync
 >;
-const mockRequestPerms = Notifications.requestPermissionsAsync as jest.MockedFunction<
-  typeof Notifications.requestPermissionsAsync
->;
-const mockSchedule = Notifications.scheduleNotificationAsync as jest.MockedFunction<
-  typeof Notifications.scheduleNotificationAsync
->;
-const mockCancel = Notifications.cancelScheduledNotificationAsync as jest.MockedFunction<
-  typeof Notifications.cancelScheduledNotificationAsync
->;
-const mockSetHandler = Notifications.setNotificationHandler as jest.MockedFunction<
-  typeof Notifications.setNotificationHandler
->;
-const mockSetChannel = Notifications.setNotificationChannelAsync as jest.MockedFunction<
-  typeof Notifications.setNotificationChannelAsync
->;
+const mockRequestPerms =
+  Notifications.requestPermissionsAsync as jest.MockedFunction<
+    typeof Notifications.requestPermissionsAsync
+  >;
+const mockSchedule =
+  Notifications.scheduleNotificationAsync as jest.MockedFunction<
+    typeof Notifications.scheduleNotificationAsync
+  >;
+const mockCancel =
+  Notifications.cancelScheduledNotificationAsync as jest.MockedFunction<
+    typeof Notifications.cancelScheduledNotificationAsync
+  >;
+const mockSetHandler =
+  Notifications.setNotificationHandler as jest.MockedFunction<
+    typeof Notifications.setNotificationHandler
+  >;
+const mockSetChannel =
+  Notifications.setNotificationChannelAsync as jest.MockedFunction<
+    typeof Notifications.setNotificationChannelAsync
+  >;
 const mockToastShow = Toast.show as jest.MockedFunction<typeof Toast.show>;
 
 describe('notifications service', () => {
   beforeEach(() => {
     __resetNotificationStateForTests();
     mockGetPerms.mockReset().mockResolvedValue({ status: 'granted' } as any);
-    mockRequestPerms.mockReset().mockResolvedValue({ status: 'granted' } as any);
+    mockRequestPerms
+      .mockReset()
+      .mockResolvedValue({ status: 'granted' } as any);
     mockSchedule.mockReset().mockResolvedValue('notif-id' as any);
     mockCancel.mockReset().mockResolvedValue(undefined as any);
     mockSetHandler.mockClear();
     mockSetChannel.mockClear();
     mockToastShow.mockClear();
-    Object.defineProperty(Platform, 'OS', { get: () => 'ios', configurable: true });
+    Object.defineProperty(Platform, 'OS', {
+      get: () => 'ios',
+      configurable: true,
+    });
   });
 
   describe('initNotifications', () => {
@@ -52,7 +62,10 @@ describe('notifications service', () => {
     });
 
     it('creates Android channel with HIGH importance', async () => {
-      Object.defineProperty(Platform, 'OS', { get: () => 'android', configurable: true });
+      Object.defineProperty(Platform, 'OS', {
+        get: () => 'android',
+        configurable: true,
+      });
       await initNotifications();
       expect(mockSetChannel).toHaveBeenCalledWith(
         'workout-timer',
@@ -109,7 +122,10 @@ describe('notifications service', () => {
       const id = await scheduleRestNotification('Bench Press', 60);
       expect(id).toBe('mock-id');
       expect(mockSchedule).toHaveBeenCalledWith({
-        content: expect.objectContaining({ title: 'Rest complete', body: 'Bench Press' }),
+        content: expect.objectContaining({
+          title: 'Rest complete',
+          body: 'Bench Press',
+        }),
         trigger: expect.objectContaining({
           type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
           seconds: 60,
@@ -143,7 +159,9 @@ describe('notifications service', () => {
     it('calls Haptics.notificationAsync with Success feedback type', () => {
       fireRestCompleteHaptic();
       expect(mockHaptic).toHaveBeenCalledTimes(1);
-      expect(mockHaptic).toHaveBeenCalledWith(Haptics.NotificationFeedbackType.Success);
+      expect(mockHaptic).toHaveBeenCalledWith(
+        Haptics.NotificationFeedbackType.Success,
+      );
     });
 
     it('swallows rejections from Haptics', () => {

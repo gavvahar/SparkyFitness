@@ -94,7 +94,11 @@ describe('createConcurrencyLimiter', () => {
       async value => {
         started.push(value);
         if (value === 2) {
-          return withTimeout(new Promise<never>(() => {}), 50, `Metric ${value}`);
+          return withTimeout(
+            new Promise<never>(() => {}),
+            50,
+            `Metric ${value}`,
+          );
         }
         return value;
       },

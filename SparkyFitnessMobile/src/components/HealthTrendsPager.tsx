@@ -3,7 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import StepsBarChart from './StepsBarChart';
 import WeightLineChart from './WeightLineChart';
-import type { StepsDataPoint, WeightDataPoint, StepsRange } from '../hooks/useMeasurementsRange';
+import type {
+  StepsDataPoint,
+  WeightDataPoint,
+  StepsRange,
+} from '../hooks/useMeasurementsRange';
 
 type ChartPage = {
   key: string;
@@ -66,7 +70,15 @@ const HealthTrendsPager: React.FC<HealthTrendsPagerProps> = ({
     }
 
     return result;
-  }, [stepsData, weightData, isLoading, isError, range, weightUnit, showWeight]);
+  }, [
+    stepsData,
+    weightData,
+    isLoading,
+    isError,
+    range,
+    weightUnit,
+    showWeight,
+  ]);
 
   const handlePageSelected = useCallback(
     (e: { nativeEvent: { position: number } }) => {
@@ -89,7 +101,7 @@ const HealthTrendsPager: React.FC<HealthTrendsPagerProps> = ({
         initialPage={0}
         onPageSelected={handlePageSelected}
       >
-        {pages.map((page) => (
+        {pages.map(page => (
           <View key={page.key}>{page.content}</View>
         ))}
       </PagerView>

@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, ActivityIndicator, Pressable, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Pressable,
+  Platform,
+} from 'react-native';
 import Toast from 'react-native-toast-message';
 import Button from './ui/Button';
-import { seedHealthData, seedHistoricalSteps } from '../services/seedHealthData';
+import {
+  seedHealthData,
+  seedHistoricalSteps,
+} from '../services/seedHealthData';
 import { triggerManualSync } from '../services/backgroundSyncService';
 import { notifySessionExpired } from '../services/api/authService';
 import { getActiveServerConfig } from '../services/storage';
 import { resetWhatsNewBanner } from '../services/whatsNewBanner';
-import { openHealthConnectSettings, openHealthConnectDataManagement, getGrantedPermissions } from 'react-native-health-connect';
+import {
+  openHealthConnectSettings,
+  openHealthConnectDataManagement,
+  getGrantedPermissions,
+} from 'react-native-health-connect';
 
 const DevTools: React.FC = () => {
   const [isSeeding, setIsSeeding] = useState(false);
@@ -17,10 +30,18 @@ const DevTools: React.FC = () => {
     setIsSyncing(true);
     try {
       await triggerManualSync();
-      Toast.show({ type: 'success', text1: 'Success', text2: 'Background sync completed. Check Logs for details.' });
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Background sync completed. Check Logs for details.',
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      Toast.show({ type: 'error', text1: 'Error', text2: `Sync failed: ${message}` });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: `Sync failed: ${message}`,
+      });
     } finally {
       setIsSyncing(false);
     }
@@ -31,13 +52,25 @@ const DevTools: React.FC = () => {
     try {
       const result = await seedHistoricalSteps();
       if (result.success) {
-        Toast.show({ type: 'success', text1: 'Success', text2: `Seeded ${result.recordsInserted} historical step records across the past year.` });
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `Seeded ${result.recordsInserted} historical step records across the past year.`,
+        });
       } else {
-        Toast.show({ type: 'error', text1: 'Error', text2: result.error || 'Failed to seed historical step data.' });
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: result.error || 'Failed to seed historical step data.',
+        });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      Toast.show({ type: 'error', text1: 'Error', text2: `Failed to seed historical step data: ${message}` });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: `Failed to seed historical step data: ${message}`,
+      });
     } finally {
       setIsSeeding(false);
     }
@@ -48,13 +81,25 @@ const DevTools: React.FC = () => {
     try {
       const result = await seedHealthData(days);
       if (result.success) {
-        Toast.show({ type: 'success', text1: 'Success', text2: `Seeded ${result.recordsInserted} health records for the past ${days} days.` });
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `Seeded ${result.recordsInserted} health records for the past ${days} days.`,
+        });
       } else {
-        Toast.show({ type: 'error', text1: 'Error', text2: result.error || 'Failed to seed health data.' });
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: result.error || 'Failed to seed health data.',
+        });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      Toast.show({ type: 'error', text1: 'Error', text2: `Failed to seed health data: ${message}` });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: `Failed to seed health data: ${message}`,
+      });
     } finally {
       setIsSeeding(false);
     }
@@ -63,9 +108,9 @@ const DevTools: React.FC = () => {
   const handleCheckBackgroundPermissions = async () => {
     const permissions = await getGrantedPermissions();
     const hasBackgroundAccess = permissions.some(
-      (permission) =>
+      permission =>
         permission.accessType === 'read' &&
-        permission.recordType === 'BackgroundAccessPermission'
+        permission.recordType === 'BackgroundAccessPermission',
     );
 
     Toast.show({
@@ -79,7 +124,9 @@ const DevTools: React.FC = () => {
 
   return (
     <View className="bg-surface rounded-xl p-4 mb-4 shadow-sm">
-      <Text className="text-lg font-bold mb-3 text-text-primary">Dev Tools</Text>
+      <Text className="text-lg font-bold mb-3 text-text-primary">
+        Dev Tools
+      </Text>
       <Text className="text-text-muted mb-3 text-[13px]">
         These tools are only visible in development builds.
       </Text>
@@ -127,7 +174,9 @@ const DevTools: React.FC = () => {
           onPress={handleSeedHistoricalSteps}
           disabled={isSeeding}
         >
-          <Text className="text-white text-base font-bold text-center">1 Year{'\n'}(Steps)</Text>
+          <Text className="text-white text-base font-bold text-center">
+            1 Year{'\n'}(Steps)
+          </Text>
         </Button>
       </View>
       {Platform.OS === 'android' && (
@@ -136,13 +185,17 @@ const DevTools: React.FC = () => {
             className="bg-accent-primary py-2 px-4 rounded-lg my-1 items-center self-center min-w-20"
             onPress={() => openHealthConnectSettings()}
           >
-            <Text className="text-white text-base font-bold">Health Connect</Text>
+            <Text className="text-white text-base font-bold">
+              Health Connect
+            </Text>
           </Pressable>
           <Pressable
             className="bg-accent-primary py-2 px-4 rounded-lg my-1 items-center self-center min-w-20"
             onPress={() => openHealthConnectDataManagement()}
           >
-            <Text className="text-white text-base font-bold">Health Connect Data</Text>
+            <Text className="text-white text-base font-bold">
+              Health Connect Data
+            </Text>
           </Pressable>
         </View>
       )}
@@ -161,7 +214,9 @@ const DevTools: React.FC = () => {
             {isSyncing ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
-              <Text className="text-white text-base font-bold">Trigger Sync</Text>
+              <Text className="text-white text-base font-bold">
+                Trigger Sync
+              </Text>
             )}
           </Button>
           {Platform.OS === 'android' && (
@@ -170,7 +225,9 @@ const DevTools: React.FC = () => {
               className="py-2 px-4 rounded-lg my-1 self-center min-w-30"
               onPress={handleCheckBackgroundPermissions}
             >
-              <Text className="text-white text-base font-bold">Check BG Permission</Text>
+              <Text className="text-white text-base font-bold">
+                Check BG Permission
+              </Text>
             </Button>
           )}
         </View>
@@ -190,15 +247,20 @@ const DevTools: React.FC = () => {
               notifySessionExpired(config?.id ?? 'dev-test');
             }}
           >
-            <Text className="text-white text-base font-bold">Show ReauthModal</Text>
+            <Text className="text-white text-base font-bold">
+              Show ReauthModal
+            </Text>
           </Button>
         </View>
       </View>
 
       <View className="mt-5">
-        <Text className="text-sm text-text-primary">What&apos;s New Banner</Text>
+        <Text className="text-sm text-text-primary">
+          What&apos;s New Banner
+        </Text>
         <Text className="text-text-muted mb-3 text-[13px]">
-          Clear the last-seen version so the banner re-appears above the tab bar.
+          Clear the last-seen version so the banner re-appears above the tab
+          bar.
         </Text>
         <View className="flex-row gap-2 flex-wrap">
           <Button
@@ -217,7 +279,6 @@ const DevTools: React.FC = () => {
           </Button>
         </View>
       </View>
-
     </View>
   );
 };

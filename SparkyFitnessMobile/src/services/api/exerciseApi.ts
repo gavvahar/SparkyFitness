@@ -3,7 +3,10 @@ import { ApiError } from './errors';
 import { getActiveServerConfig, proxyHeadersToRecord } from '../storage';
 import { getAuthHeaders, notifySessionExpired } from './authService';
 import { addLog } from '../LogService';
-import type { Exercise, SuggestedExercisesResponse } from '../../types/exercise';
+import type {
+  Exercise,
+  SuggestedExercisesResponse,
+} from '../../types/exercise';
 import type {
   ExerciseHistoryResponse,
   ExerciseSessionResponse,
@@ -15,7 +18,9 @@ import type {
   Pagination,
 } from '@workspace/shared';
 
-export const fetchExerciseEntries = async (date: string): Promise<ExerciseSessionResponse[]> => {
+export const fetchExerciseEntries = async (
+  date: string,
+): Promise<ExerciseSessionResponse[]> => {
   return apiFetch<ExerciseSessionResponse[]>({
     endpoint: `/api/v2/exercise-entries/by-date?selectedDate=${encodeURIComponent(date)}`,
     serviceName: 'Exercise API',
@@ -62,7 +67,9 @@ export const fetchSuggestedExercises = async (
   };
 };
 
-export const searchExercises = async (searchTerm: string): Promise<Exercise[]> => {
+export const searchExercises = async (
+  searchTerm: string,
+): Promise<Exercise[]> => {
   const response = await apiFetch<Record<string, unknown>[]>({
     endpoint: `/api/exercises/search?searchTerm=${encodeURIComponent(searchTerm)}`,
     serviceName: 'Exercise API',
@@ -109,7 +116,10 @@ export const fetchExercisesPage = async ({
 };
 
 export const fetchExercisesCount = async (): Promise<number> => {
-  const response = await apiFetch<{ exercises: Exercise[]; totalCount: number }>({
+  const response = await apiFetch<{
+    exercises: Exercise[];
+    totalCount: number;
+  }>({
     endpoint: `/api/exercises/?currentPage=1&itemsPerPage=1`,
     serviceName: 'Exercise API',
     operation: 'fetch exercises count',
@@ -196,7 +206,9 @@ const parseJsonArray = (raw: unknown): string[] => {
   return [];
 };
 
-export const transformExerciseRow = (row: Record<string, unknown>): Exercise => ({
+export const transformExerciseRow = (
+  row: Record<string, unknown>,
+): Exercise => ({
   id: String(row.id),
   name: String(row.name),
   category: (row.category as string | null) ?? null,
@@ -226,7 +238,9 @@ export const transformExerciseRow = (row: Record<string, unknown>): Exercise => 
  * fetch with FormData, mirroring the auth/proxy header injection pattern in
  * {@link healthDataApi}.
  */
-export async function createExercise(payload: CreateExercisePayload): Promise<Exercise> {
+export async function createExercise(
+  payload: CreateExercisePayload,
+): Promise<Exercise> {
   const config = await getActiveServerConfig();
   if (!config) throw new Error('Server configuration not found.');
   const baseUrl = normalizeUrl(config.url);
@@ -257,7 +271,11 @@ export async function createExercise(payload: CreateExercisePayload): Promise<Ex
     }
     const text = await response.text();
     addLog('[Exercise API] Failed to create exercise', 'ERROR', [text]);
-    throw new ApiError(`Server error: ${response.status} - ${text}`, response.status, text);
+    throw new ApiError(
+      `Server error: ${response.status} - ${text}`,
+      response.status,
+      text,
+    );
   }
 
   const raw = await response.json();
@@ -390,7 +408,11 @@ export async function updateExercise(
     }
     const text = await response.text();
     addLog('[Exercise API] Failed to update exercise', 'ERROR', [text]);
-    throw new ApiError(`Server error: ${response.status} - ${text}`, response.status, text);
+    throw new ApiError(
+      `Server error: ${response.status} - ${text}`,
+      response.status,
+      text,
+    );
   }
 
   const raw = await response.json();

@@ -15,8 +15,12 @@ jest.mock('../../src/components/ActiveWorkoutBar', () => ({
 }));
 
 const mockUseMeals = useMeals as jest.MockedFunction<typeof useMeals>;
-const mockUseMealSearch = useMealSearch as jest.MockedFunction<typeof useMealSearch>;
-const mockUseServerConnection = useServerConnection as jest.MockedFunction<typeof useServerConnection>;
+const mockUseMealSearch = useMealSearch as jest.MockedFunction<
+  typeof useMealSearch
+>;
+const mockUseServerConnection = useServerConnection as jest.MockedFunction<
+  typeof useServerConnection
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -156,6 +160,8 @@ describe('MealsLibraryScreen', () => {
 
     expect(screen.getByText('No server configured')).toBeTruthy();
     fireEvent.press(screen.getByText('Go to Settings'));
-    expect(navigation.navigate).toHaveBeenCalledWith('Tabs', { screen: 'Settings' });
+    expect(navigation.navigate).toHaveBeenCalledWith('Tabs', {
+      screen: 'Settings',
+    });
   });
 });

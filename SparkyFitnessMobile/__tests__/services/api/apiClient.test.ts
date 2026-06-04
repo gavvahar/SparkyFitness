@@ -41,7 +41,7 @@ describe('apiFetch error handling', () => {
     }) as never;
 
     await expect(
-      apiFetch({ endpoint: '/api/x', serviceName: 's', operation: 'get' })
+      apiFetch({ endpoint: '/api/x', serviceName: 's', operation: 'get' }),
     ).rejects.toMatchObject({
       name: 'ApiError',
       statusCode: 429,

@@ -1,9 +1,17 @@
 import React, { createContext, useContext } from 'react';
-import { View, Text, Pressable, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useCSSVariable } from 'uniwind';
 import Icon, { type IconName } from './Icon';
 
-const SettingsRowGroupContext = createContext<{ grouped: boolean }>({ grouped: false });
+const SettingsRowGroupContext = createContext<{ grouped: boolean }>({
+  grouped: false,
+});
 
 interface SettingsRowGroupProps {
   children: React.ReactNode;
@@ -19,7 +27,10 @@ export const SettingsRowGroup: React.FC<SettingsRowGroupProps> = ({
   const items = React.Children.toArray(children).filter(Boolean);
   return (
     <SettingsRowGroupContext.Provider value={{ grouped: true }}>
-      <View className={`bg-surface rounded-xl mb-4 shadow-sm ${className}`} style={style}>
+      <View
+        className={`bg-surface rounded-xl mb-4 shadow-sm ${className}`}
+        style={style}
+      >
         {items.map((child, i) => (
           <React.Fragment key={i}>
             {child}
@@ -57,9 +68,9 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   testID,
 }) => {
   const { grouped } = useContext(SettingsRowGroupContext);
-  const [textSecondary] = useCSSVariable([
-    '--color-text-secondary',
-  ]) as [string];
+  const [textSecondary] = useCSSVariable(['--color-text-secondary']) as [
+    string,
+  ];
 
   const wrapperClass = grouped
     ? 'p-4 flex-row items-center'
@@ -74,7 +85,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
         className="w-10 h-10 rounded-lg items-center justify-center mr-3"
         style={{ backgroundColor: tileBg }}
       >
-        <Icon name={icon} size={22} color={tintColor} weight='semibold' />
+        <Icon name={icon} size={22} color={tintColor} weight="semibold" />
       </View>
       <View className="flex-1 mr-2">
         <Text
@@ -106,7 +117,11 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
 
   if (!onPress) {
     return (
-      <View className={wrapperClass} accessibilityLabel={accessibilityLabel} testID={testID}>
+      <View
+        className={wrapperClass}
+        accessibilityLabel={accessibilityLabel}
+        testID={testID}
+      >
         {content}
       </View>
     );

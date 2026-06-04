@@ -1,10 +1,18 @@
 import { apiFetch } from './apiClient';
-import type { CheckInMeasurement, CheckInMeasurementRange, WaterIntake, WaterContainer, WaterIntakeResponse } from '../../types/measurements';
+import type {
+  CheckInMeasurement,
+  CheckInMeasurementRange,
+  WaterIntake,
+  WaterContainer,
+  WaterIntakeResponse,
+} from '../../types/measurements';
 
 /**
  * Fetches measurements for a given date.
  */
-export const fetchMeasurements = async (date: string): Promise<CheckInMeasurement> => {
+export const fetchMeasurements = async (
+  date: string,
+): Promise<CheckInMeasurement> => {
   return apiFetch<CheckInMeasurement>({
     endpoint: `/api/measurements/check-in/${date}`,
     serviceName: 'Measurements API',
@@ -37,7 +45,10 @@ export const fetchWaterContainers = async (): Promise<WaterContainer[]> => {
 /**
  * Fetches measurements for a date range.
  */
-export const fetchMeasurementsRange = async (startDate: string, endDate: string): Promise<CheckInMeasurementRange[]> => {
+export const fetchMeasurementsRange = async (
+  startDate: string,
+  endDate: string,
+): Promise<CheckInMeasurementRange[]> => {
   return apiFetch<CheckInMeasurementRange[]>({
     endpoint: `/api/measurements/check-in-measurements-range/${startDate}/${endDate}`,
     serviceName: 'Measurements API',

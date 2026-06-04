@@ -2,7 +2,7 @@ const { getIosAppGroup } = require('../../app.identifiers.js');
 const fs = require('fs');
 const path = require('path');
 
-const escapePlistString = (value) =>
+const escapePlistString = value =>
   String(value)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -10,7 +10,7 @@ const escapePlistString = (value) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 
-const syncInfoPlist = (appGroup) => {
+const syncInfoPlist = appGroup => {
   const plistPath = path.join(__dirname, 'Info.plist');
   const escapedAppGroup = escapePlistString(appGroup);
   fs.writeFileSync(
@@ -33,7 +33,7 @@ const syncInfoPlist = (appGroup) => {
 };
 
 /** @type {import('@bacons/apple-targets/app.plugin').ConfigFunction} */
-module.exports = (config) => {
+module.exports = config => {
   const appGroup = getIosAppGroup();
   syncInfoPlist(appGroup);
 

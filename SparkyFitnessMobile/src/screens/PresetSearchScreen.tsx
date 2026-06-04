@@ -1,18 +1,31 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import Button from '../components/ui/Button';
 import StatusView from '../components/StatusView';
 import Icon from '../components/Icon';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
-import { useWorkoutPresets, useWorkoutPresetSearch, useRefetchOnFocus } from '../hooks';
+import {
+  useWorkoutPresets,
+  useWorkoutPresetSearch,
+  useRefetchOnFocus,
+} from '../hooks';
 import type { WorkoutPreset } from '../types/workoutPresets';
 import type { RootStackScreenProps } from '../types/navigation';
 
 type PresetSearchScreenProps = RootStackScreenProps<'PresetSearch'>;
 
-const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({ navigation, route }) => {
+const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const date = route.params?.date;
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
@@ -27,33 +40,45 @@ const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({ navigation, rou
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const { presets, isLoading, isError, refetch } = useWorkoutPresets();
-  const { searchResults, isSearching, isSearchActive, isSearchError } = useWorkoutPresetSearch(searchText);
+  const { searchResults, isSearching, isSearchActive, isSearchError } =
+    useWorkoutPresetSearch(searchText);
 
   useRefetchOnFocus(refetch, true);
 
-  const handleSelectPreset = useCallback((preset: WorkoutPreset) => {
-    navigation.navigate('WorkoutAdd', { preset, date, popCount: 2 });
-  }, [navigation, date]);
+  const handleSelectPreset = useCallback(
+    (preset: WorkoutPreset) => {
+      navigation.navigate('WorkoutAdd', { preset, date, popCount: 2 });
+    },
+    [navigation, date],
+  );
 
-  const renderPresetRow = useCallback(({ item }: { item: WorkoutPreset }) => (
-    <TouchableOpacity
-      className="px-4 py-3 border-b border-border-subtle"
-      activeOpacity={0.7}
-      onPress={() => handleSelectPreset(item)}
-    >
-      <Text className="text-text-primary text-base font-medium">{item.name}</Text>
-      <Text className="text-sm mt-0.5" style={{ color: textSecondary }}>
-        {item.exercises.length} {item.exercises.length === 1 ? 'exercise' : 'exercises'}
-      </Text>
-    </TouchableOpacity>
-  ), [handleSelectPreset, textSecondary]);
+  const renderPresetRow = useCallback(
+    ({ item }: { item: WorkoutPreset }) => (
+      <TouchableOpacity
+        className="px-4 py-3 border-b border-border-subtle"
+        activeOpacity={0.7}
+        onPress={() => handleSelectPreset(item)}
+      >
+        <Text className="text-text-primary text-base font-medium">
+          {item.name}
+        </Text>
+        <Text className="text-sm mt-0.5" style={{ color: textSecondary }}>
+          {item.exercises.length}{' '}
+          {item.exercises.length === 1 ? 'exercise' : 'exercises'}
+        </Text>
+      </TouchableOpacity>
+    ),
+    [handleSelectPreset, textSecondary],
+  );
 
   const renderSearchResults = () => {
     if (isSearching && searchResults.length === 0) {
       return <StatusView loading />;
     }
     if (isSearchError) {
-      return <StatusView icon="alert-circle" title="Failed to search presets" />;
+      return (
+        <StatusView icon="alert-circle" title="Failed to search presets" />
+      );
     }
     if (searchResults.length === 0) {
       return <StatusView title="No matching presets found" />;
@@ -61,10 +86,12 @@ const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({ navigation, rou
     return (
       <FlatList
         data={searchResults}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderPresetRow}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding,
+        }}
       />
     );
   };
@@ -86,15 +113,22 @@ const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({ navigation, rou
       );
     }
     if (presets.length === 0) {
-      return <StatusView title="No presets yet" subtitle="Create a workout and save it as a preset to see it here" />;
+      return (
+        <StatusView
+          title="No presets yet"
+          subtitle="Create a workout and save it as a preset to see it here"
+        />
+      );
     }
     return (
       <FlatList
         data={presets}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderPresetRow}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding,
+        }}
       />
     );
   };
@@ -121,7 +155,10 @@ const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({ navigation, rou
       <View className="px-4 py-2">
         <View
           className="flex-row items-center bg-raised rounded-lg px-3 py-2.5"
-          style={{ borderWidth: 1, borderColor: isSearchFocused ? accentColor : borderSubtle }}
+          style={{
+            borderWidth: 1,
+            borderColor: isSearchFocused ? accentColor : borderSubtle,
+          }}
         >
           <Icon name="search" size={18} color={textMuted} />
           <View className="flex-1 ml-2">
@@ -140,7 +177,12 @@ const PresetSearchScreen: React.FC<PresetSearchScreenProps> = ({ navigation, rou
             />
           </View>
           {searchText.length > 0 && (
-            <Button variant="ghost" onPress={() => setSearchText('')} hitSlop={8} className="p-0">
+            <Button
+              variant="ghost"
+              onPress={() => setSearchText('')}
+              hitSlop={8}
+              className="p-0"
+            >
               <Icon name="close" size={16} color={textMuted} />
             </Button>
           )}

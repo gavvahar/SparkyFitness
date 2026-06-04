@@ -21,7 +21,10 @@ export function useSyncHealthData(options?: {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ timeRange, healthMetricStates }: SyncHealthDataParams) => {
+    mutationFn: async ({
+      timeRange,
+      healthMetricStates,
+    }: SyncHealthDataParams) => {
       const result = await healthConnectSyncData(timeRange, healthMetricStates);
       if (result.success) {
         const hadSyncErrors = result.syncErrors.length > 0;
@@ -42,7 +45,7 @@ export function useSyncHealthData(options?: {
         });
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       refreshHealthSyncCache(queryClient);
       queryClient.invalidateQueries({ queryKey: serverConnectionQueryKey });
       if (showToasts) {

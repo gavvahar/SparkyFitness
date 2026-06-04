@@ -1,7 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { useExternalExerciseSearch } from '../../src/hooks/useExternalExerciseSearch';
 import { searchExternalExercises } from '../../src/services/api/externalExerciseSearchApi';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/externalExerciseSearchApi', () => ({
   searchExternalExercises: jest.fn(),
@@ -33,7 +37,8 @@ describe('useExternalExerciseSearch', () => {
 
   it('does not fetch when enabled is false', () => {
     renderHook(
-      () => useExternalExerciseSearch('bench press', 'wger', { enabled: false }),
+      () =>
+        useExternalExerciseSearch('bench press', 'wger', { enabled: false }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -43,7 +48,10 @@ describe('useExternalExerciseSearch', () => {
   it('returns empty result when providerId is missing', async () => {
     // When no providerId is given, queryFn returns empty result without calling API
     const { result } = renderHook(
-      () => useExternalExerciseSearch('bench press', 'wger', { providerId: undefined }),
+      () =>
+        useExternalExerciseSearch('bench press', 'wger', {
+          providerId: undefined,
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 

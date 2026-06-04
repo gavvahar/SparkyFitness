@@ -25,7 +25,9 @@ const themeOptions: { label: string; value: ThemePreference }[] = [
   { label: 'System', value: 'System' },
 ];
 
-const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation }) => {
+const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentPrimary, formEnabled, formDisabled] = useCSSVariable([
@@ -56,7 +58,9 @@ const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation }) => 
           >
             <Icon name="chevron-back" size={22} color={accentPrimary} />
           </Button>
-          <Text className="text-2xl font-bold text-text-primary">App Settings</Text>
+          <Text className="text-2xl font-bold text-text-primary">
+            App Settings
+          </Text>
         </View>
 
         <View className="bg-surface rounded-xl p-4 mb-4 shadow-sm">

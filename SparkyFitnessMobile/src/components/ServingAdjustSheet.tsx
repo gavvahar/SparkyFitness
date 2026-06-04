@@ -1,4 +1,10 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { View, Text } from 'react-native';
 import Button from './ui/Button';
 import {
@@ -23,7 +29,10 @@ interface ServingAdjustSheetProps {
   onViewEntry?: (entry: FoodEntry) => void;
 }
 
-const ServingAdjustSheet = forwardRef<ServingAdjustSheetRef, ServingAdjustSheetProps>(({ onViewEntry }, ref) => {
+const ServingAdjustSheet = forwardRef<
+  ServingAdjustSheetRef,
+  ServingAdjustSheetProps
+>(({ onViewEntry }, ref) => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [entry, setEntry] = useState<FoodEntry | null>(null);
   const [quantityText, setQuantityText] = useState('0');
@@ -35,9 +44,10 @@ const ServingAdjustSheet = forwardRef<ServingAdjustSheetRef, ServingAdjustSheetP
   const isDarkMode = theme === 'dark' || theme === 'amoled';
 
   const quantity = parseDecimalInput(quantityText) || 0;
-  const totalCalories = entry && entry.serving_size > 0
-    ? Math.round(entry.calories * quantity / entry.serving_size)
-    : 0;
+  const totalCalories =
+    entry && entry.serving_size > 0
+      ? Math.round((entry.calories * quantity) / entry.serving_size)
+      : 0;
 
   const { updateEntry, isPending, invalidateCache } = useUpdateFoodEntry({
     entryId: entry?.id ?? '',
@@ -106,7 +116,7 @@ const ServingAdjustSheet = forwardRef<ServingAdjustSheetRef, ServingAdjustSheetP
         appearsOnIndex={0}
       />
     ),
-    [isDarkMode]
+    [isDarkMode],
   );
 
   return (
@@ -125,7 +135,10 @@ const ServingAdjustSheet = forwardRef<ServingAdjustSheetRef, ServingAdjustSheetP
           <>
             {/* Header */}
             <View className="items-center mb-5">
-              <Text className="text-text-primary text-lg font-semibold text-center" numberOfLines={2}>
+              <Text
+                className="text-text-primary text-lg font-semibold text-center"
+                numberOfLines={2}
+              >
                 {entry.food_name || 'Unknown food'}
               </Text>
               <Text className="text-text-secondary text-sm mt-1">
@@ -144,7 +157,9 @@ const ServingAdjustSheet = forwardRef<ServingAdjustSheetRef, ServingAdjustSheetP
                   onIncrement={() => adjustQuantity(1)}
                   InputComponent={BottomSheetTextInput}
                 />
-                <Text className="text-text-secondary text-lg ml-3">{entry.unit}</Text>
+                <Text className="text-text-secondary text-lg ml-3">
+                  {entry.unit}
+                </Text>
               </View>
             </View>
 

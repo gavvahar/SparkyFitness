@@ -1,5 +1,9 @@
 import { useCallback, useMemo } from 'react';
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   fetchWorkoutPresetsPage,
   searchWorkoutPresets,
@@ -31,7 +35,10 @@ export function useWorkoutPresetsLibrary(
   // same Query, and the conflicting expectations about `data` shape crash
   // react-query inside hasNextPage/getNextPageParam ("Cannot read property
   // 'length' of undefined").
-  const listQueryKey = useMemo(() => ['workoutPresetsLibraryList'] as const, []);
+  const listQueryKey = useMemo(
+    () => ['workoutPresetsLibraryList'] as const,
+    [],
+  );
   const searchQueryKey = workoutPresetsLibraryQueryKey(debouncedSearch);
 
   const listQuery = useInfiniteQuery({
@@ -40,14 +47,15 @@ export function useWorkoutPresetsLibrary(
       fetchWorkoutPresetsPage({ page: pageParam, pageSize: 20 }),
     enabled: enabled && !isSearchActive,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: lastPage =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     staleTime: 1000 * 60 * 5,
   });
 
   const searchQuery = useQuery({
     queryKey: searchQueryKey,
-    queryFn: () => searchWorkoutPresets(debouncedSearch, { limit: SEARCH_LIMIT }),
+    queryFn: () =>
+      searchWorkoutPresets(debouncedSearch, { limit: SEARCH_LIMIT }),
     enabled: enabled && isSearchActive,
     staleTime: 1000 * 60 * 5,
   });
@@ -56,7 +64,7 @@ export function useWorkoutPresetsLibrary(
     if (isSearchActive) {
       return searchQuery.data ?? [];
     }
-    return listQuery.data?.pages.flatMap((page) => page.presets) ?? [];
+    return listQuery.data?.pages.flatMap(page => page.presets) ?? [];
   }, [isSearchActive, searchQuery.data, listQuery.data?.pages]);
 
   // Reset rather than refetch: refetch() on the active infinite query re-fetches
@@ -96,9 +104,11 @@ export function useWorkoutPresetsLibrary(
   return {
     presets,
     isLoading,
-    isSearching: isFetching && (isSearchActive || !listQuery.isFetchingNextPage),
+    isSearching:
+      isFetching && (isSearchActive || !listQuery.isFetchingNextPage),
     isError: activeQuery.isError && presets.length === 0,
-    isFetchNextPageError: !isSearchActive && listQuery.isError && presets.length > 0,
+    isFetchNextPageError:
+      !isSearchActive && listQuery.isError && presets.length > 0,
     hasNextPage: !isSearchActive && (listQuery.hasNextPage ?? false),
     isFetchingNextPage: !isSearchActive && listQuery.isFetchingNextPage,
     loadMore,

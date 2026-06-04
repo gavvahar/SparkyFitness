@@ -1,8 +1,10 @@
 // jsdom doesn't expose TextEncoder/TextDecoder globally, but Expo SDK 55's "winter"
 // runtime lazily installs URL/URLSearchParams via whatwg-url-minimum, which requires them.
 const { TextEncoder, TextDecoder } = require('util');
-if (typeof globalThis.TextEncoder === 'undefined') globalThis.TextEncoder = TextEncoder;
-if (typeof globalThis.TextDecoder === 'undefined') globalThis.TextDecoder = TextDecoder;
+if (typeof globalThis.TextEncoder === 'undefined')
+  globalThis.TextEncoder = TextEncoder;
+if (typeof globalThis.TextDecoder === 'undefined')
+  globalThis.TextDecoder = TextDecoder;
 
 // Mock radon-ide (ESM module that Jest can't transform)
 jest.mock('radon-ide', () => ({
@@ -126,10 +128,20 @@ jest.mock('expo-notifications', () => {
 // Mock expo-haptics
 jest.mock('expo-haptics', () => ({
   notificationAsync: jest.fn().mockResolvedValue(undefined),
-  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+  NotificationFeedbackType: {
+    Success: 'success',
+    Warning: 'warning',
+    Error: 'error',
+  },
   selectionAsync: jest.fn().mockResolvedValue(undefined),
   impactAsync: jest.fn().mockResolvedValue(undefined),
-  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy', Soft: 'soft', Rigid: 'rigid' },
+  ImpactFeedbackStyle: {
+    Light: 'light',
+    Medium: 'medium',
+    Heavy: 'heavy',
+    Soft: 'soft',
+    Rigid: 'rigid',
+  },
 }));
 
 // Mock expo-camera
@@ -142,7 +154,11 @@ jest.mock('expo-camera', () => {
       React.useImperativeHandle(ref, () => ({
         takePictureAsync: jest.fn(),
       }));
-      return React.createElement(View, { testID: 'camera-view', ...props }, children);
+      return React.createElement(
+        View,
+        { testID: 'camera-view', ...props },
+        children,
+      );
     }),
     useCameraPermissions: jest.fn(() => [{ granted: true }, jest.fn()]),
   };
@@ -158,17 +174,23 @@ jest.mock('expo-secure-store', () => {
   const store = {};
   return {
     AFTER_FIRST_UNLOCK: 'AFTER_FIRST_UNLOCK',
-    setItemAsync: jest.fn(async (key, value) => { store[key] = value; }),
-    getItemAsync: jest.fn(async (key) => store[key] ?? null),
-    deleteItemAsync: jest.fn(async (key) => { delete store[key]; }),
+    setItemAsync: jest.fn(async (key, value) => {
+      store[key] = value;
+    }),
+    getItemAsync: jest.fn(async key => store[key] ?? null),
+    deleteItemAsync: jest.fn(async key => {
+      delete store[key];
+    }),
     __store: store,
-    __clear: () => { Object.keys(store).forEach(k => delete store[k]); },
+    __clear: () => {
+      Object.keys(store).forEach(k => delete store[k]);
+    },
   };
 });
 
 // Mock @react-native-async-storage/async-storage
 jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
 // Mock react-native-gesture-handler
@@ -201,7 +223,7 @@ jest.mock('react-native-gesture-handler', () => {
     RectButton: View,
     BorderlessButton: View,
     FlatList: View,
-    gestureHandlerRootHOC: jest.fn((component) => component),
+    gestureHandlerRootHOC: jest.fn(component => component),
     Directions: {},
   };
 });
@@ -212,16 +234,26 @@ jest.mock('react-native-gesture-handler/ReanimatedSwipeable', () => {
   const { View } = require('react-native');
   return {
     __esModule: true,
-    default: React.forwardRef(({ children, renderRightActions, ...props }, ref) => {
-      React.useImperativeHandle(ref, () => ({
-        close: jest.fn(),
-        reset: jest.fn(),
-      }));
-      return React.createElement(View, { testID: 'reanimated-swipeable', ...props },
-        children,
-        renderRightActions ? React.createElement(View, { testID: 'swipeable-right-actions' }, renderRightActions()) : null,
-      );
-    }),
+    default: React.forwardRef(
+      ({ children, renderRightActions, ...props }, ref) => {
+        React.useImperativeHandle(ref, () => ({
+          close: jest.fn(),
+          reset: jest.fn(),
+        }));
+        return React.createElement(
+          View,
+          { testID: 'reanimated-swipeable', ...props },
+          children,
+          renderRightActions
+            ? React.createElement(
+                View,
+                { testID: 'swipeable-right-actions' },
+                renderRightActions(),
+              )
+            : null,
+        );
+      },
+    ),
   };
 });
 
@@ -233,11 +265,11 @@ jest.mock('react-native-reanimated', () => {
   return {
     __esModule: true,
     default: { View },
-    useSharedValue: (init) => React.useRef({ value: init }).current,
-    useAnimatedStyle: (fn) => fn(),
-    useDerivedValue: (fn) => ({ value: fn() }),
-    withTiming: (toValue) => toValue,
-    withSpring: (toValue) => toValue,
+    useSharedValue: init => React.useRef({ value: init }).current,
+    useAnimatedStyle: fn => fn(),
+    useDerivedValue: fn => ({ value: fn() }),
+    withTiming: toValue => toValue,
+    withSpring: toValue => toValue,
     withSequence: (...args) => args[args.length - 1],
     useAnimatedReaction: jest.fn(),
     Easing: {
@@ -264,12 +296,14 @@ jest.mock('react-native-keyboard-controller', () => {
   const { ScrollView, View } = require('react-native');
 
   return {
-    KeyboardProvider: ({ children }) => React.createElement(React.Fragment, null, children),
+    KeyboardProvider: ({ children }) =>
+      React.createElement(React.Fragment, null, children),
     KeyboardAwareScrollView: React.forwardRef(({ children, ...props }, ref) =>
       React.createElement(ScrollView, { ...props, ref }, children),
     ),
-    KeyboardStickyView: React.forwardRef(({ children, offset: _offset, enabled: _enabled, ...props }, ref) =>
-      React.createElement(View, { ...props, ref }, children),
+    KeyboardStickyView: React.forwardRef(
+      ({ children, offset: _offset, enabled: _enabled, ...props }, ref) =>
+        React.createElement(View, { ...props, ref }, children),
     ),
   };
 });
@@ -330,7 +364,8 @@ jest.mock('@shopify/react-native-skia', () => {
   const React = require('react');
   const { View } = require('react-native');
   return {
-    Canvas: ({ children, style }) => React.createElement(View, { style, testID: 'skia-canvas' }, children),
+    Canvas: ({ children, style }) =>
+      React.createElement(View, { style, testID: 'skia-canvas' }, children),
     Circle: () => null,
     Rect: () => null,
     RoundedRect: () => null,
@@ -357,7 +392,8 @@ jest.mock('victory-native', () => {
   const React = require('react');
   const { View } = require('react-native');
   return {
-    CartesianChart: ({ children, ...props }) => React.createElement(View, { testID: 'cartesian-chart', ...props }),
+    CartesianChart: ({ children, ...props }) =>
+      React.createElement(View, { testID: 'cartesian-chart', ...props }),
     Bar: () => null,
     useChartPressState: jest.fn(() => ({
       state: {
@@ -378,14 +414,15 @@ jest.mock('react-native-ui-datepicker', () => {
   const { View } = require('react-native');
   return {
     __esModule: true,
-    default: (props) => React.createElement(View, { testID: 'date-picker', ...props }),
+    default: props =>
+      React.createElement(View, { testID: 'date-picker', ...props }),
   };
 });
 
 // Mock uniwind
 jest.mock('uniwind', () => ({
-  useCSSVariable: jest.fn((vars) =>
-    Array.isArray(vars) ? vars.map(() => '#888888') : '#888888'
+  useCSSVariable: jest.fn(vars =>
+    Array.isArray(vars) ? vars.map(() => '#888888') : '#888888',
   ),
   useUniwind: jest.fn(() => ({ theme: 'light', hasAdaptiveThemes: false })),
   Uniwind: {
@@ -397,7 +434,8 @@ jest.mock('uniwind', () => ({
 jest.mock('react-native-toast-message', () => {
   const React = require('react');
   const { View } = require('react-native');
-  const MockToast = (props) => React.createElement(View, { testID: 'toast', ...props });
+  const MockToast = props =>
+    React.createElement(View, { testID: 'toast', ...props });
   MockToast.show = jest.fn();
   MockToast.hide = jest.fn();
   return { __esModule: true, default: MockToast };
@@ -410,7 +448,11 @@ jest.mock('react-native-pager-view', () => {
   return {
     __esModule: true,
     default: React.forwardRef(({ children, ...props }, ref) =>
-      React.createElement(View, { testID: 'pager-view', ref, ...props }, children),
+      React.createElement(
+        View,
+        { testID: 'pager-view', ref, ...props },
+        children,
+      ),
     ),
   };
 });
@@ -427,8 +469,10 @@ jest.mock('@gorhom/bottom-sheet', () => {
       }));
       return React.createElement(View, null, children);
     }),
-    BottomSheetModalProvider: ({ children }) => React.createElement(View, null, children),
-    BottomSheetView: ({ children, style }) => React.createElement(View, { style }, children),
+    BottomSheetModalProvider: ({ children }) =>
+      React.createElement(View, null, children),
+    BottomSheetView: ({ children, style }) =>
+      React.createElement(View, { style }, children),
     BottomSheetScrollView: ({ children, contentContainerStyle }) =>
       React.createElement(ScrollView, { contentContainerStyle }, children),
     BottomSheetBackdrop: () => null,

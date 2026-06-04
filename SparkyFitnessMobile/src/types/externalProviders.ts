@@ -7,13 +7,19 @@ export interface ExternalProvider {
 
 // Allowlist of provider_type values relevant to food search
 export const FOOD_PROVIDER_TYPES = new Set([
-  'openfoodfacts', 'fatsecret', 'usda', 'mealie', 'tandoor',
+  'openfoodfacts',
+  'fatsecret',
+  'usda',
+  'mealie',
+  'tandoor',
 ]);
 
 // Allowlist of provider_type values that support barcode lookup
-export const BARCODE_PROVIDER_TYPES = new Set(['usda', 'openfoodfacts', 'fatsecret']);
+export const BARCODE_PROVIDER_TYPES = new Set([
+  'usda',
+  'openfoodfacts',
+  'fatsecret',
+]);
 
 // Allowlist of provider_type values relevant to exercise search
-export const EXERCISE_PROVIDER_TYPES = new Set([
-  'wger', 'free-exercise-db',
-]);
+export const EXERCISE_PROVIDER_TYPES = new Set(['wger', 'free-exercise-db']);

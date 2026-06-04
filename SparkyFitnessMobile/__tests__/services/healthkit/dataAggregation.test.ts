@@ -4,7 +4,10 @@ import {
   toLocalDateString,
 } from '../../../src/services/healthkit/dataAggregation';
 
-import type { HKSleepRecord, TransformedRecord } from '../../../src/types/healthRecords';
+import type {
+  HKSleepRecord,
+  TransformedRecord,
+} from '../../../src/types/healthRecords';
 
 jest.mock('../../../src/services/LogService', () => ({
   addLog: jest.fn(),
@@ -111,7 +114,9 @@ describe('aggregateSleepSessions', () => {
 
   test('records exactly 4hr apart stay in same session (uses > not >=)', () => {
     const baseEnd = new Date('2024-01-16T02:00:00Z');
-    const exactlyFourHoursLater = new Date(baseEnd.getTime() + 4 * 60 * 60 * 1000);
+    const exactlyFourHoursLater = new Date(
+      baseEnd.getTime() + 4 * 60 * 60 * 1000,
+    );
 
     const records: HKSleepRecord[] = [
       {
@@ -121,7 +126,9 @@ describe('aggregateSleepSessions', () => {
       },
       {
         startTime: exactlyFourHoursLater.toISOString(),
-        endTime: new Date(exactlyFourHoursLater.getTime() + 60 * 60 * 1000).toISOString(),
+        endTime: new Date(
+          exactlyFourHoursLater.getTime() + 60 * 60 * 1000,
+        ).toISOString(),
         value: 'HKCategoryValueSleepAnalysisAsleep',
       },
     ];
@@ -131,11 +138,31 @@ describe('aggregateSleepSessions', () => {
 
   test('maps string stage values correctly', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-15T23:00:00Z', value: 'HKCategoryValueSleepAnalysisAsleepREM' },
-      { startTime: '2024-01-15T23:00:00Z', endTime: '2024-01-16T00:00:00Z', value: 'HKCategoryValueSleepAnalysisAsleepDeep' },
-      { startTime: '2024-01-16T00:00:00Z', endTime: '2024-01-16T01:00:00Z', value: 'HKCategoryValueSleepAnalysisAsleepCore' },
-      { startTime: '2024-01-16T01:00:00Z', endTime: '2024-01-16T02:00:00Z', value: 'HKCategoryValueSleepAnalysisAwake' },
-      { startTime: '2024-01-16T02:00:00Z', endTime: '2024-01-16T03:00:00Z', value: 'HKCategoryValueSleepAnalysisInBed' },
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-15T23:00:00Z',
+        value: 'HKCategoryValueSleepAnalysisAsleepREM',
+      },
+      {
+        startTime: '2024-01-15T23:00:00Z',
+        endTime: '2024-01-16T00:00:00Z',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+      },
+      {
+        startTime: '2024-01-16T00:00:00Z',
+        endTime: '2024-01-16T01:00:00Z',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+      },
+      {
+        startTime: '2024-01-16T01:00:00Z',
+        endTime: '2024-01-16T02:00:00Z',
+        value: 'HKCategoryValueSleepAnalysisAwake',
+      },
+      {
+        startTime: '2024-01-16T02:00:00Z',
+        endTime: '2024-01-16T03:00:00Z',
+        value: 'HKCategoryValueSleepAnalysisInBed',
+      },
     ];
     const result = aggregateSleepSessions(records);
     const stages = result[0].stage_events.map(e => e.stage_type);
@@ -144,11 +171,31 @@ describe('aggregateSleepSessions', () => {
 
   test('maps numeric stage values correctly', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-15T23:00:00Z', value: 5 }, // REM
-      { startTime: '2024-01-15T23:00:00Z', endTime: '2024-01-16T00:00:00Z', value: 4 }, // Deep
-      { startTime: '2024-01-16T00:00:00Z', endTime: '2024-01-16T01:00:00Z', value: 3 }, // Light (Core)
-      { startTime: '2024-01-16T01:00:00Z', endTime: '2024-01-16T02:00:00Z', value: 2 }, // Awake
-      { startTime: '2024-01-16T02:00:00Z', endTime: '2024-01-16T03:00:00Z', value: 0 }, // InBed
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-15T23:00:00Z',
+        value: 5,
+      }, // REM
+      {
+        startTime: '2024-01-15T23:00:00Z',
+        endTime: '2024-01-16T00:00:00Z',
+        value: 4,
+      }, // Deep
+      {
+        startTime: '2024-01-16T00:00:00Z',
+        endTime: '2024-01-16T01:00:00Z',
+        value: 3,
+      }, // Light (Core)
+      {
+        startTime: '2024-01-16T01:00:00Z',
+        endTime: '2024-01-16T02:00:00Z',
+        value: 2,
+      }, // Awake
+      {
+        startTime: '2024-01-16T02:00:00Z',
+        endTime: '2024-01-16T03:00:00Z',
+        value: 0,
+      }, // InBed
     ];
     const result = aggregateSleepSessions(records);
     const stages = result[0].stage_events.map(e => e.stage_type);
@@ -157,8 +204,16 @@ describe('aggregateSleepSessions', () => {
 
   test('maps unknown stage values to unknown', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-15T23:00:00Z', value: 999 },
-      { startTime: '2024-01-15T23:00:00Z', endTime: '2024-01-16T00:00:00Z', value: 'UnknownStageValue' },
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-15T23:00:00Z',
+        value: 999,
+      },
+      {
+        startTime: '2024-01-15T23:00:00Z',
+        endTime: '2024-01-16T00:00:00Z',
+        value: 'UnknownStageValue',
+      },
     ];
     const result = aggregateSleepSessions(records);
     const stages = result[0].stage_events.map(e => e.stage_type);
@@ -167,10 +222,26 @@ describe('aggregateSleepSessions', () => {
 
   test('calculates duration for each sleep stage correctly', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-16T00:00:00Z', value: 4 }, // Deep - 2hr
-      { startTime: '2024-01-16T00:00:00Z', endTime: '2024-01-16T03:00:00Z', value: 3 }, // Light - 3hr
-      { startTime: '2024-01-16T03:00:00Z', endTime: '2024-01-16T04:00:00Z', value: 5 }, // REM - 1hr
-      { startTime: '2024-01-16T04:00:00Z', endTime: '2024-01-16T04:30:00Z', value: 2 }, // Awake - 30min
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-16T00:00:00Z',
+        value: 4,
+      }, // Deep - 2hr
+      {
+        startTime: '2024-01-16T00:00:00Z',
+        endTime: '2024-01-16T03:00:00Z',
+        value: 3,
+      }, // Light - 3hr
+      {
+        startTime: '2024-01-16T03:00:00Z',
+        endTime: '2024-01-16T04:00:00Z',
+        value: 5,
+      }, // REM - 1hr
+      {
+        startTime: '2024-01-16T04:00:00Z',
+        endTime: '2024-01-16T04:30:00Z',
+        value: 2,
+      }, // Awake - 30min
     ];
     const result = aggregateSleepSessions(records);
 
@@ -182,10 +253,26 @@ describe('aggregateSleepSessions', () => {
 
   test('total_time_asleep_in_seconds excludes awake and in_bed stages', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-16T00:00:00Z', value: 4 }, // Deep - 2hr
-      { startTime: '2024-01-16T00:00:00Z', endTime: '2024-01-16T02:00:00Z', value: 3 }, // Light - 2hr
-      { startTime: '2024-01-16T02:00:00Z', endTime: '2024-01-16T02:30:00Z', value: 2 }, // Awake - 30min (excluded)
-      { startTime: '2024-01-16T02:30:00Z', endTime: '2024-01-16T03:00:00Z', value: 0 }, // InBed - 30min (excluded)
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-16T00:00:00Z',
+        value: 4,
+      }, // Deep - 2hr
+      {
+        startTime: '2024-01-16T00:00:00Z',
+        endTime: '2024-01-16T02:00:00Z',
+        value: 3,
+      }, // Light - 2hr
+      {
+        startTime: '2024-01-16T02:00:00Z',
+        endTime: '2024-01-16T02:30:00Z',
+        value: 2,
+      }, // Awake - 30min (excluded)
+      {
+        startTime: '2024-01-16T02:30:00Z',
+        endTime: '2024-01-16T03:00:00Z',
+        value: 0,
+      }, // InBed - 30min (excluded)
     ];
     const result = aggregateSleepSessions(records);
 
@@ -195,7 +282,11 @@ describe('aggregateSleepSessions', () => {
 
   test('calculates total_duration_in_seconds from bedtime to wake_time', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-16T06:00:00Z', value: 3 },
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-16T06:00:00Z',
+        value: 3,
+      },
     ];
     const result = aggregateSleepSessions(records);
 
@@ -210,7 +301,11 @@ describe('aggregateSleepSessions', () => {
     const wakeTime = new Date(bedtime.getTime() + 8 * 60 * 60 * 1000); // 8 hours later
 
     const records: HKSleepRecord[] = [
-      { startTime: bedtime.toISOString(), endTime: wakeTime.toISOString(), value: 3 },
+      {
+        startTime: bedtime.toISOString(),
+        endTime: wakeTime.toISOString(),
+        value: 3,
+      },
     ];
     const result = aggregateSleepSessions(records);
 
@@ -260,7 +355,11 @@ describe('aggregateSleepSessions', () => {
 
   test('omits record_timezone when no metadata on any sleep record', () => {
     const records: HKSleepRecord[] = [
-      { startTime: '2024-01-15T22:00:00Z', endTime: '2024-01-16T06:00:00Z', value: 3 },
+      {
+        startTime: '2024-01-15T22:00:00Z',
+        endTime: '2024-01-16T06:00:00Z',
+        value: 3,
+      },
     ];
     const result = aggregateSleepSessions(records);
 
@@ -306,19 +405,54 @@ describe('aggregateByDay', () => {
       { value: 6.0, type: 'running_speed', date: '2024-01-16', unit: 'm/s' },
     ];
 
-    const result = aggregateByDay(records, 'running_speed', 'm/s', 'min-max-avg');
+    const result = aggregateByDay(
+      records,
+      'running_speed',
+      'm/s',
+      'min-max-avg',
+    );
 
     expect(result).toHaveLength(6);
 
     // Day 1: min=2.5, max=4.0, avg=(2.5+3.0+4.0)/3=3.17
-    expect(result[0]).toEqual({ value: 2.5, type: 'running_speed_min', date: '2024-01-15', unit: 'm/s' });
-    expect(result[1]).toEqual({ value: 4.0, type: 'running_speed_max', date: '2024-01-15', unit: 'm/s' });
-    expect(result[2]).toEqual({ value: 3.17, type: 'running_speed_avg', date: '2024-01-15', unit: 'm/s' });
+    expect(result[0]).toEqual({
+      value: 2.5,
+      type: 'running_speed_min',
+      date: '2024-01-15',
+      unit: 'm/s',
+    });
+    expect(result[1]).toEqual({
+      value: 4.0,
+      type: 'running_speed_max',
+      date: '2024-01-15',
+      unit: 'm/s',
+    });
+    expect(result[2]).toEqual({
+      value: 3.17,
+      type: 'running_speed_avg',
+      date: '2024-01-15',
+      unit: 'm/s',
+    });
 
     // Day 2: min=5.0, max=6.0, avg=(5.0+6.0)/2=5.5
-    expect(result[3]).toEqual({ value: 5.0, type: 'running_speed_min', date: '2024-01-16', unit: 'm/s' });
-    expect(result[4]).toEqual({ value: 6.0, type: 'running_speed_max', date: '2024-01-16', unit: 'm/s' });
-    expect(result[5]).toEqual({ value: 5.5, type: 'running_speed_avg', date: '2024-01-16', unit: 'm/s' });
+    expect(result[3]).toEqual({
+      value: 5.0,
+      type: 'running_speed_min',
+      date: '2024-01-16',
+      unit: 'm/s',
+    });
+    expect(result[4]).toEqual({
+      value: 6.0,
+      type: 'running_speed_max',
+      date: '2024-01-16',
+      unit: 'm/s',
+    });
+    expect(result[5]).toEqual({
+      value: 5.5,
+      type: 'running_speed_avg',
+      date: '2024-01-16',
+      unit: 'm/s',
+    });
   });
 
   test('min-max-avg with single record on a day sets min/max/avg all equal', () => {
@@ -326,12 +460,32 @@ describe('aggregateByDay', () => {
       { value: 3.5, type: 'running_speed', date: '2024-01-15', unit: 'm/s' },
     ];
 
-    const result = aggregateByDay(records, 'running_speed', 'm/s', 'min-max-avg');
+    const result = aggregateByDay(
+      records,
+      'running_speed',
+      'm/s',
+      'min-max-avg',
+    );
 
     expect(result).toHaveLength(3);
-    expect(result[0]).toEqual({ value: 3.5, type: 'running_speed_min', date: '2024-01-15', unit: 'm/s' });
-    expect(result[1]).toEqual({ value: 3.5, type: 'running_speed_max', date: '2024-01-15', unit: 'm/s' });
-    expect(result[2]).toEqual({ value: 3.5, type: 'running_speed_avg', date: '2024-01-15', unit: 'm/s' });
+    expect(result[0]).toEqual({
+      value: 3.5,
+      type: 'running_speed_min',
+      date: '2024-01-15',
+      unit: 'm/s',
+    });
+    expect(result[1]).toEqual({
+      value: 3.5,
+      type: 'running_speed_max',
+      date: '2024-01-15',
+      unit: 'm/s',
+    });
+    expect(result[2]).toEqual({
+      value: 3.5,
+      type: 'running_speed_avg',
+      date: '2024-01-15',
+      unit: 'm/s',
+    });
   });
 
   test('sum strategy returns 1 record per day with summed value', () => {
@@ -344,8 +498,18 @@ describe('aggregateByDay', () => {
     const result = aggregateByDay(records, 'step', 'count', 'sum');
 
     expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({ value: 300, type: 'step', date: '2024-01-15', unit: 'count' });
-    expect(result[1]).toEqual({ value: 300, type: 'step', date: '2024-01-16', unit: 'count' });
+    expect(result[0]).toEqual({
+      value: 300,
+      type: 'step',
+      date: '2024-01-15',
+      unit: 'count',
+    });
+    expect(result[1]).toEqual({
+      value: 300,
+      type: 'step',
+      date: '2024-01-16',
+      unit: 'count',
+    });
   });
 
   test('last strategy returns 1 record per day with the newest value (first in newest-first order)', () => {
@@ -359,15 +523,34 @@ describe('aggregateByDay', () => {
     const result = aggregateByDay(records, 'weight', 'kg', 'last');
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({ value: 72, type: 'weight', date: '2024-01-15', unit: 'kg' });
+    expect(result[0]).toEqual({
+      value: 72,
+      type: 'weight',
+      date: '2024-01-15',
+      unit: 'kg',
+    });
   });
 });
 
 describe('timezone metadata propagation', () => {
   test('aggregateByDay propagates record_timezone from input records', () => {
     const records: TransformedRecord[] = [
-      { value: 100, type: 'step', date: '2024-01-15', unit: 'count', source: 'HealthKit', record_timezone: 'Asia/Tokyo' },
-      { value: 200, type: 'step', date: '2024-01-15', unit: 'count', source: 'HealthKit', record_timezone: 'Asia/Tokyo' },
+      {
+        value: 100,
+        type: 'step',
+        date: '2024-01-15',
+        unit: 'count',
+        source: 'HealthKit',
+        record_timezone: 'Asia/Tokyo',
+      },
+      {
+        value: 200,
+        type: 'step',
+        date: '2024-01-15',
+        unit: 'count',
+        source: 'HealthKit',
+        record_timezone: 'Asia/Tokyo',
+      },
     ];
     const result = aggregateByDay(records, 'step', 'count', 'sum');
     expect(result).toHaveLength(1);
@@ -376,7 +559,14 @@ describe('timezone metadata propagation', () => {
 
   test('aggregateByDay propagates record_utc_offset_minutes from input records', () => {
     const records: TransformedRecord[] = [
-      { value: 72, type: 'weight', date: '2024-01-15', unit: 'kg', source: 'Health Connect', record_utc_offset_minutes: 540 },
+      {
+        value: 72,
+        type: 'weight',
+        date: '2024-01-15',
+        unit: 'kg',
+        source: 'Health Connect',
+        record_utc_offset_minutes: 540,
+      },
     ];
     const result = aggregateByDay(records, 'weight', 'kg', 'last');
     expect(result).toHaveLength(1);
@@ -385,7 +575,13 @@ describe('timezone metadata propagation', () => {
 
   test('aggregateByDay omits timezone fields when not present on input', () => {
     const records: TransformedRecord[] = [
-      { value: 100, type: 'step', date: '2024-01-15', unit: 'count', source: 'HealthKit' },
+      {
+        value: 100,
+        type: 'step',
+        date: '2024-01-15',
+        unit: 'count',
+        source: 'HealthKit',
+      },
     ];
     const result = aggregateByDay(records, 'step', 'count', 'sum');
     expect(result).toHaveLength(1);
@@ -409,8 +605,22 @@ describe('iOS aggregate strategy: device-local bucketing', () => {
     // Simulates records that came through iOS getAggregatedStepsByDate,
     // which already sets record_timezone to the device timezone.
     const records: TransformedRecord[] = [
-      { value: 3000, type: 'step', date: '2024-01-15', unit: 'count', source: 'HealthKit', record_timezone: 'America/New_York' },
-      { value: 2000, type: 'step', date: '2024-01-15', unit: 'count', source: 'HealthKit', record_timezone: 'America/New_York' },
+      {
+        value: 3000,
+        type: 'step',
+        date: '2024-01-15',
+        unit: 'count',
+        source: 'HealthKit',
+        record_timezone: 'America/New_York',
+      },
+      {
+        value: 2000,
+        type: 'step',
+        date: '2024-01-15',
+        unit: 'count',
+        source: 'HealthKit',
+        record_timezone: 'America/New_York',
+      },
     ];
     const result = aggregateByDay(records, 'step', 'count', 'sum');
     expect(result).toHaveLength(1);

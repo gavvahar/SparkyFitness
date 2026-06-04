@@ -139,7 +139,7 @@ function cancelCurrentRestNotification(rest: Rest): void {
  * promise. Returns the new Rest value the caller should commit to state.
  */
 function startRestForStep(steps: WorkoutStep[], setId: string): Rest {
-  const step = steps.find((s) => s.setId === setId);
+  const step = steps.find(s => s.setId === setId);
   const durationSec = step?.restSec ?? DEFAULT_REST_SEC;
   const token = ++restInstanceCounter;
   const endsAt = Date.now() + durationSec * 1000;
@@ -154,7 +154,7 @@ function startRestForStep(steps: WorkoutStep[], setId: string): Rest {
   };
 
   const exerciseName = step?.exerciseName ?? 'Rest';
-  void scheduleRestNotification(exerciseName, durationSec).then((notifId) => {
+  void scheduleRestNotification(exerciseName, durationSec).then(notifId => {
     if (!notifId) return;
     const current = useActiveWorkoutStore.getState().rest;
     if (
@@ -179,7 +179,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
     (set, get) => ({
       ...initialData,
 
-      startWorkout: (session) => {
+      startWorkout: session => {
         cancelCurrentRestNotification(get().rest);
         const steps = buildStepsFromSession(session);
         set({
@@ -195,7 +195,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
       startWorkoutAtSet: (session, setId) => {
         cancelCurrentRestNotification(get().rest);
         const steps = buildStepsFromSession(session);
-        const targetIndex = steps.findIndex((s) => s.setId === setId);
+        const targetIndex = steps.findIndex(s => s.setId === setId);
         if (targetIndex < 0) return;
 
         const completedSetIds: Record<string, true> = {};
@@ -213,17 +213,17 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         });
       },
 
-      jumpToSet: (setId) => {
+      jumpToSet: setId => {
         const state = get();
         if (state.sessionId == null) return;
 
-        const targetIndex = state.steps.findIndex((s) => s.setId === setId);
+        const targetIndex = state.steps.findIndex(s => s.setId === setId);
         if (targetIndex < 0) return;
 
         const activeIndex =
           state.activeSetId == null
             ? -1
-            : state.steps.findIndex((s) => s.setId === state.activeSetId);
+            : state.steps.findIndex(s => s.setId === state.activeSetId);
         // Forward-only: reject backward jumps. Jumping to the active set is a
         // no-op (cursor stays, rest stays).
         if (activeIndex >= 0 && targetIndex < activeIndex) return;
@@ -231,7 +231,9 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
 
         cancelCurrentRestNotification(state.rest);
 
-        const completedSetIds: Record<string, true> = { ...state.completedSetIds };
+        const completedSetIds: Record<string, true> = {
+          ...state.completedSetIds,
+        };
         for (let i = 0; i < targetIndex; i++) {
           completedSetIds[state.steps[i].setId] = true;
         }
@@ -252,7 +254,9 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         const state = get();
         if (state.activeSetId == null) return;
 
-        const activeIndex = state.steps.findIndex((s) => s.setId === state.activeSetId);
+        const activeIndex = state.steps.findIndex(
+          s => s.setId === state.activeSetId,
+        );
         if (activeIndex < 0) return;
 
         cancelCurrentRestNotification(state.rest);
@@ -280,7 +284,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         });
       },
 
-      uncompleteSet: (setId) => {
+      uncompleteSet: setId => {
         const state = get();
         if (!state.completedSetIds[setId]) return;
         const next = { ...state.completedSetIds };
@@ -288,10 +292,10 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         set({ completedSetIds: next });
       },
 
-      recompleteSet: (setId) => {
+      recompleteSet: setId => {
         const state = get();
         if (state.completedSetIds[setId]) return;
-        if (!state.steps.some((s) => s.setId === setId)) return;
+        if (!state.steps.some(s => s.setId === setId)) return;
         set({
           completedSetIds: { ...state.completedSetIds, [setId]: true },
         });
@@ -332,11 +336,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
           },
         });
 
-        const step = activeSetId != null ? steps.find((s) => s.setId === activeSetId) : null;
+        const step =
+          activeSetId != null ? steps.find(s => s.setId === activeSetId) : null;
         const exerciseName = step?.exerciseName ?? 'Rest';
         const seconds = Math.max(1, Math.ceil(remainingMs / 1000));
 
-        void scheduleRestNotification(exerciseName, seconds).then((notifId) => {
+        void scheduleRestNotification(exerciseName, seconds).then(notifId => {
           if (!notifId) return;
           const current = useActiveWorkoutStore.getState().rest;
           if (
@@ -374,12 +379,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         set({ rest: READY_REST });
       },
 
-      reconcileWithSession: (session) => {
+      reconcileWithSession: session => {
         const state = get();
         if (session.id !== state.sessionId) return;
 
         const newSteps = buildStepsFromSession(session);
-        const newSetIds = new Set(newSteps.map((s) => s.setId));
+        const newSetIds = new Set(newSteps.map(s => s.setId));
 
         const nextCompleted: Record<string, true> = {};
         for (const id of Object.keys(state.completedSetIds)) {
@@ -391,7 +396,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         // complete (or there are no steps), the workout is done → null.
         let nextActiveSetId = state.activeSetId;
         if (nextActiveSetId == null || !newSetIds.has(nextActiveSetId)) {
-          const fallback = newSteps.find((s) => !nextCompleted[s.setId]);
+          const fallback = newSteps.find(s => !nextCompleted[s.setId]);
           nextActiveSetId = fallback?.setId ?? null;
         }
 
@@ -416,7 +421,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
       name: STORAGE_KEY,
       version: 2,
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         sessionId: state.sessionId,
         session: state.session,
         steps: state.steps,
@@ -425,7 +430,11 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         rest: state.rest,
       }),
       migrate: (persistedState, version) => {
-        if (version >= 2 || !persistedState || typeof persistedState !== 'object') {
+        if (
+          version >= 2 ||
+          !persistedState ||
+          typeof persistedState !== 'object'
+        ) {
           return persistedState as ActiveWorkoutState;
         }
 
@@ -461,7 +470,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         // The new cursor is the first uncompleted step. This matches what v1
         // implicitly computed at the call sites of "next pending set", so a
         // user mid-rest in v1 lands on the same set in v2.
-        const nextStep = steps.find((s) => !completedSetIds[s.setId]);
+        const nextStep = steps.find(s => !completedSetIds[s.setId]);
         const activeSetId = nextStep?.setId ?? null;
 
         // Rest carries over only if (a) there's somewhere to point it and
@@ -512,7 +521,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
         // already fired or will never fire — no haptic here because the merge
         // path runs on cold start and a phantom buzz would be confusing.
         const r = merged.rest;
-        if (r && r.state === 'resting' && r.endsAt != null && r.endsAt < Date.now()) {
+        if (
+          r &&
+          r.state === 'resting' &&
+          r.endsAt != null &&
+          r.endsAt < Date.now()
+        ) {
           merged.rest = { ...READY_REST };
         }
         return merged;

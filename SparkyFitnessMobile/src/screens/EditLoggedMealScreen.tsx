@@ -1,5 +1,11 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
@@ -8,7 +14,9 @@ import FormInput from '../components/FormInput';
 import Icon from '../components/Icon';
 import StepperInput from '../components/StepperInput';
 import BottomSheetPicker from '../components/BottomSheetPicker';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
 import NutritionMacroCard from '../components/NutritionMacroCard';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
 import { useMealTypes, usePreferences } from '../hooks';
@@ -24,47 +32,60 @@ import type { RootStackScreenProps } from '../types/navigation';
 
 type EditLoggedMealScreenProps = RootStackScreenProps<'EditLoggedMeal'>;
 
-const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation, route }) => {
+const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { foodEntryMealId, initialMeal } = route.params;
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const calendarRef = useRef<CalendarSheetRef>(null);
 
-  const { meal, isLoading, isError, error } = useFoodEntryMealDetails(foodEntryMealId, { initialMeal });
+  const { meal, isLoading, isError, error } = useFoodEntryMealDetails(
+    foodEntryMealId,
+    { initialMeal },
+  );
   const { mealTypes } = useMealTypes();
   const { preferences } = usePreferences();
   const showNetCarbs = preferences?.show_net_carbs === true;
 
   const [name, setName] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedMealId, setSelectedMealId] = useState<string | undefined>(undefined);
+  const [selectedMealId, setSelectedMealId] = useState<string | undefined>(
+    undefined,
+  );
   const [quantityText, setQuantityText] = useState<string | null>(null);
 
   const effectiveName = name ?? meal?.name ?? '';
-  const effectiveDate = selectedDate ?? (meal ? normalizeDate(meal.entry_date) : null);
+  const effectiveDate =
+    selectedDate ?? (meal ? normalizeDate(meal.entry_date) : null);
   const effectiveMealId = selectedMealId ?? meal?.meal_type_id ?? undefined;
-  const effectiveQuantityText = quantityText ?? (meal ? String(meal.quantity) : '');
+  const effectiveQuantityText =
+    quantityText ?? (meal ? String(meal.quantity) : '');
   const quantity = parseDecimalInput(effectiveQuantityText) || 0;
   const originalQuantity = meal?.quantity ?? 1;
   const scaleFactor = originalQuantity > 0 ? quantity / originalQuantity : 0;
 
-  const selectedMealType = mealTypes.find((mt) => mt.id === effectiveMealId);
+  const selectedMealType = mealTypes.find(mt => mt.id === effectiveMealId);
   const mealPickerOptions = useMemo(
-    () => mealTypes.map((mt) => ({ label: getMealTypeLabel(mt.name), value: mt.id })),
+    () =>
+      mealTypes.map(mt => ({ label: getMealTypeLabel(mt.name), value: mt.id })),
     [mealTypes],
   );
 
   const initialDate = meal ? normalizeDate(meal.entry_date) : null;
   const dirty =
     meal != null &&
-    (
-      (name !== null && name !== meal.name) ||
+    ((name !== null && name !== meal.name) ||
       (selectedDate !== null && selectedDate !== initialDate) ||
       (selectedMealId !== undefined && selectedMealId !== meal.meal_type_id) ||
-      (quantityText !== null && quantity !== meal.quantity)
-    );
+      (quantityText !== null && quantity !== meal.quantity));
 
-  const { updateMeal, isPending: isSavePending, invalidateCache: invalidateUpdateCache } = useUpdateFoodEntryMeal({
+  const {
+    updateMeal,
+    isPending: isSavePending,
+    invalidateCache: invalidateUpdateCache,
+  } = useUpdateFoodEntryMeal({
     mealId: foodEntryMealId,
     entryDate: meal?.entry_date ?? '',
     onSuccess: () => {
@@ -73,7 +94,11 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
     },
   });
 
-  const { confirmAndDelete, isPending: isDeletePending, invalidateCache: invalidateDeleteCache } = useDeleteFoodEntryMeal({
+  const {
+    confirmAndDelete,
+    isPending: isDeletePending,
+    invalidateCache: invalidateDeleteCache,
+  } = useDeleteFoodEntryMeal({
     mealId: foodEntryMealId,
     entryDate: meal?.entry_date ?? '',
     onSuccess: () => {
@@ -105,7 +130,8 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
     setQuantityText(String(Math.max(step, next)));
   };
 
-  const canSave = dirty && quantity > 0 && !!meal && meal.foods.length > 0 && !!effectiveDate;
+  const canSave =
+    dirty && quantity > 0 && !!meal && meal.foods.length > 0 && !!effectiveDate;
 
   const handleSave = () => {
     if (!meal || !canSave || !effectiveDate) return;
@@ -118,7 +144,7 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
       quantity,
       unit: meal.unit,
       meal_template_id: meal.meal_template_id,
-      foods: meal.foods.map((f) => ({
+      foods: meal.foods.map(f => ({
         ...toMealFoodPayload(f),
         quantity: meal.meal_template_id ? f.quantity : f.quantity * scaleFactor,
       })),
@@ -129,7 +155,10 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-background justify-center items-center" style={{ paddingTop: insets.top }}>
+      <View
+        className="flex-1 bg-background justify-center items-center"
+        style={{ paddingTop: insets.top }}
+      >
         <ActivityIndicator size="large" color={accentColor} />
       </View>
     );
@@ -173,7 +202,9 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-4 py-4 gap-4"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding,
+        }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Name */}
@@ -216,7 +247,10 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
         </View>
 
         {/* Date row */}
-        <Animated.View layout={LinearTransition.duration(300)} className="flex-row items-center">
+        <Animated.View
+          layout={LinearTransition.duration(300)}
+          className="flex-row items-center"
+        >
           <View className="flex-1 flex-row items-center">
             <Text className="text-text-secondary text-base mr-2">Date</Text>
             <TouchableOpacity
@@ -227,7 +261,13 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
               <Text className="text-text-primary text-base font-medium">
                 {effectiveDate ? formatDateLabel(effectiveDate) : ''}
               </Text>
-              <Icon name="chevron-down" size={12} color={textPrimary} style={{ marginLeft: 6 }} weight="medium" />
+              <Icon
+                name="chevron-down"
+                size={12}
+                color={textPrimary}
+                style={{ marginLeft: 6 }}
+                weight="medium"
+              />
             </TouchableOpacity>
           </View>
 
@@ -238,7 +278,7 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
               <BottomSheetPicker
                 value={effectiveMealId}
                 options={mealPickerOptions}
-                onSelect={(id) => setSelectedMealId(id)}
+                onSelect={id => setSelectedMealId(id)}
                 title="Select Meal"
                 renderTrigger={({ onPress }) => (
                   <TouchableOpacity
@@ -249,7 +289,13 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
                     <Text className="text-text-primary text-base font-medium">
                       {getMealTypeLabel(selectedMealType.name)}
                     </Text>
-                    <Icon name="chevron-down" size={12} color={textPrimary} style={{ marginLeft: 6 }} weight="medium" />
+                    <Icon
+                      name="chevron-down"
+                      size={12}
+                      color={textPrimary}
+                      style={{ marginLeft: 6 }}
+                      weight="medium"
+                    />
                   </TouchableOpacity>
                 )}
               />
@@ -263,24 +309,36 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
 
         {/* Component foods (read-only) */}
         <View className="mt-2">
-          <Text className="text-text-secondary text-sm mb-2">Foods in this meal</Text>
+          <Text className="text-text-secondary text-sm mb-2">
+            Foods in this meal
+          </Text>
           <View className="bg-surface rounded-xl">
             {meal.foods.map((food, index) => {
-              const ratio = food.serving_size > 0 ? food.quantity / food.serving_size : food.quantity;
-              const foodCals = Math.round((food.calories ?? 0) * ratio * scaleFactor);
+              const ratio =
+                food.serving_size > 0
+                  ? food.quantity / food.serving_size
+                  : food.quantity;
+              const foodCals = Math.round(
+                (food.calories ?? 0) * ratio * scaleFactor,
+              );
               return (
                 <View
                   key={`${food.food_id}-${index}`}
                   className={`flex-row items-center px-3 py-2 ${index < meal.foods.length - 1 ? 'border-b border-border-subtle' : ''}`}
                 >
                   <View className="flex-1 mr-2">
-                    <Text className="text-text-primary text-base" numberOfLines={1}>
+                    <Text
+                      className="text-text-primary text-base"
+                      numberOfLines={1}
+                    >
                       {food.food_name}
                     </Text>
                     <Text className="text-text-secondary text-xs mt-0.5">
-                      {food.quantity * scaleFactor % 1 === 0
+                      {(food.quantity * scaleFactor) % 1 === 0
                         ? food.quantity * scaleFactor
-                        : parseFloat((food.quantity * scaleFactor).toFixed(2))}{' '}
+                        : parseFloat(
+                            (food.quantity * scaleFactor).toFixed(2),
+                          )}{' '}
                       {food.unit}
                     </Text>
                   </View>
@@ -308,7 +366,7 @@ const EditLoggedMealScreen: React.FC<EditLoggedMealScreenProps> = ({ navigation,
       <CalendarSheet
         ref={calendarRef}
         selectedDate={effectiveDate ?? ''}
-        onSelectDate={(date) => setSelectedDate(date)}
+        onSelectDate={date => setSelectedDate(date)}
       />
     </View>
   );

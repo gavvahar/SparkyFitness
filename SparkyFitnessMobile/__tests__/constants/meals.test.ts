@@ -1,4 +1,8 @@
-import { getDefaultMealType, MEAL_TYPES, MEAL_CONFIG } from '../../src/constants/meals';
+import {
+  getDefaultMealType,
+  MEAL_TYPES,
+  MEAL_CONFIG,
+} from '../../src/constants/meals';
 
 describe('meals constants', () => {
   describe('getDefaultMealType', () => {
@@ -31,5 +35,4 @@ describe('meals constants', () => {
       expect(MEAL_TYPES).toContain(result);
     });
   });
-
 });

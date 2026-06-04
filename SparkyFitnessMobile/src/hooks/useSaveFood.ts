@@ -12,7 +12,11 @@ export function useSaveFood() {
       queryClient.invalidateQueries({ queryKey: [...foodsQueryKey] });
     },
     onError: () => {
-      Toast.show({ type: 'error', text1: 'Failed to save food', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to save food',
+        text2: 'Please try again.',
+      });
     },
   });
 

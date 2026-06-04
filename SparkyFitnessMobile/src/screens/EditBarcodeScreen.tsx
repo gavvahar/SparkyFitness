@@ -25,9 +25,18 @@ function normalizeBarcodeClient(value: string): string {
   return value.length === 12 ? `0${value}` : value;
 }
 
-const EditBarcodeScreen: React.FC<EditBarcodeScreenProps> = ({ navigation, route }) => {
-  const { foodId, foodName, currentBarcode, returnKey, pendingScannedBarcode, scannedBarcodeNonce } =
-    route.params;
+const EditBarcodeScreen: React.FC<EditBarcodeScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const {
+    foodId,
+    foodName,
+    currentBarcode,
+    returnKey,
+    pendingScannedBarcode,
+    scannedBarcodeNonce,
+  } = route.params;
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [accentColor, textSecondary] = useCSSVariable([
@@ -48,9 +57,18 @@ const EditBarcodeScreen: React.FC<EditBarcodeScreenProps> = ({ navigation, route
   }, [scannedBarcodeNonce, pendingScannedBarcode, navigation]);
 
   const invalidateCaches = () => {
-    queryClient.invalidateQueries({ queryKey: foodsQueryKey, refetchType: 'all' });
-    queryClient.invalidateQueries({ queryKey: ['foodsLibrary'], refetchType: 'all' });
-    queryClient.invalidateQueries({ queryKey: ['foodSearch'], refetchType: 'all' });
+    queryClient.invalidateQueries({
+      queryKey: foodsQueryKey,
+      refetchType: 'all',
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['foodsLibrary'],
+      refetchType: 'all',
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['foodSearch'],
+      refetchType: 'all',
+    });
   };
 
   const mutation = useMutation({
@@ -92,15 +110,27 @@ const EditBarcodeScreen: React.FC<EditBarcodeScreenProps> = ({ navigation, route
     // Conflict pre-check — fail open if lookup itself errors.
     try {
       const lookup = await lookupBarcodeV2(barcode);
-      if (lookup.source === 'local' && lookup.food?.id && lookup.food.id !== foodId) {
+      if (
+        lookup.source === 'local' &&
+        lookup.food?.id &&
+        lookup.food.id !== foodId
+      ) {
         const otherName = lookup.food.name || 'another food';
-        const proceed = await new Promise<boolean>((resolve) => {
+        const proceed = await new Promise<boolean>(resolve => {
           Alert.alert(
             'Barcode already in use',
             `This barcode is already attached to "${otherName}". Attach it to "${foodName}" anyway?`,
             [
-              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-              { text: 'Attach', style: 'default', onPress: () => resolve(true) },
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => resolve(false),
+              },
+              {
+                text: 'Attach',
+                style: 'default',
+                onPress: () => resolve(true),
+              },
             ],
             { cancelable: true, onDismiss: () => resolve(false) },
           );
@@ -108,11 +138,15 @@ const EditBarcodeScreen: React.FC<EditBarcodeScreenProps> = ({ navigation, route
         if (!proceed) return;
       }
     } catch (error) {
-      addLog('[EditBarcode] Pre-check lookup failed; proceeding anyway', 'WARNING', [
-        `foodId: ${foodId}`,
-        `barcode: ${barcode}`,
-        `error: ${error instanceof Error ? error.message : String(error)}`,
-      ]);
+      addLog(
+        '[EditBarcode] Pre-check lookup failed; proceeding anyway',
+        'WARNING',
+        [
+          `foodId: ${foodId}`,
+          `barcode: ${barcode}`,
+          `error: ${error instanceof Error ? error.message : String(error)}`,
+        ],
+      );
     }
 
     try {
@@ -136,36 +170,32 @@ const EditBarcodeScreen: React.FC<EditBarcodeScreenProps> = ({ navigation, route
   };
 
   const handleRemove = () => {
-    Alert.alert(
-      'Remove barcode',
-      `Remove the barcode from "${foodName}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await mutation.mutateAsync(null);
-              dispatchUpdate(null);
-              invalidateCaches();
-              Toast.show({ type: 'success', text1: 'Barcode removed' });
-              navigation.goBack();
-            } catch (error) {
-              addLog('[EditBarcode] Failed to remove barcode', 'ERROR', [
-                `foodId: ${foodId}`,
-                `error: ${error instanceof Error ? error.message : String(error)}`,
-              ]);
-              Toast.show({
-                type: 'error',
-                text1: 'Could not remove barcode',
-                text2: 'Please try again.',
-              });
-            }
-          },
+    Alert.alert('Remove barcode', `Remove the barcode from "${foodName}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await mutation.mutateAsync(null);
+            dispatchUpdate(null);
+            invalidateCaches();
+            Toast.show({ type: 'success', text1: 'Barcode removed' });
+            navigation.goBack();
+          } catch (error) {
+            addLog('[EditBarcode] Failed to remove barcode', 'ERROR', [
+              `foodId: ${foodId}`,
+              `error: ${error instanceof Error ? error.message : String(error)}`,
+            ]);
+            Toast.show({
+              type: 'error',
+              text1: 'Could not remove barcode',
+              text2: 'Please try again.',
+            });
+          }
         },
-      ],
-    );
+      },
+    ]);
   };
 
   return (

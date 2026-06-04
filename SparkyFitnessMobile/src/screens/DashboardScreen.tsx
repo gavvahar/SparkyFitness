@@ -1,16 +1,33 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, RefreshControl, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  RefreshControl,
+  Pressable,
+} from 'react-native';
 import Button from '../components/ui/Button';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import Icon from '../components/Icon';
-import { useServerConnection, useDailySummary, usePreferences, useMeasurements, useWaterIntakeMutation, useMeasurementsRange, useWidgetSync } from '../hooks';
+import {
+  useServerConnection,
+  useDailySummary,
+  usePreferences,
+  useMeasurements,
+  useWaterIntakeMutation,
+  useMeasurementsRange,
+  useWidgetSync,
+} from '../hooks';
 import type { StepsRange } from '../hooks';
 import CalorieRingCard from '../components/CalorieRingCard';
 import MacroCard from '../components/MacroCard';
 import DateNavigator from '../components/DateNavigator';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
 import { addDays, getTodayDate } from '../utils/dateUtils';
 import { weightFromKg } from '../utils/unitConversions';
 import { getNetCarbsValue } from '../utils/nutrientUtils';
@@ -51,33 +68,60 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         lastKnownToday.current = today;
         setSelectedDate(today);
       }
-    }, [])
+    }, []),
   );
 
   const goToPreviousDay = () => setSelectedDate(prev => addDays(prev, -1));
   const goToNextDay = () => setSelectedDate(prev => addDays(prev, 1));
   const goToToday = () => setSelectedDate(getTodayDate());
   const openCalendar = useCallback(() => calendarRef.current?.present(), []);
-  const handleCalendarSelect = useCallback((date: string) => setSelectedDate(date), []);
+  const handleCalendarSelect = useCallback(
+    (date: string) => setSelectedDate(date),
+    [],
+  );
 
   const { isConnected, isLoading: isConnectionLoading } = useServerConnection();
   const { summary, isLoading, isError, refetch } = useDailySummary({
     date: selectedDate,
     enabled: isConnected,
   });
-  const { preferences, isLoading: isPreferencesLoading, isError: isPreferencesError, refetch: refetchPreferences } = usePreferences({
+  const {
+    preferences,
+    isLoading: isPreferencesLoading,
+    isError: isPreferencesError,
+    refetch: refetchPreferences,
+  } = usePreferences({
     enabled: isConnected,
   });
-  const { isLoading: isMeasurementsLoading, isError: isMeasurementsError, refetch: refetchMeasurements } = useMeasurements({
+  const {
+    isLoading: isMeasurementsLoading,
+    isError: isMeasurementsError,
+    refetch: refetchMeasurements,
+  } = useMeasurements({
     date: selectedDate,
     enabled: isConnected,
   });
-  const { increment: incrementWater, decrement: decrementWater, unit: waterUnit, servingVolume, isContainersLoaded, containers: waterContainers, activeContainer: activeWaterContainer, selectContainer: selectWaterContainer } = useWaterIntakeMutation({
+  const {
+    increment: incrementWater,
+    decrement: decrementWater,
+    unit: waterUnit,
+    servingVolume,
+    isContainersLoaded,
+    containers: waterContainers,
+    activeContainer: activeWaterContainer,
+    selectContainer: selectWaterContainer,
+  } = useWaterIntakeMutation({
     date: selectedDate,
     enabled: isConnected,
   });
 
-  const { stepsData, weightData: rawWeightData, isLoading: isStepsLoading, isError: isStepsError, refetch: refetchSteps } = useMeasurementsRange({
+  const {
+    stepsData,
+    weightData: rawWeightData,
+    isLoading: isStepsLoading,
+    isError: isStepsError,
+    refetch: refetchSteps,
+  } = useMeasurementsRange({
     range: stepsRange,
     enabled: isConnected,
   });
@@ -89,11 +133,20 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
     (preferences?.default_weight_unit ?? 'kg') === 'kg' ? 'kg' : 'lbs';
   const weightData = useMemo(() => {
     if (weightUnit === 'kg') return rawWeightData;
-    return rawWeightData.map(p => ({ ...p, weight: weightFromKg(p.weight, weightUnit) }));
+    return rawWeightData.map(p => ({
+      ...p,
+      weight: weightFromKg(p.weight, weightUnit),
+    }));
   }, [rawWeightData, weightUnit]);
 
   // Get macro colors from CSS variables (theme-aware)
-  const [proteinColor, carbsColor, fatColor, fiberColor, progressTrackOverfillColor] = useCSSVariable([
+  const [
+    proteinColor,
+    carbsColor,
+    fatColor,
+    fiberColor,
+    progressTrackOverfillColor,
+  ] = useCSSVariable([
     '--color-macro-protein',
     '--color-macro-carbs',
     '--color-macro-fat',
@@ -109,7 +162,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
   const topSafeAreaStyle = { paddingTop: insets.top };
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([refetch(), refetchPreferences(), refetchMeasurements(), refetchSteps()]);
+    await Promise.all([
+      refetch(),
+      refetchPreferences(),
+      refetchMeasurements(),
+      refetchSteps(),
+    ]);
     setRefreshing(false);
   }, [refetch, refetchPreferences, refetchMeasurements, refetchSteps]);
 
@@ -120,7 +178,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
       return (
         <View className="flex-1">
           <View className="px-4 pt-4 pb-5">
-            <Text className="text-2xl font-bold text-text-primary">Dashboard</Text>
+            <Text className="text-2xl font-bold text-text-primary">
+              Dashboard
+            </Text>
           </View>
           <StatusView
             icon="cloud-offline"
@@ -128,14 +188,23 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
             iconSize={64}
             title="No server configured"
             subtitle="Configure your server connection in Settings to view your daily summary."
-            action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Settings'), variant: 'primary' }}
+            action={{
+              label: 'Go to Settings',
+              onPress: () => navigation.navigate('Settings'),
+              variant: 'primary',
+            }}
           />
         </View>
       );
     }
 
     // Loading state
-    if (isLoading || isConnectionLoading || isPreferencesLoading || isMeasurementsLoading) {
+    if (
+      isLoading ||
+      isConnectionLoading ||
+      isPreferencesLoading ||
+      isMeasurementsLoading
+    ) {
       return (
         <View className="flex-1">
           {!isConnectionLoading && isConnected && (
@@ -151,7 +220,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
           )}
           <View className="flex-1 items-center justify-center p-8 shadow-sm">
             <ActivityIndicator size="large" color="#3B82F6" />
-            <Text className="text-text-muted text-base mt-4">Loading summary...</Text>
+            <Text className="text-text-muted text-base mt-4">
+              Loading summary...
+            </Text>
           </View>
         </View>
       );
@@ -203,11 +274,19 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
 
     return (
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingTop: 0, paddingBottom: 80 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          padding: 16,
+          paddingTop: 0,
+          paddingBottom: 80 + activeWorkoutBarPadding,
+        }}
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="never"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor || '#3B82F6'} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={accentColor || '#3B82F6'}
+          />
         }
       >
         <DateNavigator
@@ -220,7 +299,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
           skipTopInset
           skipHorizontalPadding
         />
-        {(summary.foodEntries.length > 0 || summary.exerciseEntries.length > 0 || goal > 0) && (
+        {(summary.foodEntries.length > 0 ||
+          summary.exerciseEntries.length > 0 ||
+          goal > 0) && (
           <CalorieRingCard
             caloriesConsumed={eaten}
             caloriesBurned={burned}
@@ -232,36 +313,38 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         {/* Macros Section - 2x2 grid in one card */}
         {summary.foodEntries.length > 0 ? (
           <View className="bg-surface rounded-xl p-3 mb-3 shadow-sm">
-            <Text className="text-md font-bold text-text-secondary mb-2 px-1">Macronutrients</Text>
+            <Text className="text-md font-bold text-text-secondary mb-2 px-1">
+              Macronutrients
+            </Text>
             <View className="flex-row flex-wrap justify-between">
-            <MacroCard
-              label="Protein"
-              consumed={summary.protein.consumed}
-              goal={summary.protein.goal}
-              color={proteinColor}
-              overfillColor={progressTrackOverfillColor}
-            />
-            <MacroCard
-              label={showNetCarbs ? 'Net Carbs' : 'Carbs'}
-              consumed={carbsConsumed}
-              goal={summary.carbs.goal}
-              color={carbsColor}
-              overfillColor={progressTrackOverfillColor}
-            />
-            <MacroCard
-              label="Fat"
-              consumed={summary.fat.consumed}
-              goal={summary.fat.goal}
-              color={fatColor}
-              overfillColor={progressTrackOverfillColor}
-            />
-            <MacroCard
-              label="Fiber"
-              consumed={summary.fiber.consumed}
-              goal={summary.fiber.goal}
-              color={fiberColor}
-              overfillColor={progressTrackOverfillColor}
-            />
+              <MacroCard
+                label="Protein"
+                consumed={summary.protein.consumed}
+                goal={summary.protein.goal}
+                color={proteinColor}
+                overfillColor={progressTrackOverfillColor}
+              />
+              <MacroCard
+                label={showNetCarbs ? 'Net Carbs' : 'Carbs'}
+                consumed={carbsConsumed}
+                goal={summary.carbs.goal}
+                color={carbsColor}
+                overfillColor={progressTrackOverfillColor}
+              />
+              <MacroCard
+                label="Fat"
+                consumed={summary.fat.consumed}
+                goal={summary.fat.goal}
+                color={fatColor}
+                overfillColor={progressTrackOverfillColor}
+              />
+              <MacroCard
+                label="Fiber"
+                consumed={summary.fiber.consumed}
+                goal={summary.fiber.goal}
+                color={fiberColor}
+                overfillColor={progressTrackOverfillColor}
+              />
             </View>
           </View>
         ) : null}
@@ -269,22 +352,32 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         {summary.foodEntries.length === 0 && (
           <Pressable
             className="bg-surface rounded-xl p-4 mb-2 shadow-sm"
-            onPress={() => navigation.navigate('FoodSearch', { date: selectedDate })}
+            onPress={() =>
+              navigation.navigate('FoodSearch', { date: selectedDate })
+            }
           >
-            <Text className="text-md font-bold text-text-primary mb-4">Food</Text>
-            <Text className="text-text-muted text-sm text-center mb-4">Tap to add food</Text>
+            <Text className="text-md font-bold text-text-primary mb-4">
+              Food
+            </Text>
+            <Text className="text-text-muted text-sm text-center mb-4">
+              Tap to add food
+            </Text>
           </Pressable>
         )}
 
-        {(summary.foodEntries.length > 0 || summary.exerciseEntries.length > 0) &&
-          (summary.exerciseMinutesGoal > 0 || summary.exerciseCaloriesGoal > 0 || summary.exerciseMinutes > 0 || summary.otherExerciseCalories > 0) && (
-          <ExerciseProgressCard
-            exerciseMinutes={summary.exerciseMinutes}
-            exerciseMinutesGoal={summary.exerciseMinutesGoal}
-            exerciseCalories={summary.otherExerciseCalories}
-            exerciseCaloriesGoal={summary.exerciseCaloriesGoal}
-          />
-        )}
+        {(summary.foodEntries.length > 0 ||
+          summary.exerciseEntries.length > 0) &&
+          (summary.exerciseMinutesGoal > 0 ||
+            summary.exerciseCaloriesGoal > 0 ||
+            summary.exerciseMinutes > 0 ||
+            summary.otherExerciseCalories > 0) && (
+            <ExerciseProgressCard
+              exerciseMinutes={summary.exerciseMinutes}
+              exerciseMinutesGoal={summary.exerciseMinutesGoal}
+              exerciseCalories={summary.otherExerciseCalories}
+              exerciseCaloriesGoal={summary.exerciseCaloriesGoal}
+            />
+          )}
 
         <HydrationGauge
           consumed={summary.waterConsumed}
@@ -299,8 +392,14 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
           onSelectContainer={selectWaterContainer}
         />
 
-        <Text className="text-text-primary text-xl font-bold mt-2 mb-2">Health Trends</Text>
-        <SegmentedControl segments={RANGE_SEGMENTS} activeKey={stepsRange} onSelect={setStepsRange} />
+        <Text className="text-text-primary text-xl font-bold mt-2 mb-2">
+          Health Trends
+        </Text>
+        <SegmentedControl
+          segments={RANGE_SEGMENTS}
+          activeKey={stepsRange}
+          onSelect={setStepsRange}
+        />
 
         <HealthTrendsPager
           stepsData={stepsData}
@@ -320,7 +419,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
     <View className="flex-1 bg-background" style={topSafeAreaStyle}>
       {renderContent()}
 
-      <CalendarSheet ref={calendarRef} selectedDate={selectedDate} onSelectDate={handleCalendarSelect} />
+      <CalendarSheet
+        ref={calendarRef}
+        selectedDate={selectedDate}
+        onSelectDate={handleCalendarSelect}
+      />
     </View>
   );
 };

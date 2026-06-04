@@ -29,44 +29,58 @@ import {
 import { addLog } from '../services/LogService';
 import { notifyNoConfigs } from '../services/api/authService';
 import { useServerConfigs, useServerConnection } from '../hooks';
-import { serverConfigsQueryKey, serverConnectionQueryKey } from '../hooks/queryKeys';
+import {
+  serverConfigsQueryKey,
+  serverConnectionQueryKey,
+} from '../hooks/queryKeys';
 import type { RootStackScreenProps } from '../types/navigation';
 
 type ServerSettingsScreenProps = RootStackScreenProps<'ServerSettings'>;
 
-const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation }) => {
+const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
-  const [accentPrimary, textSecondary, textLink, success, danger] = useCSSVariable([
-    '--color-accent-primary',
-    '--color-text-secondary',
-    '--color-text-link',
-    '--color-icon-success',
-    '--color-bg-danger',
-  ]) as [string, string, string, string, string];
+  const [accentPrimary, textSecondary, textLink, success, danger] =
+    useCSSVariable([
+      '--color-accent-primary',
+      '--color-text-secondary',
+      '--color-text-link',
+      '--color-icon-success',
+      '--color-bg-danger',
+    ]) as [string, string, string, string, string];
 
   const queryClient = useQueryClient();
-  const { allConfigs, activeConfig, refetch: refetchServerConfigs } = useServerConfigs();
+  const {
+    allConfigs,
+    activeConfig,
+    refetch: refetchServerConfigs,
+  } = useServerConfigs();
   const { isConnected, refetch: refetchConnection } = useServerConnection();
 
   const [unifiedModalVisible, setUnifiedModalVisible] = useState(false);
-  const [unifiedModalConfig, setUnifiedModalConfig] = useState<ServerConfig | null>(null);
-  const [unifiedModalTab, setUnifiedModalTab] = useState<'signIn' | 'apiKey'>('signIn');
+  const [unifiedModalConfig, setUnifiedModalConfig] =
+    useState<ServerConfig | null>(null);
+  const [unifiedModalTab, setUnifiedModalTab] = useState<'signIn' | 'apiKey'>(
+    'signIn',
+  );
   const [isTesting, setIsTesting] = useState(false);
 
-  const otherConfigs = allConfigs.filter((c) => c.id !== activeConfig?.id);
+  const otherConfigs = allConfigs.filter(c => c.id !== activeConfig?.id);
 
   const invalidateServerConfigs = () =>
     queryClient.invalidateQueries({ queryKey: serverConfigsQueryKey });
 
   const handleSetActiveConfig = async (configId: string): Promise<void> => {
     if (!__DEV__) {
-      const config = allConfigs.find((c) => c.id === configId);
+      const config = allConfigs.find(c => c.id === configId);
       if (config?.url.toLowerCase().startsWith('http://')) {
         Toast.show({
           type: 'error',
           text1: 'Error',
-          text2: 'HTTPS is required for server connections. Please edit this configuration to use HTTPS.',
+          text2:
+            'HTTPS is required for server connections. Please edit this configuration to use HTTPS.',
         });
         return;
       }
@@ -79,8 +93,12 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
       Toast.show({ type: 'success', text1: 'Active server changed' });
       addLog('Active server configuration changed.', 'INFO');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      addLog(`Failed to set active server configuration: ${errorMessage}`, 'ERROR');
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      addLog(
+        `Failed to set active server configuration: ${errorMessage}`,
+        'ERROR',
+      );
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -109,7 +127,8 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
         Toast.show({ type: 'success', text1: 'Server configuration deleted' });
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -145,11 +164,15 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
       try {
         await WebBrowser.openBrowserAsync(serverUrl);
       } catch (inAppError) {
-        addLog(`In-app browser failed, falling back to Linking: ${inAppError}`, 'ERROR');
+        addLog(
+          `In-app browser failed, falling back to Linking: ${inAppError}`,
+          'ERROR',
+        );
         await Linking.openURL(serverUrl);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       addLog(`Error opening web dashboard: ${errorMessage}`, 'ERROR');
       Toast.show({
         type: 'error',
@@ -182,7 +205,11 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
         [
           { text: 'Set Active', onPress: () => handleSetActiveConfig(item.id) },
           { text: 'Configure', onPress: () => handleConfigureServer(item) },
-          { text: 'Delete', style: 'destructive', onPress: () => handleDeleteConfig(item.id) },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => handleDeleteConfig(item.id),
+          },
         ],
         { cancelable: true },
       );
@@ -190,10 +217,23 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
     }
 
     const buttons = [
-      ...(!isActive ? [{ text: 'Set Active', onPress: () => handleSetActiveConfig(item.id) }] : []),
+      ...(!isActive
+        ? [
+            {
+              text: 'Set Active',
+              onPress: () => handleSetActiveConfig(item.id),
+            },
+          ]
+        : []),
       { text: 'Configure', onPress: () => handleConfigureServer(item) },
-      { text: 'Delete', style: 'destructive' as const, onPress: () => handleDeleteConfig(item.id) },
-      ...(Platform.OS === 'ios' ? [{ text: 'Cancel', style: 'cancel' as const }] : []),
+      {
+        text: 'Delete',
+        style: 'destructive' as const,
+        onPress: () => handleDeleteConfig(item.id),
+      },
+      ...(Platform.OS === 'ios'
+        ? [{ text: 'Cancel', style: 'cancel' as const }]
+        : []),
     ];
     Alert.alert(
       item.url,
@@ -221,7 +261,9 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
           >
             <Icon name="chevron-back" size={22} color={accentPrimary} />
           </Button>
-          <Text className="text-2xl font-bold text-text-primary">Server Settings</Text>
+          <Text className="text-2xl font-bold text-text-primary">
+            Server Settings
+          </Text>
         </View>
 
         {activeConfig && (
@@ -230,49 +272,57 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
               Active Server
             </Text>
             <View className="bg-surface rounded-xl p-4 mb-4 shadow-sm">
-            <Pressable
-              onPress={() => showConfigMenu(activeConfig)}
-              accessibilityLabel={`Options for ${activeConfig.url}`}
-              accessibilityHint={isConnected ? 'Connected' : 'Connection failed'}
-              accessibilityRole="button"
-              className="flex-row items-center"
-            >
-              <View
-                className="w-2.5 h-2.5 rounded-full mr-2"
-                style={{ backgroundColor: isConnected ? success : danger }}
-              />
-              <Text
-                className="text-base text-text-primary flex-1"
-                numberOfLines={1}
-                ellipsizeMode="middle"
+              <Pressable
+                onPress={() => showConfigMenu(activeConfig)}
+                accessibilityLabel={`Options for ${activeConfig.url}`}
+                accessibilityHint={
+                  isConnected ? 'Connected' : 'Connection failed'
+                }
+                accessibilityRole="button"
+                className="flex-row items-center"
               >
-                {activeConfig.url}
-              </Text>
-            </Pressable>
-            <View className="flex-row gap-3 mt-4">
-              <Button variant="ghost" onPress={openWebDashboard} className="flex-1 flex-row">
-                <Icon name="globe" size={18} color={accentPrimary} />
-                <Text className="text-base text-accent-primary font-semibold ml-2">Open Web</Text>
-              </Button>
-              <Button
-                variant="ghost"
-                onPress={handleTestConnection}
-                disabled={isTesting}
-                className="flex-1 flex-row"
-              >
-                {isTesting ? (
-                  <ActivityIndicator size="small" />
-                ) : (
-                  <>
-                    <Icon name="wifi" size={18} color={accentPrimary} />
-                    <Text className="text-base text-accent-primary font-semibold ml-2">
-                      Test Connection
-                    </Text>
-                  </>
-                )}
-              </Button>
+                <View
+                  className="w-2.5 h-2.5 rounded-full mr-2"
+                  style={{ backgroundColor: isConnected ? success : danger }}
+                />
+                <Text
+                  className="text-base text-text-primary flex-1"
+                  numberOfLines={1}
+                  ellipsizeMode="middle"
+                >
+                  {activeConfig.url}
+                </Text>
+              </Pressable>
+              <View className="flex-row gap-3 mt-4">
+                <Button
+                  variant="ghost"
+                  onPress={openWebDashboard}
+                  className="flex-1 flex-row"
+                >
+                  <Icon name="globe" size={18} color={accentPrimary} />
+                  <Text className="text-base text-accent-primary font-semibold ml-2">
+                    Open Web
+                  </Text>
+                </Button>
+                <Button
+                  variant="ghost"
+                  onPress={handleTestConnection}
+                  disabled={isTesting}
+                  className="flex-1 flex-row"
+                >
+                  {isTesting ? (
+                    <ActivityIndicator size="small" />
+                  ) : (
+                    <>
+                      <Icon name="wifi" size={18} color={accentPrimary} />
+                      <Text className="text-base text-accent-primary font-semibold ml-2">
+                        Test Connection
+                      </Text>
+                    </>
+                  )}
+                </Button>
+              </View>
             </View>
-          </View>
           </>
         )}
 
@@ -299,7 +349,11 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
                       {cfg.url}
                     </Text>
                   </View>
-                  <Icon name="chevron-forward" size={20} color={textSecondary} />
+                  <Icon
+                    name="chevron-forward"
+                    size={20}
+                    color={textSecondary}
+                  />
                 </TouchableOpacity>
               ))}
             </View>
@@ -308,7 +362,9 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
 
         {allConfigs.length === 0 && (
           <View className="items-center py-8">
-            <Text className="text-text-secondary mb-4">No servers configured yet.</Text>
+            <Text className="text-text-secondary mb-4">
+              No servers configured yet.
+            </Text>
           </View>
         )}
 
@@ -319,7 +375,10 @@ const ServerSettingsScreen: React.FC<ServerSettingsScreenProps> = ({ navigation 
           className="self-center flex-row mt-2 py-1 px-0"
         >
           <Icon name="add" size={24} color={textLink} />
-          <Text className="ml-2 text-base font-medium" style={{ color: textLink }}>
+          <Text
+            className="ml-2 text-base font-medium"
+            style={{ color: textLink }}
+          >
             Add Server
           </Text>
         </Button>

@@ -30,23 +30,38 @@ export function useDeleteFoodEntryMeal({
       onSuccess?.();
     },
     onError: () => {
-      Toast.show({ type: 'error', text1: 'Failed to delete', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to delete',
+        text2: 'Please try again.',
+      });
     },
   });
 
   const confirmAndDelete = () => {
     Alert.alert('Delete Meal', 'Delete this meal?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => mutation.mutate() },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => mutation.mutate(),
+      },
     ]);
   };
 
   const deleteEntry = () => mutation.mutate();
 
   const invalidateCache = () => {
-    queryClient.invalidateQueries({ queryKey: dailySummaryQueryKey(normalizedDate) });
-    queryClient.invalidateQueries({ queryKey: foodEntryMealDetailQueryKey(mealId) });
-    queryClient.invalidateQueries({ queryKey: recentMealsQueryKeyRoot, refetchType: 'all' });
+    queryClient.invalidateQueries({
+      queryKey: dailySummaryQueryKey(normalizedDate),
+    });
+    queryClient.invalidateQueries({
+      queryKey: foodEntryMealDetailQueryKey(mealId),
+    });
+    queryClient.invalidateQueries({
+      queryKey: recentMealsQueryKeyRoot,
+      refetchType: 'all',
+    });
     queryClient.invalidateQueries({ queryKey: [...foodsQueryKey] });
   };
 

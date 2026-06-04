@@ -53,8 +53,12 @@ jest.mock('../../src/components/BottomSheetPicker', () => {
   };
 });
 
-const mockUseCreateExercise = useCreateExercise as jest.MockedFunction<typeof useCreateExercise>;
-const mockUseUpdateExercise = useUpdateExercise as jest.MockedFunction<typeof useUpdateExercise>;
+const mockUseCreateExercise = useCreateExercise as jest.MockedFunction<
+  typeof useCreateExercise
+>;
+const mockUseUpdateExercise = useUpdateExercise as jest.MockedFunction<
+  typeof useUpdateExercise
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -81,7 +85,10 @@ const baseExercise: Exercise = {
 
 describe('ExerciseFormScreen — helpers', () => {
   it('splitCsvList trims, dedupes, and drops empties', () => {
-    expect(splitCsvList(' barbell, bench, barbell ,, ')).toEqual(['barbell', 'bench']);
+    expect(splitCsvList(' barbell, bench, barbell ,, ')).toEqual([
+      'barbell',
+      'bench',
+    ]);
   });
 
   it('joinCsvList round-trips', () => {
@@ -151,7 +158,11 @@ describe('ExerciseFormScreen — buildCreatePayload', () => {
 
   it('defaults missing category to "general"', () => {
     expect(
-      buildCreatePayload('Lunges', { ...blankState, category: null }, undefined),
+      buildCreatePayload(
+        'Lunges',
+        { ...blankState, category: null },
+        undefined,
+      ),
     ).toMatchObject({ category: 'general' });
   });
 });
@@ -172,7 +183,9 @@ describe('ExerciseFormScreen — buildEditPayload', () => {
       mechanic: baseExercise.mechanic ?? null,
     };
 
-    expect(buildEditPayload(baseExercise, state, baseExercise.calories_per_hour)).toEqual({});
+    expect(
+      buildEditPayload(baseExercise, state, baseExercise.calories_per_hour),
+    ).toEqual({});
   });
 
   it('includes only fields that changed', () => {
@@ -214,7 +227,11 @@ describe('ExerciseFormScreen — buildEditPayload', () => {
       mechanic: baseExercise.mechanic ?? null,
     };
 
-    const payload = buildEditPayload(baseExercise, state, baseExercise.calories_per_hour);
+    const payload = buildEditPayload(
+      baseExercise,
+      state,
+      baseExercise.calories_per_hour,
+    );
     expect(payload).toEqual({ description: '' });
   });
 });
@@ -230,7 +247,9 @@ describe('ExerciseFormScreen — create mode', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseCreateExercise.mockReturnValue({
-      createExerciseAsync: jest.fn().mockResolvedValue({ id: 'ex-new', name: 'Lunges' }),
+      createExerciseAsync: jest
+        .fn()
+        .mockResolvedValue({ id: 'ex-new', name: 'Lunges' }),
       isPending: false,
     } as any);
     mockUseUpdateExercise.mockReturnValue({
@@ -273,7 +292,10 @@ describe('ExerciseFormScreen — edit mode', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    updateExerciseAsync.mockResolvedValue({ ...baseExercise, name: 'Bench Press 2' });
+    updateExerciseAsync.mockResolvedValue({
+      ...baseExercise,
+      name: 'Bench Press 2',
+    });
     mockUseCreateExercise.mockReturnValue({
       createExerciseAsync: jest.fn(),
       isPending: false,

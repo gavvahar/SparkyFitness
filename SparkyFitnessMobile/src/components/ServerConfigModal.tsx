@@ -13,7 +13,11 @@ import {
 import Button from './ui/Button';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useCSSVariable } from 'uniwind';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import Icon from './Icon';
 import FormInput from './FormInput';
 import SegmentedControl from './SegmentedControl';
@@ -87,7 +91,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
   // MFA state
   const [step, setStep] = useState<'form' | 'mfa'>('form');
-  const [mfaFactors, setMfaFactors] = useState<MfaFactors>({ mfaTotpEnabled: false, mfaEmailEnabled: false });
+  const [mfaFactors, setMfaFactors] = useState<MfaFactors>({
+    mfaTotpEnabled: false,
+    mfaEmailEnabled: false,
+  });
   const [mfaMethod, setMfaMethod] = useState<'totp' | 'email'>('totp');
   const [mfaCode, setMfaCode] = useState('');
   const [emailOtpSent, setEmailOtpSent] = useState(false);
@@ -109,9 +116,13 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
     if (editingConfig) {
       setServerUrl(editingConfig.url);
-      setApiKey(editingConfig.authType === 'apiKey' ? editingConfig.apiKey : '');
+      setApiKey(
+        editingConfig.authType === 'apiKey' ? editingConfig.apiKey : '',
+      );
       setProxyHeaders(editingConfig.proxyHeaders ?? []);
-      const tab = defaultAuthTab ?? (editingConfig.authType === 'apiKey' ? 'apiKey' : 'signIn');
+      const tab =
+        defaultAuthTab ??
+        (editingConfig.authType === 'apiKey' ? 'apiKey' : 'signIn');
       setAuthTab(tab);
     } else {
       setServerUrl('');
@@ -138,14 +149,21 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
     setProxyHeaders(proxyHeaders.filter((_, i) => i !== index));
   };
 
-  const handleChangeHeader = (index: number, field: 'name' | 'value', text: string) => {
-    setProxyHeaders(proxyHeaders.map((h, i) => (i === index ? { ...h, [field]: text } : h)));
+  const handleChangeHeader = (
+    index: number,
+    field: 'name' | 'value',
+    text: string,
+  ) => {
+    setProxyHeaders(
+      proxyHeaders.map((h, i) => (i === index ? { ...h, [field]: text } : h)),
+    );
   };
 
   const normalizeUrl = (url: string) => url.trim().replace(/\/+$/, '');
 
   /** Strip empty rows so we only persist real headers. */
-  const cleanedHeaders = () => proxyHeaders.filter(h => h.name.trim() && h.value.trim());
+  const cleanedHeaders = () =>
+    proxyHeaders.filter(h => h.name.trim() && h.value.trim());
 
   const getConfigId = () => editingConfig?.id ?? Date.now().toString();
 
@@ -163,9 +181,18 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
   const handleSignIn = async () => {
     const url = normalizeUrl(serverUrl);
-    if (!url) { setError('Enter a valid SparkyFitness URL'); return; }
-    if (!email.trim()) { setError('Please enter your email.'); return; }
-    if (!password) { setError('Please enter your password.'); return; }
+    if (!url) {
+      setError('Enter a valid SparkyFitness URL');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Please enter your email.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
+      return;
+    }
     if (!__DEV__ && url.toLowerCase().startsWith('http://')) {
       setError('HTTPS is required for server connections.');
       return;
@@ -179,13 +206,19 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
       const result = await login(url, email.trim(), password);
 
       if (result.type === 'mfa_required') {
-        let factors: MfaFactors = { mfaTotpEnabled: true, mfaEmailEnabled: false };
+        let factors: MfaFactors = {
+          mfaTotpEnabled: true,
+          mfaEmailEnabled: false,
+        };
         try {
           factors = await fetchMfaFactors(url, email.trim());
         } catch (err) {
           // Fallback: assume TOTP only
           const message = err instanceof Error ? err.message : String(err);
-          addLog(`[ServerConfigModal] Failed to fetch MFA factors, falling back to TOTP: ${message}`, 'WARNING');
+          addLog(
+            `[ServerConfigModal] Failed to fetch MFA factors, falling back to TOTP: ${message}`,
+            'WARNING',
+          );
         }
         setMfaFactors(factors);
         setMfaMethod(factors.mfaTotpEnabled ? 'totp' : 'email');
@@ -216,7 +249,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
   const handleVerifyMfa = async () => {
     const code = mfaCode.trim();
-    if (!code) { setError('Please enter the verification code.'); return; }
+    if (!code) {
+      setError('Please enter the verification code.');
+      return;
+    }
 
     const url = normalizeUrl(serverUrl);
     setLoading(true);
@@ -298,8 +334,14 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
   const handleConnectApiKey = async () => {
     const url = normalizeUrl(serverUrl);
-    if (!url) { setError('Enter a valid SparkyFitness URL'); return; }
-    if (!apiKey.trim()) { setError('Please enter an API key.'); return; }
+    if (!url) {
+      setError('Enter a valid SparkyFitness URL');
+      return;
+    }
+    if (!apiKey.trim()) {
+      setError('Please enter an API key.');
+      return;
+    }
     if (!__DEV__ && url.toLowerCase().startsWith('http://')) {
       setError('HTTPS is required for server connections.');
       return;
@@ -322,7 +364,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
         if (response.status === 401) {
           setError('Invalid API key. Please check and try again.');
         } else {
-          setError(`Connection failed (${response.status}): ${errorText || 'Unknown error'}`);
+          setError(
+            `Connection failed (${response.status}): ${errorText || 'Unknown error'}`,
+          );
         }
         return;
       }
@@ -346,7 +390,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
   const handleSaveWithoutAuth = async () => {
     const url = normalizeUrl(serverUrl);
-    if (!url) { setError('Enter a valid SparkyFitness URL'); return; }
+    if (!url) {
+      setError('Enter a valid SparkyFitness URL');
+      return;
+    }
     if (!__DEV__ && url.toLowerCase().startsWith('http://')) {
       setError('HTTPS is required for server connections.');
       return;
@@ -360,7 +407,11 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
       // Otherwise preserve the existing auth fields.
       const authFields =
         authTab === 'apiKey' && apiKey.trim()
-          ? { authType: 'apiKey' as const, apiKey: apiKey.trim(), sessionToken: '' }
+          ? {
+              authType: 'apiKey' as const,
+              apiKey: apiKey.trim(),
+              sessionToken: '',
+            }
           : {
               authType: editingConfig!.authType,
               apiKey: editingConfig!.apiKey,
@@ -387,7 +438,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 
   const withReservedHeaderCheck = (action: () => void) => {
     const conflicting = cleanedHeaders().find(
-      h => h.name.toLowerCase() === 'authorization' || h.name.toLowerCase() === 'content-type'
+      h =>
+        h.name.toLowerCase() === 'authorization' ||
+        h.name.toLowerCase() === 'content-type',
     );
     if (conflicting) {
       Alert.alert(
@@ -396,7 +449,7 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Continue', onPress: action },
-        ]
+        ],
       );
       return;
     }
@@ -456,7 +509,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
               <>
                 {/* Server URL */}
                 <View className="mb-3">
-                  <Text className="text-sm mb-2 text-text-secondary">Server URL</Text>
+                  <Text className="text-sm mb-2 text-text-secondary">
+                    Server URL
+                  </Text>
                   <View className="flex-row items-center">
                     <FormInput
                       className="flex-1 rounded-lg"
@@ -469,7 +524,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                     />
                     <Button
                       variant="ghost"
-                      onPress={async () => setServerUrl(await Clipboard.getString())}
+                      onPress={async () =>
+                        setServerUrl(await Clipboard.getString())
+                      }
                       accessibilityLabel="Paste URL from clipboard"
                       className="absolute right-1 p-2 py-2 px-2 rounded-lg"
                     >
@@ -491,7 +548,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                 {authTab === 'signIn' && (
                   <>
                     <View className="mb-3">
-                      <Text className="text-sm mb-2 text-text-secondary">Email</Text>
+                      <Text className="text-sm mb-2 text-text-secondary">
+                        Email
+                      </Text>
                       <FormInput
                         placeholder="email@example.com"
                         value={email}
@@ -502,7 +561,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                       />
                     </View>
                     <View className="mb-4">
-                      <Text className="text-sm mb-2 text-text-secondary">Password</Text>
+                      <Text className="text-sm mb-2 text-text-secondary">
+                        Password
+                      </Text>
                       <FormInput
                         placeholder="Password"
                         value={password}
@@ -517,7 +578,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                 {/* API Key field */}
                 {authTab === 'apiKey' && (
                   <View className="mb-4">
-                    <Text className="text-sm mb-2 text-text-secondary">API Key</Text>
+                    <Text className="text-sm mb-2 text-text-secondary">
+                      API Key
+                    </Text>
                     <View className="flex-row items-center">
                       <FormInput
                         className="flex-1 rounded-lg"
@@ -529,7 +592,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                       />
                       <Button
                         variant="ghost"
-                        onPress={async () => setApiKey(await Clipboard.getString())}
+                        onPress={async () =>
+                          setApiKey(await Clipboard.getString())
+                        }
                         accessibilityLabel="Paste API key from clipboard"
                         className="absolute right-1 p-2 py-2 px-2 rounded-lg"
                       >
@@ -549,7 +614,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                     <Icon name="chevron-down" size={14} color={textMuted} />
                   </Animated.View>
                   <Text className="text-sm text-text-muted">
-                    Advanced options{proxyHeaders.filter(h => h.name.trim() && h.value.trim()).length > 0
+                    Advanced options
+                    {proxyHeaders.filter(h => h.name.trim() && h.value.trim())
+                      .length > 0
                       ? ` (${proxyHeaders.filter(h => h.name.trim() && h.value.trim()).length})`
                       : ''}
                   </Text>
@@ -558,14 +625,20 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                 {advancedExpanded && (
                   <View className="mt-3">
                     <View className="flex-row justify-start items-center mb-2">
-                      <Text className="text-sm font-medium text-text-secondary mr-1">Proxy Headers</Text>
+                      <Text className="text-sm font-medium text-text-secondary mr-1">
+                        Proxy Headers
+                      </Text>
                       <Button
                         variant="ghost"
                         onPress={handleAddHeader}
                         accessibilityLabel="Add header"
                         className="py-0 px-0"
                       >
-                        <Icon name="add-circle" size={22} color={accentPrimary} />
+                        <Icon
+                          name="add-circle"
+                          size={22}
+                          color={accentPrimary}
+                        />
                       </Button>
                     </View>
 
@@ -582,7 +655,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                             className="flex-1 rounded-lg"
                             placeholder="Name (e.g. X-Access-Token)"
                             value={header.name}
-                            onChangeText={(text) => handleChangeHeader(index, 'name', text)}
+                            onChangeText={text =>
+                              handleChangeHeader(index, 'name', text)
+                            }
                             autoCapitalize="none"
                             autoCorrect={false}
                             style={{ fontSize: 14, paddingRight: 36 }}
@@ -593,13 +668,19 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                             accessibilityLabel={`Remove header ${index + 1}`}
                             className="absolute right-1 py-0 px-1.5"
                           >
-                            <Icon name="remove-circle" size={18} color="#ef4444" />
+                            <Icon
+                              name="remove-circle"
+                              size={18}
+                              color="#ef4444"
+                            />
                           </Button>
                         </View>
                         <FormInput
                           placeholder="Value"
                           value={header.value}
-                          onChangeText={(text) => handleChangeHeader(index, 'value', text)}
+                          onChangeText={text =>
+                            handleChangeHeader(index, 'value', text)
+                          }
                           autoCapitalize="none"
                           autoCorrect={false}
                           secureTextEntry
@@ -622,7 +703,9 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                   {isEditing && (
                     <Button
                       variant="ghost"
-                      onPress={() => withReservedHeaderCheck(handleSaveWithoutAuth)}
+                      onPress={() =>
+                        withReservedHeaderCheck(handleSaveWithoutAuth)
+                      }
                       disabled={loading}
                       className="py-2.5"
                     >
@@ -658,7 +741,6 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
     </Modal>
   );
 };

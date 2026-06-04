@@ -4,21 +4,29 @@ import { measurementsRangeQueryKey } from '../../src/hooks/queryKeys';
 import { fetchMeasurementsRange } from '../../src/services/api/measurementsApi';
 import { getTodayDate, addDays } from '../../src/utils/dateUtils';
 import type { CheckInMeasurementRange } from '../../src/types/measurements';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/measurementsApi', () => ({
   fetchMeasurementsRange: jest.fn(),
 }));
 
 jest.mock('@react-navigation/native', () => ({
-  useFocusEffect: jest.fn((callback) => {
+  useFocusEffect: jest.fn(callback => {
     callback();
   }),
 }));
 
-const mockFetchMeasurementsRange = fetchMeasurementsRange as jest.MockedFunction<typeof fetchMeasurementsRange>;
+const mockFetchMeasurementsRange =
+  fetchMeasurementsRange as jest.MockedFunction<typeof fetchMeasurementsRange>;
 
-const makeMeasurement = (entry_date: string, steps?: number): CheckInMeasurementRange => ({
+const makeMeasurement = (
+  entry_date: string,
+  steps?: number,
+): CheckInMeasurementRange => ({
   id: `id-${entry_date}`,
   user_id: 'user-1',
   entry_date,
@@ -100,12 +108,12 @@ describe('useMeasurementsRange', () => {
       });
 
       // Only today should have steps, rest should be 0
-      const nonZero = result.current.stepsData.filter((d) => d.steps > 0);
+      const nonZero = result.current.stepsData.filter(d => d.steps > 0);
       expect(nonZero).toHaveLength(1);
       expect(nonZero[0].day).toBe(today);
       expect(nonZero[0].steps).toBe(5000);
 
-      const zeros = result.current.stepsData.filter((d) => d.steps === 0);
+      const zeros = result.current.stepsData.filter(d => d.steps === 0);
       expect(zeros).toHaveLength(6);
     });
 
@@ -125,7 +133,7 @@ describe('useMeasurementsRange', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const todayPoint = result.current.stepsData.find((d) => d.day === today);
+      const todayPoint = result.current.stepsData.find(d => d.day === today);
       expect(todayPoint?.steps).toBe(8000);
     });
 
@@ -172,7 +180,7 @@ describe('useMeasurementsRange', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      const todayPoint = result.current.stepsData.find((d) => d.day === today);
+      const todayPoint = result.current.stepsData.find(d => d.day === today);
       expect(todayPoint?.steps).toBe(0);
     });
   });
@@ -183,13 +191,15 @@ describe('useMeasurementsRange', () => {
       const today = getTodayDate();
       const startDate = addDays(today, -6);
 
-      renderHook(
-        () => useMeasurementsRange({ range: '7d' }),
-        { wrapper: createQueryWrapper(queryClient) },
-      );
+      renderHook(() => useMeasurementsRange({ range: '7d' }), {
+        wrapper: createQueryWrapper(queryClient),
+      });
 
       await waitFor(() => {
-        expect(mockFetchMeasurementsRange).toHaveBeenCalledWith(startDate, today);
+        expect(mockFetchMeasurementsRange).toHaveBeenCalledWith(
+          startDate,
+          today,
+        );
       });
     });
 
@@ -198,13 +208,15 @@ describe('useMeasurementsRange', () => {
       const today = getTodayDate();
       const startDate = addDays(today, -29);
 
-      renderHook(
-        () => useMeasurementsRange({ range: '30d' }),
-        { wrapper: createQueryWrapper(queryClient) },
-      );
+      renderHook(() => useMeasurementsRange({ range: '30d' }), {
+        wrapper: createQueryWrapper(queryClient),
+      });
 
       await waitFor(() => {
-        expect(mockFetchMeasurementsRange).toHaveBeenCalledWith(startDate, today);
+        expect(mockFetchMeasurementsRange).toHaveBeenCalledWith(
+          startDate,
+          today,
+        );
       });
     });
   });
@@ -213,12 +225,11 @@ describe('useMeasurementsRange', () => {
     test('respects enabled=false', async () => {
       mockFetchMeasurementsRange.mockResolvedValue([]);
 
-      renderHook(
-        () => useMeasurementsRange({ range: '7d', enabled: false }),
-        { wrapper: createQueryWrapper(queryClient) },
-      );
+      renderHook(() => useMeasurementsRange({ range: '7d', enabled: false }), {
+        wrapper: createQueryWrapper(queryClient),
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(mockFetchMeasurementsRange).not.toHaveBeenCalled();
     });
@@ -226,10 +237,9 @@ describe('useMeasurementsRange', () => {
     test('enabled defaults to true', async () => {
       mockFetchMeasurementsRange.mockResolvedValue([]);
 
-      renderHook(
-        () => useMeasurementsRange({ range: '7d' }),
-        { wrapper: createQueryWrapper(queryClient) },
-      );
+      renderHook(() => useMeasurementsRange({ range: '7d' }), {
+        wrapper: createQueryWrapper(queryClient),
+      });
 
       await waitFor(() => {
         expect(mockFetchMeasurementsRange).toHaveBeenCalled();

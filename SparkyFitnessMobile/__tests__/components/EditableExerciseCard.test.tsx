@@ -36,9 +36,13 @@ jest.mock('../../src/components/Icon', () => {
   };
 });
 
-const mockUseExerciseStats = useExerciseStats as jest.MockedFunction<typeof useExerciseStats>;
+const mockUseExerciseStats = useExerciseStats as jest.MockedFunction<
+  typeof useExerciseStats
+>;
 
-function makeExercise(overrides: Partial<WorkoutDraftExercise> = {}): WorkoutDraftExercise {
+function makeExercise(
+  overrides: Partial<WorkoutDraftExercise> = {},
+): WorkoutDraftExercise {
   return {
     clientId: 'ex-1',
     exerciseId: 'srv-ex-1',
@@ -97,7 +101,12 @@ describe('EditableExerciseCard prefill', () => {
   it('prefills weight + reps from lastSet when both fields are blank', () => {
     mockUseExerciseStats.mockReturnValue(
       statsResult({
-        bestSet: { entryDate: '2026-04-01', weight: 100, reps: 5, setNumber: 1 },
+        bestSet: {
+          entryDate: '2026-04-01',
+          weight: 100,
+          reps: 5,
+          setNumber: 1,
+        },
         lastSet: { entryDate: '2026-04-10', weight: 95, reps: 5, setNumber: 1 },
       }),
     );
@@ -113,7 +122,12 @@ describe('EditableExerciseCard prefill', () => {
   it('only prefills the blank field when reps is already populated', () => {
     mockUseExerciseStats.mockReturnValue(
       statsResult({
-        bestSet: { entryDate: '2026-04-01', weight: 100, reps: 5, setNumber: 1 },
+        bestSet: {
+          entryDate: '2026-04-01',
+          weight: 100,
+          reps: 5,
+          setNumber: 1,
+        },
         lastSet: { entryDate: '2026-04-10', weight: 95, reps: 5, setNumber: 1 },
       }),
     );
@@ -133,7 +147,12 @@ describe('EditableExerciseCard prefill', () => {
   it('does not prefill when eligibleForPrefill is false', () => {
     mockUseExerciseStats.mockReturnValue(
       statsResult({
-        bestSet: { entryDate: '2026-04-01', weight: 100, reps: 5, setNumber: 1 },
+        bestSet: {
+          entryDate: '2026-04-01',
+          weight: 100,
+          reps: 5,
+          setNumber: 1,
+        },
         lastSet: { entryDate: '2026-04-10', weight: 95, reps: 5, setNumber: 1 },
       }),
     );
@@ -151,7 +170,12 @@ describe('EditableExerciseCard prefill', () => {
   it('does not prefill a second time on re-render', () => {
     mockUseExerciseStats.mockReturnValue(
       statsResult({
-        bestSet: { entryDate: '2026-04-01', weight: 100, reps: 5, setNumber: 1 },
+        bestSet: {
+          entryDate: '2026-04-01',
+          weight: 100,
+          reps: 5,
+          setNumber: 1,
+        },
         lastSet: { entryDate: '2026-04-10', weight: 95, reps: 5, setNumber: 1 },
       }),
     );
@@ -199,8 +223,18 @@ describe('EditableExerciseCard prefill', () => {
   it('converts kg → lbs when weightUnit is lbs', () => {
     mockUseExerciseStats.mockReturnValue(
       statsResult({
-        bestSet: { entryDate: '2026-04-01', weight: 100, reps: 5, setNumber: 1 },
-        lastSet: { entryDate: '2026-04-10', weight: 100, reps: 5, setNumber: 1 },
+        bestSet: {
+          entryDate: '2026-04-01',
+          weight: 100,
+          reps: 5,
+          setNumber: 1,
+        },
+        lastSet: {
+          entryDate: '2026-04-10',
+          weight: 100,
+          reps: 5,
+          setNumber: 1,
+        },
       }),
     );
 

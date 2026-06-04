@@ -1,4 +1,7 @@
-import type { ExerciseSessionResponse, CalorieBalance } from '@workspace/shared';
+import type {
+  ExerciseSessionResponse,
+  CalorieBalance,
+} from '@workspace/shared';
 import type { FoodEntry } from './foodEntries';
 
 export interface MacroSummary {
@@ -11,15 +14,15 @@ export interface DailySummary {
   calorieGoal: number;
   caloriesConsumed: number;
   caloriesBurned: number;
-  activeCalories: number;        // From "Active Calories" exercises (watch/tracker)
+  activeCalories: number; // From "Active Calories" exercises (watch/tracker)
   otherExerciseCalories: number; // From all other exercises
-  netCalories: number;           // consumed - burned
-  remainingCalories: number;     // goal - net
+  netCalories: number; // consumed - burned
+  remainingCalories: number; // goal - net
   protein: MacroSummary;
   carbs: MacroSummary;
   fat: MacroSummary;
   fiber: MacroSummary;
-  stepCalories: number;        // Server-computed step calories using stride formula
+  stepCalories: number; // Server-computed step calories using stride formula
   exerciseMinutes: number;
   exerciseMinutesGoal: number;
   exerciseCaloriesGoal: number;

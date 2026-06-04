@@ -15,11 +15,19 @@ import Icon from '../components/Icon';
 import Button from '../components/ui/Button';
 import FormInput from '../components/FormInput';
 import SafeImage from '../components/SafeImage';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
-import { useActivityForm, getActivityDraftSubmission } from '../hooks/useActivityForm';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
+import {
+  useActivityForm,
+  getActivityDraftSubmission,
+} from '../hooks/useActivityForm';
 import { useSelectedExercise } from '../hooks/useSelectedExercise';
 import { useExerciseImageSource } from '../hooks/useExerciseImageSource';
-import { useCreateExerciseEntry, useUpdateExerciseEntry } from '../hooks/useExerciseMutations';
+import {
+  useCreateExerciseEntry,
+  useUpdateExerciseEntry,
+} from '../hooks/useExerciseMutations';
 import { usePreferences } from '../hooks/usePreferences';
 import Toast from 'react-native-toast-message';
 import { addLog } from '../services/LogService';
@@ -37,13 +45,14 @@ const ActivityAddScreen: React.FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const calendarSheetRef = useRef<CalendarSheetRef>(null);
 
-  const [accentPrimary, textMuted, textPrimary, borderSubtle, raisedBg] = useCSSVariable([
-    '--color-accent-primary',
-    '--color-text-muted',
-    '--color-text-primary',
-    '--color-border-subtle',
-    '--color-raised',
-  ]) as [string, string, string, string, string];
+  const [accentPrimary, textMuted, textPrimary, borderSubtle, raisedBg] =
+    useCSSVariable([
+      '--color-accent-primary',
+      '--color-text-muted',
+      '--color-text-primary',
+      '--color-border-subtle',
+      '--color-raised',
+    ]) as [string, string, string, string, string];
 
   const {
     state,
@@ -61,15 +70,26 @@ const ActivityAddScreen: React.FC<Props> = ({ navigation, route }) => {
   } = useActivityForm({
     isEditMode,
     initialDate,
-    skipDraftLoad: (!!route.params?.selectedExercise || !!route.params?.skipDraftLoad) && !isEditMode,
+    skipDraftLoad:
+      (!!route.params?.selectedExercise || !!route.params?.skipDraftLoad) &&
+      !isEditMode,
   });
 
-  const { createEntry, isPending: isCreating, invalidateCache: invalidateCreateCache } = useCreateExerciseEntry();
-  const { updateEntry, isPending: isUpdating, invalidateCache: invalidateUpdateCache } = useUpdateExerciseEntry();
+  const {
+    createEntry,
+    isPending: isCreating,
+    invalidateCache: invalidateCreateCache,
+  } = useCreateExerciseEntry();
+  const {
+    updateEntry,
+    isPending: isUpdating,
+    invalidateCache: invalidateUpdateCache,
+  } = useUpdateExerciseEntry();
   const isPending = isCreating || isUpdating;
 
   const { preferences } = usePreferences();
-  const distanceUnit = (preferences?.default_distance_unit as 'km' | 'miles') ?? 'km';
+  const distanceUnit =
+    (preferences?.default_distance_unit as 'km' | 'miles') ?? 'km';
   const { getImageSource } = useExerciseImageSource();
 
   const [isNameEditing, setIsNameEditing] = useState(false);
@@ -127,11 +147,23 @@ const ActivityAddScreen: React.FC<Props> = ({ navigation, route }) => {
       }
     } catch (error) {
       addLog(`Failed to save activity: ${error}`, 'ERROR');
-      Toast.show({ type: 'error', text1: 'Failed to save activity', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to save activity',
+        text2: 'Please try again.',
+      });
     }
   }, [
-    submission, isEditMode, entry, popCount,
-    createEntry, updateEntry, invalidateCreateCache, invalidateUpdateCache, discardDraft, navigation,
+    submission,
+    isEditMode,
+    entry,
+    popCount,
+    createEntry,
+    updateEntry,
+    invalidateCreateCache,
+    invalidateUpdateCache,
+    discardDraft,
+    navigation,
   ]);
 
   return (
@@ -153,161 +185,188 @@ const ActivityAddScreen: React.FC<Props> = ({ navigation, route }) => {
         bottomOffset={80}
         keyboardShouldPersistTaps="handled"
       >
-          <Pressable onPress={dismissEditing}>
-            {/* Activity name */}
-            <View className="mb-4">
-              {isNameEditing ? (
-                <FadeView key="name-edit">
-                  <FormInput
-                    className="text-xl font-bold text-text-primary rounded-lg"
-                    value={state.name}
-                    onChangeText={setName}
-                    placeholder="Activity"
-                    returnKeyType="done"
-                    autoFocus
-                    selectTextOnFocus
-                    onBlur={() => setIsNameEditing(false)}
-                    onSubmitEditing={() => setIsNameEditing(false)}
-                  />
-                </FadeView>
-              ) : (
-                <FadeView key="name-view">
-                  <TouchableOpacity
-                    className="flex-row items-center self-start gap-2"
-                    onPress={() => setIsNameEditing(true)}
-                    activeOpacity={0.6}
-                  >
-                    <Text className="text-xl font-bold text-text-primary">
-                      {state.name || state.exerciseName || 'Activity'}
+        <Pressable onPress={dismissEditing}>
+          {/* Activity name */}
+          <View className="mb-4">
+            {isNameEditing ? (
+              <FadeView key="name-edit">
+                <FormInput
+                  className="text-xl font-bold text-text-primary rounded-lg"
+                  value={state.name}
+                  onChangeText={setName}
+                  placeholder="Activity"
+                  returnKeyType="done"
+                  autoFocus
+                  selectTextOnFocus
+                  onBlur={() => setIsNameEditing(false)}
+                  onSubmitEditing={() => setIsNameEditing(false)}
+                />
+              </FadeView>
+            ) : (
+              <FadeView key="name-view">
+                <TouchableOpacity
+                  className="flex-row items-center self-start gap-2"
+                  onPress={() => setIsNameEditing(true)}
+                  activeOpacity={0.6}
+                >
+                  <Text className="text-xl font-bold text-text-primary">
+                    {state.name || state.exerciseName || 'Activity'}
+                  </Text>
+                  <Icon name="pencil" size={20} color={textMuted} />
+                </TouchableOpacity>
+              </FadeView>
+            )}
+          </View>
+
+          {/* Date row */}
+          <TouchableOpacity
+            onPress={() => calendarSheetRef.current?.present()}
+            activeOpacity={0.7}
+            className="flex-row items-center mb-4"
+          >
+            <Text className="text-text-secondary text-base">Date</Text>
+            <Text className="text-text-primary text-base font-medium mx-1.5">
+              {formatDateLabel(state.entryDate)}
+            </Text>
+            <Icon
+              name="chevron-down"
+              size={12}
+              color={textPrimary}
+              weight="medium"
+            />
+          </TouchableOpacity>
+
+          {/* Exercise picker row */}
+          <TouchableOpacity
+            className="rounded-xl p-4 mb-4"
+            style={{ backgroundColor: raisedBg }}
+            onPress={() =>
+              navigation.navigate('ExerciseSearch', { returnKey: route.key })
+            }
+            activeOpacity={0.7}
+          >
+            {state.exerciseId ? (
+              <FadeView key="exercise-selected">
+                <View className="flex-row items-center">
+                  {state.exerciseImages?.[0] ? (
+                    <SafeImage
+                      source={getImageSource(state.exerciseImages[0])}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 8,
+                        opacity: 0.8,
+                      }}
+                    />
+                  ) : (
+                    <Icon name="exercise" size={20} color={accentPrimary} />
+                  )}
+                  <View className="ml-3 flex-1">
+                    <Text className="text-base font-semibold text-text-primary">
+                      {state.exerciseName}
                     </Text>
-                    <Icon name="pencil" size={20} color={textMuted} />
-                  </TouchableOpacity>
-                </FadeView>
-              )}
-            </View>
-
-            {/* Date row */}
-            <TouchableOpacity
-              onPress={() => calendarSheetRef.current?.present()}
-              activeOpacity={0.7}
-              className="flex-row items-center mb-4"
-            >
-              <Text className="text-text-secondary text-base">Date</Text>
-              <Text className="text-text-primary text-base font-medium mx-1.5">
-                {formatDateLabel(state.entryDate)}
-              </Text>
-              <Icon name="chevron-down" size={12} color={textPrimary} weight="medium" />
-            </TouchableOpacity>
-
-            {/* Exercise picker row */}
-            <TouchableOpacity
-              className="rounded-xl p-4 mb-4"
-              style={{ backgroundColor: raisedBg }}
-              onPress={() => navigation.navigate('ExerciseSearch', { returnKey: route.key })}
-              activeOpacity={0.7}
-            >
-              {state.exerciseId ? (
-                <FadeView key="exercise-selected">
-                  <View className="flex-row items-center">
-                    {state.exerciseImages?.[0] ? (
-                      <SafeImage
-                        source={getImageSource(state.exerciseImages[0])}
-                        style={{ width: 40, height: 40, borderRadius: 8, opacity: 0.8 }}
-                      />
-                    ) : (
-                      <Icon name="exercise" size={20} color={accentPrimary} />
+                    {state.exerciseCategory && (
+                      <Text className="text-sm text-text-muted mt-0.5">
+                        {state.exerciseCategory}
+                      </Text>
                     )}
-                    <View className="ml-3 flex-1">
-                      <Text className="text-base font-semibold text-text-primary">{state.exerciseName}</Text>
-                      {state.exerciseCategory && (
-                        <Text className="text-sm text-text-muted mt-0.5">{state.exerciseCategory}</Text>
-                      )}
-                    </View>
-                    <Icon name="chevron-forward" size={16} color={textMuted} />
                   </View>
-                </FadeView>
-              ) : (
-                <FadeView key="exercise-empty">
-                  <View className="flex-row items-center">
-                    <Icon name="add-circle" size={20} color={accentPrimary} />
-                    <Text className="text-base font-medium ml-3" style={{ color: accentPrimary }}>
-                      Select Activity
-                    </Text>
-                  </View>
-                </FadeView>
-              )}
-            </TouchableOpacity>
+                  <Icon name="chevron-forward" size={16} color={textMuted} />
+                </View>
+              </FadeView>
+            ) : (
+              <FadeView key="exercise-empty">
+                <View className="flex-row items-center">
+                  <Icon name="add-circle" size={20} color={accentPrimary} />
+                  <Text
+                    className="text-base font-medium ml-3"
+                    style={{ color: accentPrimary }}
+                  >
+                    Select Activity
+                  </Text>
+                </View>
+              </FadeView>
+            )}
+          </TouchableOpacity>
 
-            {/* Duration */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-text-secondary mb-1.5">Duration (min)</Text>
-              <FormInput
-                value={state.duration}
-                onChangeText={setDuration}
-                placeholder="0"
-                keyboardType="number-pad"
-                returnKeyType="done"
-              />
-            </View>
+          {/* Duration */}
+          <View className="mb-4">
+            <Text className="text-sm font-medium text-text-secondary mb-1.5">
+              Duration (min)
+            </Text>
+            <FormInput
+              value={state.duration}
+              onChangeText={setDuration}
+              placeholder="0"
+              keyboardType="number-pad"
+              returnKeyType="done"
+            />
+          </View>
 
-            {/* Distance */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-text-secondary mb-1.5">
-                Distance ({distanceUnit === 'miles' ? 'mi' : 'km'})
-              </Text>
-              <FormInput
-                value={state.distance}
-                onChangeText={setDistance}
-                placeholder="0"
-                keyboardType="decimal-pad"
-                returnKeyType="done"
-              />
-            </View>
+          {/* Distance */}
+          <View className="mb-4">
+            <Text className="text-sm font-medium text-text-secondary mb-1.5">
+              Distance ({distanceUnit === 'miles' ? 'mi' : 'km'})
+            </Text>
+            <FormInput
+              value={state.distance}
+              onChangeText={setDistance}
+              placeholder="0"
+              keyboardType="decimal-pad"
+              returnKeyType="done"
+            />
+          </View>
 
-            {/* Calories */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-text-secondary mb-1.5">Calories</Text>
-              <FormInput
-                value={state.calories}
-                onChangeText={setCalories}
-                placeholder="0"
-                keyboardType="decimal-pad"
-                returnKeyType="done"
-              />
-              <Text className="text-xs text-text-muted mt-1">
-                {state.caloriesManuallySet ? 'Custom' : 'Auto-calculated'}
-              </Text>
-            </View>
+          {/* Calories */}
+          <View className="mb-4">
+            <Text className="text-sm font-medium text-text-secondary mb-1.5">
+              Calories
+            </Text>
+            <FormInput
+              value={state.calories}
+              onChangeText={setCalories}
+              placeholder="0"
+              keyboardType="decimal-pad"
+              returnKeyType="done"
+            />
+            <Text className="text-xs text-text-muted mt-1">
+              {state.caloriesManuallySet ? 'Custom' : 'Auto-calculated'}
+            </Text>
+          </View>
 
-            {/* Avg Heart Rate */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-text-secondary mb-1.5">Avg Heart Rate (bpm)</Text>
-              <FormInput
-                value={state.avgHeartRate}
-                onChangeText={setAvgHeartRate}
-                placeholder="0"
-                keyboardType="number-pad"
-                returnKeyType="done"
-              />
-            </View>
+          {/* Avg Heart Rate */}
+          <View className="mb-4">
+            <Text className="text-sm font-medium text-text-secondary mb-1.5">
+              Avg Heart Rate (bpm)
+            </Text>
+            <FormInput
+              value={state.avgHeartRate}
+              onChangeText={setAvgHeartRate}
+              placeholder="0"
+              keyboardType="number-pad"
+              returnKeyType="done"
+            />
+          </View>
 
-            {/* Notes */}
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-text-secondary mb-1.5">Notes</Text>
-              <FormInput
-                value={state.notes}
-                onChangeText={setNotes}
-                placeholder="Optional notes..."
-                multiline
-                textAlignVertical="top"
-                returnKeyType="default"
-                style={{ minHeight: 80 }}
-              />
-            </View>
+          {/* Notes */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium text-text-secondary mb-1.5">
+              Notes
+            </Text>
+            <FormInput
+              value={state.notes}
+              onChangeText={setNotes}
+              placeholder="Optional notes..."
+              multiline
+              textAlignVertical="top"
+              returnKeyType="default"
+              style={{ minHeight: 80 }}
+            />
+          </View>
 
-            {/* Bottom spacer */}
-            <View style={{ height: 80 }} />
-          </Pressable>
+          {/* Bottom spacer */}
+          <View style={{ height: 80 }} />
+        </Pressable>
       </KeyboardAwareScrollView>
 
       {/* Sticky footer */}
@@ -328,7 +387,10 @@ const ActivityAddScreen: React.FC<Props> = ({ navigation, route }) => {
           {isPending ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text className="text-sm font-semibold text-center" style={{ color: '#fff' }}>
+            <Text
+              className="text-sm font-semibold text-center"
+              style={{ color: '#fff' }}
+            >
               Save
             </Text>
           )}

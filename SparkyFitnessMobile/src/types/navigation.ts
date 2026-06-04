@@ -38,8 +38,18 @@ export type RootStackParamList = {
   WorkoutPresetsLibrary: undefined;
   WorkoutPresetDetail: { preset: WorkoutPreset; updatedPreset?: WorkoutPreset };
   WorkoutPresetForm:
-    | { mode: 'create-preset'; selectedExercise?: Exercise; selectionNonce?: number }
-    | { mode: 'edit-preset'; preset: WorkoutPreset; returnKey: string; selectedExercise?: Exercise; selectionNonce?: number };
+    | {
+        mode: 'create-preset';
+        selectedExercise?: Exercise;
+        selectionNonce?: number;
+      }
+    | {
+        mode: 'edit-preset';
+        preset: WorkoutPreset;
+        returnKey: string;
+        selectedExercise?: Exercise;
+        selectionNonce?: number;
+      };
   MealDetail: { mealId: string; initialMeal?: Meal };
   FoodDetail: {
     item: FoodInfoItem;
@@ -62,16 +72,15 @@ export type RootStackParamList = {
         pickerMode?: FoodPickerMode;
       }
     | undefined;
-  FoodEntryAdd:
-      | {
-        item: FoodInfoItem;
-        date?: string;
-        adjustedValues?: FoodFormData;
-        adjustedUnitSelection?: FoodUnitSelectionResult;
-        pickerMode?: FoodPickerMode;
-        ingredientIndex?: number;
-        returnDepth?: number;
-      };
+  FoodEntryAdd: {
+    item: FoodInfoItem;
+    date?: string;
+    adjustedValues?: FoodFormData;
+    adjustedUnitSelection?: FoodUnitSelectionResult;
+    pickerMode?: FoodPickerMode;
+    ingredientIndex?: number;
+    returnDepth?: number;
+  };
   EditLoggedMeal: { foodEntryMealId: string; initialMeal?: FoodEntryMeal };
   FoodEntryView: {
     entry: FoodEntry;
@@ -102,7 +111,15 @@ export type RootStackParamList = {
         availableUnitVariants?: FoodUnitVariant[];
         selectedUnitSelection?: FoodUnitSelectionResult;
       }
-    | { mode: 'edit-food'; item: FoodInfoItem; initialValues: Partial<FoodFormData>; returnKey: string; foodId: string; variantId: string; customNutrients?: Record<string, string | number> | null };
+    | {
+        mode: 'edit-food';
+        item: FoodInfoItem;
+        initialValues: Partial<FoodFormData>;
+        returnKey: string;
+        foodId: string;
+        variantId: string;
+        customNutrients?: Record<string, string | number> | null;
+      };
   ExerciseForm:
     | { mode: 'create-exercise' }
     | { mode: 'edit-exercise'; exercise: Exercise; returnKey: string };
@@ -135,17 +152,32 @@ export type RootStackParamList = {
     | undefined;
   ExerciseSearch: { returnKey: string };
   PresetSearch: { date?: string } | undefined;
-  WorkoutAdd: {
-    session?: PresetSessionResponse;
-    preset?: WorkoutPreset;
-    date?: string;
-    popCount?: number;
+  WorkoutAdd:
+    | {
+        session?: PresetSessionResponse;
+        preset?: WorkoutPreset;
+        date?: string;
+        popCount?: number;
+        selectedExercise?: Exercise;
+        selectionNonce?: number;
+        skipDraftLoad?: boolean;
+      }
+    | undefined;
+  ActivityAdd:
+    | {
+        entry?: IndividualSessionResponse;
+        date?: string;
+        popCount?: number;
+        selectedExercise?: Exercise;
+        selectionNonce?: number;
+        skipDraftLoad?: boolean;
+      }
+    | undefined;
+  WorkoutDetail: {
+    session: PresetSessionResponse;
     selectedExercise?: Exercise;
     selectionNonce?: number;
-    skipDraftLoad?: boolean;
-  } | undefined;
-  ActivityAdd: { entry?: IndividualSessionResponse; date?: string; popCount?: number; selectedExercise?: Exercise; selectionNonce?: number; skipDraftLoad?: boolean } | undefined;
-  WorkoutDetail: { session: PresetSessionResponse; selectedExercise?: Exercise; selectionNonce?: number };
+  };
   ActivityDetail: { session: IndividualSessionResponse };
   Logs: undefined;
   Sync: undefined;

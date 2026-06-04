@@ -210,7 +210,10 @@ describe('WorkoutPresetFormScreen — buildPresetEditPayload', () => {
   });
 
   it('handles a preset with null initial description', () => {
-    const presetWithoutDesc: WorkoutPreset = { ...basePreset, description: null };
+    const presetWithoutDesc: WorkoutPreset = {
+      ...basePreset,
+      description: null,
+    };
     const state = { ...baseDraft, description: '' };
     const payload = buildPresetEditPayload({
       state,

@@ -1,6 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { useCSSVariable } from 'uniwind';
 import Icon from './Icon';
 import EditableExerciseCard from './EditableExerciseCard';
@@ -79,11 +83,18 @@ function WorkoutEditableExerciseList({
           exercise.snapshot?.force,
           exercise.snapshot?.mechanic,
         ].filter(Boolean);
-        const subtitle = mode === 'detail'
-          ? (metadataItems.length > 0 ? metadataItems.join(' \u2022 ') : undefined)
-          : ([exercise.exerciseCategory, weightUnit].filter(Boolean).join(' \u00b7 ') || undefined);
+        const subtitle =
+          mode === 'detail'
+            ? metadataItems.length > 0
+              ? metadataItems.join(' \u2022 ')
+              : undefined
+            : [exercise.exerciseCategory, weightUnit]
+                .filter(Boolean)
+                .join(' \u00b7 ') || undefined;
         const exerciseSetPrefix = `${exercise.clientId}:`;
-        const exerciseActiveSetKey = activeSetKey?.startsWith(exerciseSetPrefix) ? activeSetKey : null;
+        const exerciseActiveSetKey = activeSetKey?.startsWith(exerciseSetPrefix)
+          ? activeSetKey
+          : null;
 
         const card = (
           <EditableExerciseCard
@@ -94,7 +105,9 @@ function WorkoutEditableExerciseList({
             activeSetKey={exerciseActiveSetKey}
             activeSetField={exerciseActiveSetKey ? activeSetField : 'weight'}
             weightUnit={weightUnit}
-            eligibleForPrefill={isEligibleForPrefill?.(exercise.clientId) ?? false}
+            eligibleForPrefill={
+              isEligibleForPrefill?.(exercise.clientId) ?? false
+            }
             onActivateSet={onActivateSet}
             onDeactivateSet={onDeactivateSet}
             onUpdateSetField={onUpdateSetField}
@@ -132,14 +145,20 @@ function WorkoutEditableExerciseList({
         );
       })}
 
-      <Animated.View className={mode === 'detail' ? 'py-4' : 'py-4 mb-4'} layout={LinearTransition.duration(300)}>
+      <Animated.View
+        className={mode === 'detail' ? 'py-4' : 'py-4 mb-4'}
+        layout={LinearTransition.duration(300)}
+      >
         <TouchableOpacity
           className="flex-row items-center self-center py-2 px-3 rounded-lg"
           onPress={onAddExercisePress}
           activeOpacity={0.6}
         >
           <Icon name="add-circle" size={20} color={accentPrimary} />
-          <Text className="text-lg font-medium ml-2" style={{ color: accentPrimary }}>
+          <Text
+            className="text-lg font-medium ml-2"
+            style={{ color: accentPrimary }}
+          >
             Add Exercise
           </Text>
         </TouchableOpacity>

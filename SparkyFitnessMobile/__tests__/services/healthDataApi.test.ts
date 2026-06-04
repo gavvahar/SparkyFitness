@@ -6,13 +6,17 @@ import {
   fetchWithRetry,
   CHUNK_SIZE,
 } from '../../src/services/api/healthDataApi';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 import { notifySessionExpired } from '../../src/services/api/authService';
 import { ensureTimezoneBootstrapped } from '../../src/services/api/preferencesApi';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/api/authService', () => {
@@ -84,7 +88,9 @@ describe('healthDataApi', () => {
 
       const promise = fetchWithTimeout('https://example.com', {}, 5000);
       // Attach handler BEFORE advancing timers to avoid unhandled rejection
-      const assertion = expect(promise).rejects.toThrow('Request timed out after 5000ms');
+      const assertion = expect(promise).rejects.toThrow(
+        'Request timed out after 5000ms',
+      );
 
       await jest.advanceTimersByTimeAsync(5000);
 
@@ -119,7 +125,11 @@ describe('healthDataApi', () => {
       const mockResponse = { ok: true, status: 200 };
       mockFetch.mockResolvedValue(mockResponse);
 
-      const result = await fetchWithRetry('https://example.com', {}, retryConfig);
+      const result = await fetchWithRetry(
+        'https://example.com',
+        {},
+        retryConfig,
+      );
 
       expect(result).toBe(mockResponse);
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -220,10 +230,14 @@ describe('healthDataApi', () => {
       };
 
       await expect(
-        fetchWithRetry('https://example.com', {}, {
-          ...retryConfig,
-          serverConfig: sessionConfig,
-        }),
+        fetchWithRetry(
+          'https://example.com',
+          {},
+          {
+            ...retryConfig,
+            serverConfig: sessionConfig,
+          },
+        ),
       ).rejects.toThrow('Server error: 401');
 
       expect(mockNotifySessionExpired).toHaveBeenCalledWith('session-server');
@@ -232,11 +246,15 @@ describe('healthDataApi', () => {
     test('uses exponential backoff between retries', async () => {
       mockFetch.mockRejectedValue(new Error('fail'));
 
-      const promise = fetchWithRetry('https://example.com', {}, {
-        timeoutMs: 30_000,
-        maxRetries: 3,
-        baseDelayMs: 1_000,
-      });
+      const promise = fetchWithRetry(
+        'https://example.com',
+        {},
+        {
+          timeoutMs: 30_000,
+          maxRetries: 3,
+          baseDelayMs: 1_000,
+        },
+      );
       const assertion = expect(promise).rejects.toThrow('fail');
 
       // After first failure, sleep(1000) is pending
@@ -309,7 +327,9 @@ describe('healthDataApi', () => {
       await syncHealthData(testData);
 
       expect(mockEnsureTimezoneBootstrapped).toHaveBeenCalledTimes(1);
-      expect(mockEnsureTimezoneBootstrapped).toHaveBeenCalledWith({ throwOnFailure: true });
+      expect(mockEnsureTimezoneBootstrapped).toHaveBeenCalledWith({
+        throwOnFailure: true,
+      });
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
@@ -439,7 +459,9 @@ describe('healthDataApi', () => {
       mockFetch.mockRejectedValue(new Error('Network request failed'));
 
       const promise = syncHealthData(testData);
-      const assertion = expect(promise).rejects.toThrow('Network request failed');
+      const assertion = expect(promise).rejects.toThrow(
+        'Network request failed',
+      );
 
       // Network errors are retryable — advance past retry delays
       await jest.advanceTimersByTimeAsync(1_000);
@@ -568,11 +590,26 @@ describe('healthDataApi', () => {
         // Session records (SleepSession + ExerciseSession) from same source
         // must stay together even when mixed with simple records
         const data = [
-          { type: 'SleepSession', date: '2024-01-01', value: 1, source: 'healthkit' },
+          {
+            type: 'SleepSession',
+            date: '2024-01-01',
+            value: 1,
+            source: 'healthkit',
+          },
           { type: 'steps', date: '2024-01-01', value: 100 },
-          { type: 'ExerciseSession', date: '2024-01-02', value: 2, source: 'healthkit' },
+          {
+            type: 'ExerciseSession',
+            date: '2024-01-02',
+            value: 2,
+            source: 'healthkit',
+          },
           { type: 'calories', date: '2024-01-01', value: 200 },
-          { type: 'Workout', date: '2024-01-03', value: 3, source: 'healthkit' },
+          {
+            type: 'Workout',
+            date: '2024-01-03',
+            value: 3,
+            source: 'healthkit',
+          },
         ] as HealthDataPayload;
 
         await syncHealthData(data);
@@ -605,9 +642,24 @@ describe('healthDataApi', () => {
         });
 
         const data = [
-          { type: 'SleepSession', date: '2024-01-01', value: 1, source: 'healthkit' },
-          { type: 'ExerciseSession', date: '2024-01-01', value: 2, source: 'garmin' },
-          { type: 'SleepSession', date: '2024-01-02', value: 3, source: 'garmin' },
+          {
+            type: 'SleepSession',
+            date: '2024-01-01',
+            value: 1,
+            source: 'healthkit',
+          },
+          {
+            type: 'ExerciseSession',
+            date: '2024-01-01',
+            value: 2,
+            source: 'garmin',
+          },
+          {
+            type: 'SleepSession',
+            date: '2024-01-02',
+            value: 3,
+            source: 'garmin',
+          },
         ] as HealthDataPayload;
 
         await syncHealthData(data);
@@ -618,7 +670,9 @@ describe('healthDataApi', () => {
         const secondBody = JSON.parse(mockFetch.mock.calls[1][1].body);
 
         // Each source gets its own chunk
-        expect(firstBody.every((r: any) => r.source === 'healthkit')).toBe(true);
+        expect(firstBody.every((r: any) => r.source === 'healthkit')).toBe(
+          true,
+        );
         expect(secondBody.every((r: any) => r.source === 'garmin')).toBe(true);
       });
 
@@ -726,7 +780,9 @@ describe('healthDataApi', () => {
         const error = await assertion;
         expect(error).toBeInstanceOf(Error);
         expect((error as Error).message).toMatch(/Sync partially completed/);
-        expect((error as Error).message).toContain(`${CHUNK_SIZE} of ${totalRecords}`);
+        expect((error as Error).message).toContain(
+          `${CHUNK_SIZE} of ${totalRecords}`,
+        );
       });
 
       test('includes auth headers on every chunk', async () => {

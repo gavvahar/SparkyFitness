@@ -159,7 +159,10 @@ describe('authService', () => {
         status: 401,
         text: () =>
           Promise.resolve(
-            JSON.stringify({ message: 'Invalid credentials', code: 'AUTH_FAILED' }),
+            JSON.stringify({
+              message: 'Invalid credentials',
+              code: 'AUTH_FAILED',
+            }),
           ),
       });
 
@@ -194,8 +197,7 @@ describe('authService', () => {
     test('sends POST to sign-in endpoint with correct body', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () =>
-          Promise.resolve({ token: 't', user: { email: 'u@t.com' } }),
+        json: () => Promise.resolve({ token: 't', user: { email: 'u@t.com' } }),
       });
 
       await login(serverUrl, 'u@t.com', 'p');
@@ -214,8 +216,7 @@ describe('authService', () => {
     test('normalizes trailing slash in server URL', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () =>
-          Promise.resolve({ token: 't', user: { email: 'u@t.com' } }),
+        json: () => Promise.resolve({ token: 't', user: { email: 'u@t.com' } }),
       });
 
       await login('https://trailing-slash.example.com/', 'u@t.com', 'p');
@@ -259,9 +260,9 @@ describe('authService', () => {
     test('propagates network errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network request failed'));
 
-      await expect(
-        login(serverUrl, 'user@test.com', 'pass'),
-      ).rejects.toThrow('Network request failed');
+      await expect(login(serverUrl, 'user@test.com', 'pass')).rejects.toThrow(
+        'Network request failed',
+      );
     });
 
     describe('HTTPS enforcement', () => {
@@ -276,7 +277,9 @@ describe('authService', () => {
 
         await expect(
           login('http://insecure.example.com', 'u@t.com', 'p'),
-        ).rejects.toThrow('A secure (HTTPS) server URL is required to sign in.');
+        ).rejects.toThrow(
+          'A secure (HTTPS) server URL is required to sign in.',
+        );
 
         expect(mockFetch).not.toHaveBeenCalled();
       });
@@ -336,9 +339,9 @@ describe('authService', () => {
         status: 404,
       });
 
-      await expect(
-        fetchMfaFactors(serverUrl, 'user@test.com'),
-      ).rejects.toThrow('Failed to fetch MFA factors.');
+      await expect(fetchMfaFactors(serverUrl, 'user@test.com')).rejects.toThrow(
+        'Failed to fetch MFA factors.',
+      );
     });
 
     test('encodes email in query parameter', async () => {
@@ -376,7 +379,9 @@ describe('authService', () => {
     test('returns session token and user on success', async () => {
       const serverUrl = 'https://totp-success.example.com';
       mockFetch
-        .mockResolvedValueOnce(mockAuthSettingsResponse('https://auth.example.com'))
+        .mockResolvedValueOnce(
+          mockAuthSettingsResponse('https://auth.example.com'),
+        )
         .mockResolvedValueOnce(mockSuccessVerifyResponse());
 
       const result = await verifyTotp(serverUrl, '123456');
@@ -394,10 +399,13 @@ describe('authService', () => {
         .mockResolvedValueOnce({
           ok: false,
           status: 400,
-          text: () => Promise.resolve(JSON.stringify({ message: 'Invalid code' })),
+          text: () =>
+            Promise.resolve(JSON.stringify({ message: 'Invalid code' })),
         });
 
-      await expect(verifyTotp(serverUrl, '000000')).rejects.toThrow('Invalid code');
+      await expect(verifyTotp(serverUrl, '000000')).rejects.toThrow(
+        'Invalid code',
+      );
     });
 
     test('throws LoginError when response has no token', async () => {
@@ -510,9 +518,7 @@ describe('authService', () => {
       await sendEmailOtp(serverUrl);
 
       const sendCall = mockFetch.mock.calls[1];
-      expect(sendCall[0]).toBe(
-        `${serverUrl}/api/auth/two-factor/send-otp`,
-      );
+      expect(sendCall[0]).toBe(`${serverUrl}/api/auth/two-factor/send-otp`);
       expect(sendCall[1].headers).toEqual(
         expect.objectContaining({
           Origin: 'https://my-auth.example.com',

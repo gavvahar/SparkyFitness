@@ -17,8 +17,9 @@ describe('useDebounce', () => {
 
   test('updates value after delay', () => {
     const { result, rerender } = renderHook(
-      (props: { value: string; delay: number }) => useDebounce(props.value, props.delay),
-      { initialProps: { value: 'hello', delay: 300 } }
+      (props: { value: string; delay: number }) =>
+        useDebounce(props.value, props.delay),
+      { initialProps: { value: 'hello', delay: 300 } },
     );
 
     rerender({ value: 'world', delay: 300 });
@@ -33,8 +34,9 @@ describe('useDebounce', () => {
 
   test('resets timer on rapid changes', () => {
     const { result, rerender } = renderHook(
-      (props: { value: string; delay: number }) => useDebounce(props.value, props.delay),
-      { initialProps: { value: 'a', delay: 300 } }
+      (props: { value: string; delay: number }) =>
+        useDebounce(props.value, props.delay),
+      { initialProps: { value: 'a', delay: 300 } },
     );
 
     rerender({ value: 'ab', delay: 300 });
@@ -60,8 +62,9 @@ describe('useDebounce', () => {
 
   test('does not update before delay elapses', () => {
     const { result, rerender } = renderHook(
-      (props: { value: string; delay: number }) => useDebounce(props.value, props.delay),
-      { initialProps: { value: 'initial', delay: 500 } }
+      (props: { value: string; delay: number }) =>
+        useDebounce(props.value, props.delay),
+      { initialProps: { value: 'initial', delay: 500 } },
     );
 
     rerender({ value: 'updated', delay: 500 });

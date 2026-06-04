@@ -1,11 +1,20 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import Icon from '../components/Icon';
 import Button from '../components/ui/Button';
 import FoodNutritionSummary from '../components/FoodNutritionSummary';
-import ServingAdjustSheet, { type ServingAdjustSheetRef } from '../components/ServingAdjustSheet';
+import ServingAdjustSheet, {
+  type ServingAdjustSheetRef,
+} from '../components/ServingAdjustSheet';
 import SwipeableFoodRow from '../components/SwipeableFoodRow';
 import StatusView from '../components/StatusView';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
@@ -22,7 +31,10 @@ import type { RootStackScreenProps } from '../types/navigation';
 
 type MealTypeDetailScreenProps = RootStackScreenProps<'MealTypeDetail'>;
 
-const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation, route }) => {
+const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { date, mealType, mealLabel } = route.params;
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
@@ -61,7 +73,11 @@ const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation,
           iconSize={64}
           title="No server configured"
           subtitle="Configure your server connection in Settings to view meal nutrition."
-          action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }), variant: 'primary' }}
+          action={{
+            label: 'Go to Settings',
+            onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -70,7 +86,9 @@ const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation,
       return (
         <View className="flex-1 items-center justify-center p-8">
           <ActivityIndicator size="large" color={accentColor} />
-          <Text className="text-text-muted text-base mt-4">Loading meal...</Text>
+          <Text className="text-text-muted text-base mt-4">
+            Loading meal...
+          </Text>
         </View>
       );
     }
@@ -112,10 +130,16 @@ const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation,
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-4 py-4 gap-5"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 16 + activeWorkoutBarPadding,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={accentColor}
+          />
         }
       >
         <FoodNutritionSummary
@@ -127,7 +151,9 @@ const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation,
 
         <View className="bg-surface rounded-xl p-4 shadow-sm">
           <View className="flex-row items-center mb-3">
-            <Text className="text-base font-bold text-text-secondary flex-1">Foods</Text>
+            <Text className="text-base font-bold text-text-secondary flex-1">
+              Foods
+            </Text>
             <Text className="text-xs text-text-muted font-medium">
               {entries.length} {entries.length === 1 ? 'item' : 'items'}
             </Text>
@@ -137,7 +163,9 @@ const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation,
               key={entry.id || index}
               entry={entry}
               nutrition={calculateEntryNutrition(entry)}
-              onAdjustServing={(foodEntry) => servingSheetRef.current?.present(foodEntry)}
+              onAdjustServing={foodEntry =>
+                servingSheetRef.current?.present(foodEntry)
+              }
             />
           ))}
         </View>
@@ -158,7 +186,10 @@ const MealTypeDetailScreen: React.FC<MealTypeDetailScreenProps> = ({ navigation,
 
       {renderContent()}
 
-      <ServingAdjustSheet ref={servingSheetRef} onViewEntry={(entry) => navigation.navigate('FoodEntryView', { entry })} />
+      <ServingAdjustSheet
+        ref={servingSheetRef}
+        onViewEntry={entry => navigation.navigate('FoodEntryView', { entry })}
+      />
     </View>
   );
 };

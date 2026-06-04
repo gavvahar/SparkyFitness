@@ -29,7 +29,9 @@ describe('seedHealthData.ts (Android)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Default: permissions granted, insertions succeed
-    mockRequestPermission.mockImplementation((requested) => Promise.resolve(requested));
+    mockRequestPermission.mockImplementation(requested =>
+      Promise.resolve(requested),
+    );
     mockInsertRecords.mockResolvedValue(undefined);
   });
 
@@ -46,7 +48,9 @@ describe('seedHealthData.ts (Android)', () => {
     test('record count scales with days parameter', async () => {
       const result1 = await seedService.seedHealthData(1);
       jest.clearAllMocks();
-      mockRequestPermission.mockImplementation((requested) => Promise.resolve(requested));
+      mockRequestPermission.mockImplementation(requested =>
+        Promise.resolve(requested),
+      );
       mockInsertRecords.mockResolvedValue(undefined);
       const result7 = await seedService.seedHealthData(7);
 
@@ -80,7 +84,7 @@ describe('seedHealthData.ts (Android)', () => {
       // Should log a warning about missing permissions
       expect(mockAddLog).toHaveBeenCalledWith(
         expect.stringContaining('Some write permissions not returned'),
-        'WARNING'
+        'WARNING',
       );
     });
 
@@ -160,7 +164,7 @@ describe('seedHealthData.ts (Android)', () => {
       await seedService.seedHealthData(7);
 
       const successCalls = mockAddLog.mock.calls.filter(
-        (call) => call[1] === 'INFO'
+        call => call[1] === 'INFO',
       );
       expect(successCalls.length).toBeGreaterThan(0);
     });
@@ -175,7 +179,7 @@ describe('seedHealthData.ts (Android)', () => {
       // This test verifies the start message is logged.
       expect(mockAddLog).toHaveBeenCalledWith(
         expect.stringContaining('Starting to seed'),
-        'INFO'
+        'INFO',
       );
     });
   });

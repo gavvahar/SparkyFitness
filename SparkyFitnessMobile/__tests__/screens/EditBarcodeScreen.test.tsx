@@ -38,7 +38,9 @@ jest.mock('../../src/services/LogService', () => ({
 }));
 
 const mockUpdateFood = updateFood as jest.MockedFunction<typeof updateFood>;
-const mockLookupBarcodeV2 = lookupBarcodeV2 as jest.MockedFunction<typeof lookupBarcodeV2>;
+const mockLookupBarcodeV2 = lookupBarcodeV2 as jest.MockedFunction<
+  typeof lookupBarcodeV2
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -87,7 +89,10 @@ describe('EditBarcodeScreen', () => {
   });
 
   it('saves a new barcode after a clean conflict check and dispatches the normalized value back', async () => {
-    mockLookupBarcodeV2.mockResolvedValue({ source: 'not_found', food: null } as any);
+    mockLookupBarcodeV2.mockResolvedValue({
+      source: 'not_found',
+      food: null,
+    } as any);
     mockUpdateFood.mockResolvedValue({
       id: 'food-1',
       name: 'Greek Yogurt',
@@ -99,11 +104,16 @@ describe('EditBarcodeScreen', () => {
 
     const screen = renderScreen();
 
-    fireEvent.changeText(screen.getByPlaceholderText('012345678905'), '012345678905');
+    fireEvent.changeText(
+      screen.getByPlaceholderText('012345678905'),
+      '012345678905',
+    );
     fireEvent.press(screen.getByText('Save'));
 
     await waitFor(() => {
-      expect(mockUpdateFood).toHaveBeenCalledWith('food-1', { barcode: '012345678905' });
+      expect(mockUpdateFood).toHaveBeenCalledWith('food-1', {
+        barcode: '012345678905',
+      });
     });
     expect(navigation.dispatch).toHaveBeenCalledTimes(1);
     const dispatched = navigation.dispatch.mock.calls[0][0];
@@ -122,14 +132,15 @@ describe('EditBarcodeScreen', () => {
       food: { id: 'food-2', name: 'Other Yogurt' },
     } as any);
 
-    const alertSpy = jest
-      .spyOn(Alert, 'alert')
-      .mockImplementation(() => {
-        // simulate user pressing Cancel
-      });
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {
+      // simulate user pressing Cancel
+    });
 
     const screen = renderScreen();
-    fireEvent.changeText(screen.getByPlaceholderText('012345678905'), '012345678905');
+    fireEvent.changeText(
+      screen.getByPlaceholderText('012345678905'),
+      '012345678905',
+    );
 
     await act(async () => {
       fireEvent.press(screen.getByText('Save'));
@@ -199,7 +210,10 @@ describe('EditBarcodeScreen', () => {
 
   it('short-circuits when value matches the stored normalized form (12 vs 13 digit UPC-A)', async () => {
     const screen = renderScreen({ currentBarcode: '0012345678905' });
-    fireEvent.changeText(screen.getByPlaceholderText('012345678905'), '012345678905');
+    fireEvent.changeText(
+      screen.getByPlaceholderText('012345678905'),
+      '012345678905',
+    );
 
     fireEvent.press(screen.getByText('Save'));
     // Save is disabled because the normalized value matches; nothing happens.

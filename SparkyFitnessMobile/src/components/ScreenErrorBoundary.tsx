@@ -16,7 +16,10 @@ interface ScreenErrorBoundaryState {
   retryKey: number;
 }
 
-class ScreenErrorBoundary extends React.Component<ScreenErrorBoundaryProps, ScreenErrorBoundaryState> {
+class ScreenErrorBoundary extends React.Component<
+  ScreenErrorBoundaryProps,
+  ScreenErrorBoundaryState
+> {
   state: ScreenErrorBoundaryState = { hasError: false, retryKey: 0 };
 
   static getDerivedStateFromError(): Partial<ScreenErrorBoundaryState> {
@@ -24,16 +27,16 @@ class ScreenErrorBoundary extends React.Component<ScreenErrorBoundaryProps, Scre
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    addLog(
-      `[${this.props.screenName}] Screen crashed`,
-      'ERROR',
-      [error.message, error.stack ?? '', info.componentStack ?? ''],
-    );
+    addLog(`[${this.props.screenName}] Screen crashed`, 'ERROR', [
+      error.message,
+      error.stack ?? '',
+      info.componentStack ?? '',
+    ]);
   }
 
   handleRetry = () => {
     queryClient.resetQueries();
-    this.setState((prev) => ({ hasError: false, retryKey: prev.retryKey + 1 }));
+    this.setState(prev => ({ hasError: false, retryKey: prev.retryKey + 1 }));
   };
 
   render() {
@@ -47,11 +50,19 @@ class ScreenErrorBoundary extends React.Component<ScreenErrorBoundaryProps, Scre
           <Text className="text-text-secondary text-sm mt-2 text-center">
             An unexpected error occurred. Your server may need to be updated.
           </Text>
-          <Button variant="primary" onPress={this.handleRetry} className="mt-4 px-6">
+          <Button
+            variant="primary"
+            onPress={this.handleRetry}
+            className="mt-4 px-6"
+          >
             Try Again
           </Button>
           {this.props.onGoBack && (
-            <Button variant="ghost" onPress={this.props.onGoBack} className="mt-2 px-6">
+            <Button
+              variant="ghost"
+              onPress={this.props.onGoBack}
+              className="mt-2 px-6"
+            >
               Go Back
             </Button>
           )}
@@ -77,7 +88,10 @@ interface SectionErrorBoundaryState {
   retryKey: number;
 }
 
-export class SectionErrorBoundary extends React.Component<SectionErrorBoundaryProps, SectionErrorBoundaryState> {
+export class SectionErrorBoundary extends React.Component<
+  SectionErrorBoundaryProps,
+  SectionErrorBoundaryState
+> {
   state: SectionErrorBoundaryState = { hasError: false, retryKey: 0 };
 
   static getDerivedStateFromError(): Partial<SectionErrorBoundaryState> {
@@ -85,16 +99,16 @@ export class SectionErrorBoundary extends React.Component<SectionErrorBoundaryPr
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    addLog(
-      `[${this.props.sectionName}] Section crashed`,
-      'ERROR',
-      [error.message, error.stack ?? '', info.componentStack ?? ''],
-    );
+    addLog(`[${this.props.sectionName}] Section crashed`, 'ERROR', [
+      error.message,
+      error.stack ?? '',
+      info.componentStack ?? '',
+    ]);
   }
 
   handleRetry = () => {
     queryClient.resetQueries();
-    this.setState((prev) => ({ hasError: false, retryKey: prev.retryKey + 1 }));
+    this.setState(prev => ({ hasError: false, retryKey: prev.retryKey + 1 }));
   };
 
   render() {
@@ -105,7 +119,11 @@ export class SectionErrorBoundary extends React.Component<SectionErrorBoundaryPr
           <Text className="text-text-secondary text-sm mt-2 text-center">
             This section failed to load.
           </Text>
-          <Button variant="ghost" onPress={this.handleRetry} className="mt-2 px-4">
+          <Button
+            variant="ghost"
+            onPress={this.handleRetry}
+            className="mt-2 px-4"
+          >
             Try Again
           </Button>
         </View>

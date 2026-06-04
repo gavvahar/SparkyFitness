@@ -1,5 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, View, TouchableOpacity, Platform, Text, Switch } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  Alert,
+  View,
+  TouchableOpacity,
+  Platform,
+  Text,
+  Switch,
+} from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
@@ -11,14 +24,23 @@ import FormInput from '../components/FormInput';
 import Button from '../components/ui/Button';
 import FoodForm, { type FoodFormData } from '../components/FoodForm';
 import BottomSheetPicker from '../components/BottomSheetPicker';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
 import { setPendingMealIngredientSelection } from '../services/mealBuilderSelection';
 import { useMealTypes, usePreferences } from '../hooks';
 import { useSaveFood } from '../hooks/useSaveFood';
 import { useAddFoodEntry } from '../hooks/useAddFoodEntry';
-import { useCreateFoodVariant, useFoodVariants } from '../hooks/useFoodVariants';
+import {
+  useCreateFoodVariant,
+  useFoodVariants,
+} from '../hooks/useFoodVariants';
 import { getMealTypeLabel } from '../constants/meals';
-import { getTodayDate, normalizeDate, formatDateLabel } from '../utils/dateUtils';
+import {
+  getTodayDate,
+  normalizeDate,
+  formatDateLabel,
+} from '../utils/dateUtils';
 import { parseOptional } from '../types/foodInfo';
 import {
   createFoodVariant,
@@ -50,9 +72,18 @@ import { DECIMAL_INPUT_REGEX, parseDecimalInput } from '../utils/numericInput';
 
 type FoodFormScreenProps = RootStackScreenProps<'FoodForm'>;
 
-type CreateFoodParams = Extract<FoodFormScreenProps['route']['params'], { mode: 'create-food' }>;
-type AdjustNutritionParams = Extract<FoodFormScreenProps['route']['params'], { mode: 'adjust-entry-nutrition' }>;
-type EditFoodParams = Extract<FoodFormScreenProps['route']['params'], { mode: 'edit-food' }>;
+type CreateFoodParams = Extract<
+  FoodFormScreenProps['route']['params'],
+  { mode: 'create-food' }
+>;
+type AdjustNutritionParams = Extract<
+  FoodFormScreenProps['route']['params'],
+  { mode: 'adjust-entry-nutrition' }
+>;
+type EditFoodParams = Extract<
+  FoodFormScreenProps['route']['params'],
+  { mode: 'edit-food' }
+>;
 
 const CREATE_FORM_SOURCE_VARIANT_ID = '__create-form-source-variant__';
 
@@ -103,19 +134,21 @@ function isBlankEquivalent(eq: EquivalentUnit): boolean {
 }
 
 function equivalentsDiffer(a: EquivalentUnit[], b: EquivalentUnit[]): boolean {
-  const left = a.filter((eq) => !isBlankEquivalent(eq));
-  const right = b.filter((eq) => !isBlankEquivalent(eq));
+  const left = a.filter(eq => !isBlankEquivalent(eq));
+  const right = b.filter(eq => !isBlankEquivalent(eq));
   if (left.length !== right.length) return true;
   for (let i = 0; i < left.length; i++) {
     if ((left[i].id ?? '') !== (right[i].id ?? '')) return true;
-    if (Number(left[i].serving_size) !== Number(right[i].serving_size)) return true;
-    if ((left[i].serving_unit ?? '') !== (right[i].serving_unit ?? '')) return true;
+    if (Number(left[i].serving_size) !== Number(right[i].serving_size))
+      return true;
+    if ((left[i].serving_unit ?? '') !== (right[i].serving_unit ?? ''))
+      return true;
   }
   return false;
 }
 
 function confirmDiscardEquivalents(): Promise<boolean> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     Alert.alert(
       'Discard unsaved equivalents?',
       'You have unsaved equivalent sizes. Discard them to continue?',
@@ -130,12 +163,20 @@ function confirmDiscardEquivalents(): Promise<boolean> {
 
 function validateFoodForm(data: FoodFormData): boolean {
   if (!data.name.trim()) {
-    Toast.show({ type: 'error', text1: 'Missing name', text2: 'Please enter a food name.' });
+    Toast.show({
+      type: 'error',
+      text1: 'Missing name',
+      text2: 'Please enter a food name.',
+    });
     return false;
   }
 
   if (!parseDecimalInput(data.servingSize)) {
-    Toast.show({ type: 'error', text1: 'Invalid serving size', text2: 'Serving size must be greater than zero.' });
+    Toast.show({
+      type: 'error',
+      text1: 'Invalid serving size',
+      text2: 'Serving size must be greater than zero.',
+    });
     return false;
   }
 
@@ -147,7 +188,7 @@ function hasFoodFormChanges(
   data: FoodFormData,
   fields: (keyof FoodFormData)[],
 ): boolean {
-  return fields.some((field) => {
+  return fields.some(field => {
     if (!NUMERIC_FOOD_FIELDS.has(field)) {
       return (initialValues[field] ?? '') !== data[field];
     }
@@ -166,25 +207,44 @@ function hasFoodFormChanges(
 }
 
 function invalidateFoodCaches(queryClient: QueryClient, foodId: string) {
-  void queryClient.invalidateQueries({ queryKey: foodVariantsQueryKey(foodId), refetchType: 'all' });
-  void queryClient.invalidateQueries({ queryKey: foodsQueryKey, refetchType: 'all' });
-  void queryClient.invalidateQueries({ queryKey: ['foodsLibrary'], refetchType: 'all' });
-  void queryClient.invalidateQueries({ queryKey: ['foodSearch'], refetchType: 'all' });
+  void queryClient.invalidateQueries({
+    queryKey: foodVariantsQueryKey(foodId),
+    refetchType: 'all',
+  });
+  void queryClient.invalidateQueries({
+    queryKey: foodsQueryKey,
+    refetchType: 'all',
+  });
+  void queryClient.invalidateQueries({
+    queryKey: ['foodsLibrary'],
+    refetchType: 'all',
+  });
+  void queryClient.invalidateQueries({
+    queryKey: ['foodSearch'],
+    refetchType: 'all',
+  });
 }
 
-function updateFoodVariantCache(queryClient: QueryClient, updatedVariant: FoodVariantDetail) {
+function updateFoodVariantCache(
+  queryClient: QueryClient,
+  updatedVariant: FoodVariantDetail,
+) {
   queryClient.setQueryData<FoodVariantDetail[] | undefined>(
     foodVariantsQueryKey(updatedVariant.food_id),
-    (current) => {
+    current => {
       if (!current) return current;
-      return current.map((variant) => (
-        variant.id === updatedVariant.id ? updatedVariant : variant
-      ));
+      return current.map(variant =>
+        variant.id === updatedVariant.id ? updatedVariant : variant,
+      );
     },
   );
 }
 
-function buildUpdatedFoodInfo(item: FoodInfoItem, data: FoodFormData, variantId: string): FoodInfoItem {
+function buildUpdatedFoodInfo(
+  item: FoodInfoItem,
+  data: FoodFormData,
+  variantId: string,
+): FoodInfoItem {
   return {
     ...item,
     name: data.name,
@@ -290,8 +350,7 @@ function buildFormValuesFromVariant(
     sodium: variant.sodium != null ? String(variant.sodium) : '',
     sugars: variant.sugars != null ? String(variant.sugars) : '',
     potassium: variant.potassium != null ? String(variant.potassium) : '',
-    cholesterol:
-      variant.cholesterol != null ? String(variant.cholesterol) : '',
+    cholesterol: variant.cholesterol != null ? String(variant.cholesterol) : '',
     calcium: variant.calcium != null ? String(variant.calcium) : '',
     iron: variant.iron != null ? String(variant.iron) : '',
     vitaminA: variant.vitamin_a != null ? String(variant.vitamin_a) : '',
@@ -355,7 +414,7 @@ async function persistFoodEdits({
         vitamin_a: parseOptional(data.vitaminA),
         vitamin_c: parseOptional(data.vitaminC),
         custom_nutrients: customNutrients || undefined,
-      }).then((updatedVariant) => {
+      }).then(updatedVariant => {
         updateFoodVariantCache(queryClient, updatedVariant);
         return updatedVariant;
       }),
@@ -365,7 +424,8 @@ async function persistFoodEdits({
   if (shouldUpdateFood) {
     const foodPayload: { name?: string; brand?: string } = {};
     if (data.name !== foodInitialValues.name) foodPayload.name = data.name;
-    if (data.brand !== foodInitialValues.brand) foodPayload.brand = data.brand || '';
+    if (data.brand !== foodInitialValues.brand)
+      foodPayload.brand = data.brand || '';
     updates.push(updateFood(foodId, foodPayload));
   }
 
@@ -385,7 +445,11 @@ async function persistFoodMetadataEdits({
   data: FoodFormData;
   initialValues: Partial<FoodFormData>;
 }): Promise<boolean> {
-  const shouldUpdateFood = hasFoodFormChanges(initialValues, data, FOOD_METADATA_FIELDS);
+  const shouldUpdateFood = hasFoodFormChanges(
+    initialValues,
+    data,
+    FOOD_METADATA_FIELDS,
+  );
 
   if (!shouldUpdateFood) {
     return false;
@@ -441,9 +505,24 @@ function BarcodeField({
   );
 }
 
-function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodParams; navigation: FoodFormScreenProps['navigation']; routeKey: string }) {
+function CreateFoodMode({
+  params,
+  navigation,
+  routeKey,
+}: {
+  params: CreateFoodParams;
+  navigation: FoodFormScreenProps['navigation'];
+  routeKey: string;
+}) {
   const insets = useSafeAreaInsets();
-  const [accentColor, textPrimary, textSecondary, formEnabled, formDisabled] = useCSSVariable(['--color-accent-primary', '--color-text-primary', '--color-text-secondary', '--color-form-enabled', '--color-form-disabled']) as [string, string, string, string, string];
+  const [accentColor, textPrimary, textSecondary, formEnabled, formDisabled] =
+    useCSSVariable([
+      '--color-accent-primary',
+      '--color-text-primary',
+      '--color-text-secondary',
+      '--color-form-enabled',
+      '--color-form-disabled',
+    ]) as [string, string, string, string, string];
   const pickerMode = params.pickerMode ?? 'log-entry';
   const returnDepth = params.returnDepth ?? 1;
   const isMealBuilderMode = pickerMode === 'meal-builder';
@@ -470,7 +549,8 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
     });
   }, [scannedBarcodeNonce, pendingScannedBarcode, navigation]);
   const importedSourceVariant = useMemo(
-    () => buildVariantFromInitialValues(initialFood, CREATE_FORM_SOURCE_VARIANT_ID),
+    () =>
+      buildVariantFromInitialValues(initialFood, CREATE_FORM_SOURCE_VARIANT_ID),
     [initialFood],
   );
   const [pendingUnitSelection, setPendingUnitSelection] =
@@ -483,17 +563,22 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
         : null,
     );
 
-  const [selectedDate, setSelectedDate] = useState(params.date ?? getTodayDate());
+  const [selectedDate, setSelectedDate] = useState(
+    params.date ?? getTodayDate(),
+  );
   const calendarRef = useRef<CalendarSheetRef>(null);
   const { mealTypes, defaultMealTypeId } = useMealTypes();
   const [selectedMealId, setSelectedMealId] = useState<string | undefined>();
   const effectiveMealId = selectedMealId ?? defaultMealTypeId;
-  const selectedMealType = mealTypes.find((mt) => mt.id === effectiveMealId);
+  const selectedMealType = mealTypes.find(mt => mt.id === effectiveMealId);
 
   const [saveToDatabase, setSaveToDatabase] = useState(true);
-  const initialServingSize = parseDecimalInput(initialFood?.servingSize ?? '') || 100;
+  const initialServingSize =
+    parseDecimalInput(initialFood?.servingSize ?? '') || 100;
   const [formServingSize, setFormServingSize] = useState(initialServingSize);
-  const [formServingUnit, setFormServingUnit] = useState(initialFood?.servingUnit ?? 'g');
+  const [formServingUnit, setFormServingUnit] = useState(
+    initialFood?.servingUnit ?? 'g',
+  );
   const [quantityText, setQuantityText] = useState(String(initialServingSize));
   const [quantityTouched, setQuantityTouched] = useState(false);
   const quantity = parseDecimalInput(quantityText) || 0;
@@ -507,7 +592,9 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
   };
 
   const handleImportedUnitSelectionChange = useCallback(
-    async (selection: FoodUnitSelectionResult): Promise<FoodUnitSelectionResult> => {
+    async (
+      selection: FoodUnitSelectionResult,
+    ): Promise<FoodUnitSelectionResult> => {
       setPendingUnitSelection(selection);
       return selection;
     },
@@ -544,16 +631,24 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
       delta > 0
         ? Math.ceil(quantity / increment) * increment
         : Math.floor(quantity / increment) * increment;
-    const next = boundary !== quantity ? boundary : quantity + delta * increment;
+    const next =
+      boundary !== quantity ? boundary : quantity + delta * increment;
     setQuantityText(String(Math.max(minQuantity, next)));
     setQuantityTouched(true);
   };
 
-  const mealPickerOptions = mealTypes.map((mt) => ({ label: getMealTypeLabel(mt.name), value: mt.id }));
+  const mealPickerOptions = mealTypes.map(mt => ({
+    label: getMealTypeLabel(mt.name),
+    value: mt.id,
+  }));
 
   const { saveFoodAsync, isPending: isSavePending } = useSaveFood();
-  const { addEntry, isPending: isAddPending, invalidateCache } = useAddFoodEntry({
-    onSuccess: (entry) => {
+  const {
+    addEntry,
+    isPending: isAddPending,
+    invalidateCache,
+  } = useAddFoodEntry({
+    onSuccess: entry => {
       invalidateCache(normalizeDate(entry.entry_date));
       navigation.dispatch(StackActions.popToTop());
     },
@@ -563,21 +658,37 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
 
   const handleSubmit = async (data: FoodFormData) => {
     if (!data.name.trim()) {
-      Toast.show({ type: 'error', text1: 'Missing name', text2: 'Please enter a food name.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Missing name',
+        text2: 'Please enter a food name.',
+      });
       return;
     }
     if (!parseDecimalInput(data.servingSize)) {
-      Toast.show({ type: 'error', text1: 'Invalid serving size', text2: 'Serving size must be greater than zero.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid serving size',
+        text2: 'Serving size must be greater than zero.',
+      });
       return;
     }
     const trimmedBarcode = barcodeInput.trim();
-    if (showBarcodeField && trimmedBarcode !== '' && !BARCODE_REGEX.test(trimmedBarcode)) {
-      Toast.show({ type: 'error', text1: 'Invalid barcode', text2: 'Barcode must be 8-14 digits.' });
+    if (
+      showBarcodeField &&
+      trimmedBarcode !== '' &&
+      !BARCODE_REGEX.test(trimmedBarcode)
+    ) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid barcode',
+        text2: 'Barcode must be 8-14 digits.',
+      });
       return;
     }
     const resolvedBarcode = showBarcodeField
       ? trimmedBarcode || null
-      : params.barcode ?? null;
+      : (params.barcode ?? null);
     const saveFoodPayload = {
       name: data.name,
       brand: data.brand || null,
@@ -634,11 +745,20 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
     }
 
     if (!quantity) {
-      Toast.show({ type: 'error', text1: 'Invalid amount', text2: 'Amount must be greater than zero.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid amount',
+        text2: 'Amount must be greater than zero.',
+      });
       return;
     }
     if (!effectiveMealId) {
-      Toast.show({ type: 'error', text1: 'No meal type', text2: 'No meal types are available. Please check your account settings.' });
+      Toast.show({
+        type: 'error',
+        text1: 'No meal type',
+        text2:
+          'No meal types are available. Please check your account settings.',
+      });
       return;
     }
 
@@ -654,7 +774,10 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
   };
 
   return (
-    <View className="flex-1 bg-background" style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}>
+    <View
+      className="flex-1 bg-background"
+      style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}
+    >
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-border-subtle">
         <TouchableOpacity
@@ -670,7 +793,7 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
       </View>
 
       <FoodForm
-        onSubmit={(data) => {
+        onSubmit={data => {
           void handleSubmit(data);
         }}
         onServingChange={handleServingChange}
@@ -691,76 +814,92 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
       >
         {isLogEntryMode ? (
           <View className="gap-4 bg-surface rounded-xl p-4 shadow-sm">
-
-          <View className="flex-row items-start">
-            {/* Date */}
-            <TouchableOpacity
-              onPress={() => calendarRef.current?.present()}
-              activeOpacity={0.7}
-              className="flex-1 flex-row items-center"
-            >
-              <Text className="text-text-secondary text-base mr-3">Date</Text>
-              <Text className="text-text-primary text-base font-medium mx-1.5">
-                {formatDateLabel(selectedDate)}
-              </Text>
-              <Icon name="chevron-down" size={12} color={textPrimary} weight="medium" />
-            </TouchableOpacity>
-
-            {/* Meal */}
-            {selectedMealType ? (
-              <View className="flex-1 flex-row items-center">
-                <Text className="text-text-secondary text-base mx-3">Meal</Text>
-                <BottomSheetPicker
-                  value={effectiveMealId!}
-                  options={mealPickerOptions}
-                  onSelect={setSelectedMealId}
-                  title="Select Meal"
-                  renderTrigger={({ onPress }) => (
-                    <TouchableOpacity
-                      onPress={onPress}
-                      activeOpacity={0.7}
-                      className="flex-row items-center"
-                    >
-                      <Text className="text-text-primary text-base font-medium mx-1.5">
-                        {getMealTypeLabel(selectedMealType.name)}
-                      </Text>
-                      <Icon name="chevron-down" size={12} color={textPrimary} weight="medium" />
-                    </TouchableOpacity>
-                  )}
+            <View className="flex-row items-start">
+              {/* Date */}
+              <TouchableOpacity
+                onPress={() => calendarRef.current?.present()}
+                activeOpacity={0.7}
+                className="flex-1 flex-row items-center"
+              >
+                <Text className="text-text-secondary text-base mr-3">Date</Text>
+                <Text className="text-text-primary text-base font-medium mx-1.5">
+                  {formatDateLabel(selectedDate)}
+                </Text>
+                <Icon
+                  name="chevron-down"
+                  size={12}
+                  color={textPrimary}
+                  weight="medium"
                 />
+              </TouchableOpacity>
+
+              {/* Meal */}
+              {selectedMealType ? (
+                <View className="flex-1 flex-row items-center">
+                  <Text className="text-text-secondary text-base mx-3">
+                    Meal
+                  </Text>
+                  <BottomSheetPicker
+                    value={effectiveMealId!}
+                    options={mealPickerOptions}
+                    onSelect={setSelectedMealId}
+                    title="Select Meal"
+                    renderTrigger={({ onPress }) => (
+                      <TouchableOpacity
+                        onPress={onPress}
+                        activeOpacity={0.7}
+                        className="flex-row items-center"
+                      >
+                        <Text className="text-text-primary text-base font-medium mx-1.5">
+                          {getMealTypeLabel(selectedMealType.name)}
+                        </Text>
+                        <Icon
+                          name="chevron-down"
+                          size={12}
+                          color={textPrimary}
+                          weight="medium"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              ) : null}
+            </View>
+            {/* Amount */}
+            <View>
+              <View className="flex-row items-center">
+                <StepperInput
+                  value={quantityText}
+                  onChangeText={updateQuantityText}
+                  onBlur={clampQuantity}
+                  onDecrement={() => adjustQuantity(-1)}
+                  onIncrement={() => adjustQuantity(1)}
+                />
+                <Text className="text-text-primary text-base font-medium ml-2">
+                  {formServingUnit}
+                </Text>
               </View>
-            ) : null}
-          </View>
-          {/* Amount */}
-          <View>
-            <View className="flex-row items-center">
-              <StepperInput
-                value={quantityText}
-                onChangeText={updateQuantityText}
-                onBlur={clampQuantity}
-                onDecrement={() => adjustQuantity(-1)}
-                onIncrement={() => adjustQuantity(1)}
-              />
-              <Text className="text-text-primary text-base font-medium ml-2">
-                {formServingUnit}
+              <Text className="text-text-secondary text-sm mt-2">
+                {servings % 1 === 0 ? servings : servings.toFixed(1)}{' '}
+                {servings === 1 ? 'serving' : 'servings'}
+                {' \u00b7 '}
+                {formatServingSizeDisplay(formServingSize)} {formServingUnit}{' '}
+                per serving
               </Text>
             </View>
-            <Text className="text-text-secondary text-sm mt-2">
-              {servings % 1 === 0 ? servings : servings.toFixed(1)} {servings === 1 ? 'serving' : 'servings'}
-              {' \u00b7 '}{formatServingSizeDisplay(formServingSize)} {formServingUnit} per serving
-            </Text>
+            {/* Save to Database */}
+            <View className="flex-row items-center justify-between">
+              <Text className="text-text-secondary text-base">
+                Save to Database
+              </Text>
+              <Switch
+                value={saveToDatabase}
+                onValueChange={setSaveToDatabase}
+                trackColor={{ false: formDisabled, true: formEnabled }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
           </View>
-          {/* Save to Database */}
-          <View className="flex-row items-center justify-between">
-            <Text className="text-text-secondary text-base">Save to Database</Text>
-            <Switch
-              value={saveToDatabase}
-              onValueChange={setSaveToDatabase}
-              trackColor={{ false: formDisabled, true: formEnabled }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
-        </View>
         ) : null}
         {showBarcodeField ? (
           <BarcodeField
@@ -778,13 +917,23 @@ function CreateFoodMode({ params, navigation, routeKey }: { params: CreateFoodPa
       </FoodForm>
 
       {isLogEntryMode ? (
-        <CalendarSheet ref={calendarRef} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+        <CalendarSheet
+          ref={calendarRef}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+        />
       ) : null}
     </View>
   );
 }
 
-function AdjustNutritionMode({ params, navigation }: { params: AdjustNutritionParams; navigation: FoodFormScreenProps['navigation'] }) {
+function AdjustNutritionMode({
+  params,
+  navigation,
+}: {
+  params: AdjustNutritionParams;
+  navigation: FoodFormScreenProps['navigation'];
+}) {
   const {
     initialValues,
     returnKey,
@@ -795,7 +944,11 @@ function AdjustNutritionMode({ params, navigation }: { params: AdjustNutritionPa
     selectedUnitSelection,
   } = params;
   const insets = useSafeAreaInsets();
-  const [accentColor, formEnabled, formDisabled] = useCSSVariable(['--color-accent-primary', '--color-form-enabled', '--color-form-disabled']) as [string, string, string];
+  const [accentColor, formEnabled, formDisabled] = useCSSVariable([
+    '--color-accent-primary',
+    '--color-form-enabled',
+    '--color-form-disabled',
+  ]) as [string, string, string];
   const queryClient = useQueryClient();
   const { createVariant } = useCreateFoodVariant();
   const { preferences } = usePreferences();
@@ -900,7 +1053,10 @@ function AdjustNutritionMode({ params, navigation }: { params: AdjustNutritionPa
   };
 
   return (
-    <View className="flex-1 bg-background" style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}>
+    <View
+      className="flex-1 bg-background"
+      style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}
+    >
       <View className="flex-row items-center px-4 py-3 border-b border-border-subtle">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -933,7 +1089,9 @@ function AdjustNutritionMode({ params, navigation }: { params: AdjustNutritionPa
         {canUpdateVariant && (
           <View className="bg-surface rounded-xl p-4 shadow-sm">
             <View className="flex-row items-center justify-between">
-              <Text className="text-text-secondary text-base">Save nutrition for future use</Text>
+              <Text className="text-text-secondary text-base">
+                Save nutrition for future use
+              </Text>
               <Switch
                 accessibilityLabel="Save nutrition for future use"
                 value={updateFoodToggle}
@@ -949,8 +1107,15 @@ function AdjustNutritionMode({ params, navigation }: { params: AdjustNutritionPa
   );
 }
 
-function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigation: FoodFormScreenProps['navigation'] }) {
-  const { item, initialValues, returnKey, foodId, variantId, customNutrients } = params;
+function EditFoodMode({
+  params,
+  navigation,
+}: {
+  params: EditFoodParams;
+  navigation: FoodFormScreenProps['navigation'];
+}) {
+  const { item, initialValues, returnKey, foodId, variantId, customNutrients } =
+    params;
   const insets = useSafeAreaInsets();
   const [accentColor] = useCSSVariable(['--color-accent-primary']) as [string];
   const queryClient = useQueryClient();
@@ -989,9 +1154,9 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
   // badge surfaces on first render (not only after switching units and back).
   useEffect(() => {
     if (savedUnitVariants.length === 0) return;
-    setPendingUnitSelection((prev) => {
+    setPendingUnitSelection(prev => {
       if (!prev || prev.kind !== 'existing' || !prev.variant.id) return prev;
-      const match = savedUnitVariants.find((v) => v.id === prev.variant.id);
+      const match = savedUnitVariants.find(v => v.id === prev.variant.id);
       if (!match || match === prev.variant) return prev;
       return { ...prev, variant: match };
     });
@@ -1010,16 +1175,13 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
     Record<string, string | number> | null | undefined
   >(customNutrients);
 
-  const groups = useMemo(
-    () => groupEquivalentVariants(variants),
-    [variants],
-  );
+  const groups = useMemo(() => groupEquivalentVariants(variants), [variants]);
   const activeGroup = useMemo(
     () =>
       groups.find(
-        (g) =>
+        g =>
           g.base.id === currentVariantId ||
-          g.equivalents.some((eq) => eq.id === currentVariantId),
+          g.equivalents.some(eq => eq.id === currentVariantId),
       ),
     [groups, currentVariantId],
   );
@@ -1029,18 +1191,18 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
       toEquivalentUnit(activeGroup.base),
       ...activeGroup.equivalents,
     ];
-    return all.filter((eq) => eq.id !== currentVariantId);
+    return all.filter(eq => eq.id !== currentVariantId);
   }, [activeGroup, currentVariantId]);
 
   const [equivalentDraft, setEquivalentDraft] = useState<EquivalentUnit[]>([]);
-  const [equivalentBaseline, setEquivalentBaseline] = useState<EquivalentUnit[]>(
-    [],
-  );
+  const [equivalentBaseline, setEquivalentBaseline] = useState<
+    EquivalentUnit[]
+  >([]);
 
   const seedKeyRef = useRef<string | null>(null);
   useEffect(() => {
     const seedKey = `${currentVariantId}|${otherSiblings
-      .map((eq) => `${eq.id ?? ''}:${eq.serving_size}:${eq.serving_unit}`)
+      .map(eq => `${eq.id ?? ''}:${eq.serving_size}:${eq.serving_unit}`)
       .join(',')}`;
     if (seedKeyRef.current === seedKey) return;
     seedKeyRef.current = seedKey;
@@ -1051,11 +1213,11 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
   const isSavingRef = useRef(false);
 
   useEffect(() => {
-    const unsub = navigation.addListener('beforeRemove', (e) => {
+    const unsub = navigation.addListener('beforeRemove', e => {
       if (isSavingRef.current) return;
       if (!equivalentsDiffer(equivalentDraft, equivalentBaseline)) return;
       e.preventDefault();
-      void confirmDiscardEquivalents().then((ok) => {
+      void confirmDiscardEquivalents().then(ok => {
         if (ok) navigation.dispatch(e.data.action);
       });
     });
@@ -1155,7 +1317,8 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
 
       const foodPayload: { name?: string; brand?: string } = {};
       if (data.name !== initialValues.name) foodPayload.name = data.name;
-      if (data.brand !== initialValues.brand) foodPayload.brand = data.brand || '';
+      if (data.brand !== initialValues.brand)
+        foodPayload.brand = data.brand || '';
       const hasFoodMetadataChange = Object.keys(foodPayload).length > 0;
 
       let equivalentChangedCount = 0;
@@ -1183,7 +1346,7 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
         }
         invalidateFoodCaches(queryClient, foodId);
       } else {
-        const activeSnapshot = variants?.find((v) => v.id === currentVariantId);
+        const activeSnapshot = variants?.find(v => v.id === currentVariantId);
         const groupNutrition = buildGroupNutrition(data, activeSnapshot);
 
         const activeRow: Partial<FoodVariantDetail> & { id?: string } = {
@@ -1195,9 +1358,9 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
         };
 
         const cleanEquivalents = equivalentDraft.filter(
-          (eq) => !isBlankEquivalent(eq),
+          eq => !isBlankEquivalent(eq),
         );
-        const siblingRows = cleanEquivalents.map((eq) => ({
+        const siblingRows = cleanEquivalents.map(eq => ({
           id: eq.id,
           food_id: foodId,
           serving_size: eq.serving_size,
@@ -1209,18 +1372,18 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
         const activeGroupIds = new Set<string>();
         if (activeGroup) {
           activeGroupIds.add(activeGroup.base.id);
-          activeGroup.equivalents.forEach((eq) => {
+          activeGroup.equivalents.forEach(eq => {
             if (eq.id) activeGroupIds.add(eq.id);
           });
         }
-        const currentRows: FoodVariantDetail[] = (variants ?? []).filter((v) =>
+        const currentRows: FoodVariantDetail[] = (variants ?? []).filter(v =>
           activeGroupIds.has(v.id),
         );
 
         const diff = diffSiblingRows(currentRows, desired);
         equivalentChangedCount =
           diff.creates.length +
-          diff.updates.filter((u) => u.id !== currentVariantId).length +
+          diff.updates.filter(u => u.id !== currentVariantId).length +
           diff.deletes.length;
 
         const writes: Promise<unknown>[] = [];
@@ -1230,9 +1393,7 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
         }
 
         for (const row of diff.creates) {
-          writes.push(
-            createFoodVariant(row as CreateFoodVariantPayload),
-          );
+          writes.push(createFoodVariant(row as CreateFoodVariantPayload));
         }
         for (const row of diff.updates) {
           const { id, ...payload } = row;
@@ -1278,7 +1439,10 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
   };
 
   return (
-    <View className="flex-1 bg-background" style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}>
+    <View
+      className="flex-1 bg-background"
+      style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}
+    >
       <View className="flex-row items-center px-4 py-3 border-b border-border-subtle">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -1293,7 +1457,7 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
       </View>
 
       <FoodForm
-        onSubmit={(data) => {
+        onSubmit={data => {
           void handleSubmit(data);
         }}
         initialValues={initialValues}
@@ -1318,14 +1482,25 @@ function EditFoodMode({ params, navigation }: { params: EditFoodParams; navigati
   );
 }
 
-const FoodFormScreen: React.FC<FoodFormScreenProps> = ({ route, navigation }) => {
+const FoodFormScreen: React.FC<FoodFormScreenProps> = ({
+  route,
+  navigation,
+}) => {
   if (route.params.mode === 'adjust-entry-nutrition') {
-    return <AdjustNutritionMode params={route.params} navigation={navigation} />;
+    return (
+      <AdjustNutritionMode params={route.params} navigation={navigation} />
+    );
   }
   if (route.params.mode === 'edit-food') {
     return <EditFoodMode params={route.params} navigation={navigation} />;
   }
-  return <CreateFoodMode params={route.params} navigation={navigation} routeKey={route.key} />;
+  return (
+    <CreateFoodMode
+      params={route.params}
+      navigation={navigation}
+      routeKey={route.key}
+    />
+  );
 };
 
 export default FoodFormScreen;

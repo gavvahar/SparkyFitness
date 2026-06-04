@@ -1,19 +1,25 @@
 import { renderHook, waitFor, act } from '@testing-library/react-native';
 import { useFoodsLibrary } from '../../src/hooks/useFoodsLibrary';
 import { fetchFoodsPage } from '../../src/services/api/foodsApi';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/foodsApi', () => ({
   fetchFoodsPage: jest.fn(),
 }));
 
 jest.mock('@react-navigation/native', () => ({
-  useFocusEffect: jest.fn((callback) => {
+  useFocusEffect: jest.fn(callback => {
     callback();
   }),
 }));
 
-const mockFetchFoodsPage = fetchFoodsPage as jest.MockedFunction<typeof fetchFoodsPage>;
+const mockFetchFoodsPage = fetchFoodsPage as jest.MockedFunction<
+  typeof fetchFoodsPage
+>;
 
 function createFood(id: string, name: string) {
   return {
@@ -123,9 +129,12 @@ describe('useFoodsLibrary', () => {
   });
 
   it('does not fetch when enabled is false', async () => {
-    const { result } = renderHook(() => useFoodsLibrary('', { enabled: false }), {
-      wrapper: createQueryWrapper(queryClient),
-    });
+    const { result } = renderHook(
+      () => useFoodsLibrary('', { enabled: false }),
+      {
+        wrapper: createQueryWrapper(queryClient),
+      },
+    );
 
     // Give react-query a tick to flush any would-be fetch.
     await act(async () => {
@@ -261,11 +270,17 @@ describe('useFoodsLibrary', () => {
     let resolvePage2: (() => void) | undefined;
     mockFetchFoodsPage.mockImplementationOnce(
       () =>
-        new Promise((resolve) => {
-          resolvePage2 = () => resolve({
-            foods: [createFood('2', 'Banana')],
-            pagination: { page: 2, pageSize: 20, totalCount: 40, hasMore: false },
-          });
+        new Promise(resolve => {
+          resolvePage2 = () =>
+            resolve({
+              foods: [createFood('2', 'Banana')],
+              pagination: {
+                page: 2,
+                pageSize: 20,
+                totalCount: 40,
+                hasMore: false,
+              },
+            });
         }),
     );
 

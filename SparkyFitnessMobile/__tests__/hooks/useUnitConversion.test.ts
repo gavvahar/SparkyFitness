@@ -45,7 +45,11 @@ describe('useUnitConversion', () => {
       serving_unit: 'tsp',
     });
     expect(
-      resolveAutoConversionSource([gramsVariant, tbspVariant], gramsVariant, 'tsp'),
+      resolveAutoConversionSource(
+        [gramsVariant, tbspVariant],
+        gramsVariant,
+        'tsp',
+      ),
     ).toEqual({
       baseVariant: tbspVariant,
       factor: getConversionFactor('tbsp', 'tsp'),
@@ -197,7 +201,11 @@ describe('useUnitConversion', () => {
     );
 
     expect(
-      resolveAutoConversionSource([gramsVariant, aiTbspVariant], gramsVariant, 'tsp'),
+      resolveAutoConversionSource(
+        [gramsVariant, aiTbspVariant],
+        gramsVariant,
+        'tsp',
+      ),
     ).toBeNull();
     expect(result.current.buildConvertedVariant('tsp')).toBeNull();
   });

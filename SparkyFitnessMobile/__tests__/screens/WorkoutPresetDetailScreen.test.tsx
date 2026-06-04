@@ -4,20 +4,33 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import WorkoutPresetDetailScreen from '../../src/screens/WorkoutPresetDetailScreen';
 import { usePreferences } from '../../src/hooks';
-import type { WorkoutPreset, WorkoutPresetSet } from '../../src/types/workoutPresets';
+import type {
+  WorkoutPreset,
+  WorkoutPresetSet,
+} from '../../src/types/workoutPresets';
 
 jest.mock('../../src/hooks', () => ({
   usePreferences: jest.fn(),
-  useProfile: jest.fn(() => ({ profile: undefined, isLoading: false, isError: false, refetch: jest.fn() })),
+  useProfile: jest.fn(() => ({
+    profile: undefined,
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  })),
   useServerConnection: jest.fn(() => ({ isConnected: true, isLoading: false })),
-  useDeleteWorkoutPreset: jest.fn(() => ({ confirmAndDelete: jest.fn(), isPending: false })),
+  useDeleteWorkoutPreset: jest.fn(() => ({
+    confirmAndDelete: jest.fn(),
+    isPending: false,
+  })),
 }));
 
 jest.mock('../../src/components/ActiveWorkoutBar', () => ({
   useActiveWorkoutBarPadding: jest.fn(() => 0),
 }));
 
-const mockUsePreferences = usePreferences as jest.MockedFunction<typeof usePreferences>;
+const mockUsePreferences = usePreferences as jest.MockedFunction<
+  typeof usePreferences
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -188,9 +201,27 @@ describe('WorkoutPresetDetailScreen', () => {
           exercise_name: 'Bench Press',
           image_url: null,
           sets: [
-            buildSet({ id: 's-1', set_number: 1, reps: 5, weight: 100, rest_time: 45 }),
-            buildSet({ id: 's-2', set_number: 2, reps: 5, weight: 100, rest_time: 90 }),
-            buildSet({ id: 's-3', set_number: 3, reps: 5, weight: 100, rest_time: 120 }),
+            buildSet({
+              id: 's-1',
+              set_number: 1,
+              reps: 5,
+              weight: 100,
+              rest_time: 45,
+            }),
+            buildSet({
+              id: 's-2',
+              set_number: 2,
+              reps: 5,
+              weight: 100,
+              rest_time: 90,
+            }),
+            buildSet({
+              id: 's-3',
+              set_number: 3,
+              reps: 5,
+              weight: 100,
+              rest_time: 120,
+            }),
           ],
         },
       ],

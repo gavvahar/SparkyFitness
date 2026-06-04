@@ -2,7 +2,11 @@ import { renderHook, waitFor, act } from '@testing-library/react-native';
 import { useMealSearch } from '../../src/hooks/useMealSearch';
 import { mealSearchQueryKey } from '../../src/hooks/queryKeys';
 import { searchMeals } from '../../src/services/api/mealsApi';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/mealsApi', () => ({
   searchMeals: jest.fn(),

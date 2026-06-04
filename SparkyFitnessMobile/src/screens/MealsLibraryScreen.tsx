@@ -21,7 +21,9 @@ import type { Meal } from '../types/meals';
 
 type MealsLibraryScreenProps = RootStackScreenProps<'MealsLibrary'>;
 
-const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) => {
+const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentColor, textMuted] = useCSSVariable([
@@ -54,9 +56,12 @@ const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) =
     : isMealsLoading;
   const isError = isSearchActive ? isSearchError : isMealsError;
 
-  const handleMealPress = useCallback((meal: Meal) => {
-    navigation.navigate('MealDetail', { mealId: meal.id, initialMeal: meal });
-  }, [navigation]);
+  const handleMealPress = useCallback(
+    (meal: Meal) => {
+      navigation.navigate('MealDetail', { mealId: meal.id, initialMeal: meal });
+    },
+    [navigation],
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -86,13 +91,19 @@ const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) =
     <View className="px-4 pb-3">
       <View
         className="flex-row items-center bg-raised rounded-lg px-3"
-        style={{ borderWidth: 1, borderColor: isSearchFocused ? accentColor : 'transparent' }}
+        style={{
+          borderWidth: 1,
+          borderColor: isSearchFocused ? accentColor : 'transparent',
+        }}
       >
         <Icon name="search" size={18} color={textMuted} />
         <View className="flex-1 ml-2">
           <TextInput
             className="text-text-primary"
-            style={{ fontSize: 16, paddingVertical: Platform.OS === 'ios' ? 12 : 0 }}
+            style={{
+              fontSize: 16,
+              paddingVertical: Platform.OS === 'ios' ? 12 : 0,
+            }}
             placeholder="Search meals..."
             placeholderTextColor={textMuted}
             value={searchText}
@@ -133,7 +144,11 @@ const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) =
           iconSize={64}
           title="No server configured"
           subtitle="Configure your server connection in Settings to view your meal library."
-          action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }), variant: 'primary' }}
+          action={{
+            label: 'Go to Settings',
+            onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -148,9 +163,16 @@ const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) =
           icon="alert-circle"
           iconColor="#EF4444"
           iconSize={64}
-          title={isSearchActive ? 'Failed to search meals' : 'Failed to load meals'}
+          title={
+            isSearchActive ? 'Failed to search meals' : 'Failed to load meals'
+          }
           subtitle="Please check your connection and try again."
-          action={{ label: 'Retry', onPress: () => void (isSearchActive ? refetchSearch() : refetchMeals()), variant: 'primary' }}
+          action={{
+            label: 'Retry',
+            onPress: () =>
+              void (isSearchActive ? refetchSearch() : refetchMeals()),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -158,7 +180,7 @@ const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) =
     return (
       <FlatList
         data={displayedMeals}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={({ item, index }) => (
           <MealLibraryRow
             meal={item}
@@ -169,9 +191,16 @@ const MealsLibraryScreen: React.FC<MealsLibraryScreenProps> = ({ navigation }) =
         ListEmptyComponent={renderEmpty}
         keyboardShouldPersistTaps="handled"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={accentColor}
+          />
         }
-        contentContainerStyle={{ paddingBottom: scrollBottomPadding, flexGrow: 1 }}
+        contentContainerStyle={{
+          paddingBottom: scrollBottomPadding,
+          flexGrow: 1,
+        }}
       />
     );
   };

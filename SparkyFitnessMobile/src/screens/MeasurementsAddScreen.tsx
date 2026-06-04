@@ -14,7 +14,9 @@ import { useCSSVariable } from 'uniwind';
 import Icon from '../components/Icon';
 import Button from '../components/ui/Button';
 import FormInput from '../components/FormInput';
-import CalendarSheet, { type CalendarSheetRef } from '../components/CalendarSheet';
+import CalendarSheet, {
+  type CalendarSheetRef,
+} from '../components/CalendarSheet';
 import { useMeasurements } from '../hooks/useMeasurements';
 import { useUpsertCheckIn } from '../hooks/useUpsertCheckIn';
 import { usePreferences } from '../hooks/usePreferences';
@@ -117,7 +119,9 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
   const initialDate = route.params?.date ?? getTodayDate();
   const [selectedDate, setSelectedDate] = useState<string>(initialDate);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [prefilledKeys, setPrefilledKeys] = useState<Set<FieldKey>>(() => new Set());
+  const [prefilledKeys, setPrefilledKeys] = useState<Set<FieldKey>>(
+    () => new Set(),
+  );
   // Once the user starts editing we stop syncing the form from refetched
   // measurements for that field, so a background refresh can't clobber their input.
   const dirtyFieldsRef = useRef<Set<FieldKey>>(new Set());
@@ -126,7 +130,8 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
   const { measurements, isLoading } = useMeasurements({ date: selectedDate });
   const { preferences, isLoading: isPreferencesLoading } = usePreferences();
   // Weight supports a third "stones + lbs" mode that renders as two inputs.
-  const weightMode: 'kg' | 'lbs' | 'st_lbs' = preferences?.default_weight_unit ?? 'kg';
+  const weightMode: 'kg' | 'lbs' | 'st_lbs' =
+    preferences?.default_weight_unit ?? 'kg';
   // Body measurements (waist/neck/hips) only support cm/inches — when the
   // pref is ft_in we fall back to cm, matching web's `formatMeasurement`.
   const bodyUnit: 'cm' | 'inches' =
@@ -163,20 +168,28 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
           next.weightStones = String(stones);
           next.weight = formatNumberForInput(lbs);
         } else {
-          next.weight = formatNumberForInput(weightFromKg(measurements.weight, weightMode));
+          next.weight = formatNumberForInput(
+            weightFromKg(measurements.weight, weightMode),
+          );
         }
         prefilled.add('weight');
       }
       if (measurements.neck != null) {
-        next.neck = formatNumberForInput(lengthFromCm(measurements.neck, bodyUnit));
+        next.neck = formatNumberForInput(
+          lengthFromCm(measurements.neck, bodyUnit),
+        );
         prefilled.add('neck');
       }
       if (measurements.waist != null) {
-        next.waist = formatNumberForInput(lengthFromCm(measurements.waist, bodyUnit));
+        next.waist = formatNumberForInput(
+          lengthFromCm(measurements.waist, bodyUnit),
+        );
         prefilled.add('waist');
       }
       if (measurements.hips != null) {
-        next.hips = formatNumberForInput(lengthFromCm(measurements.hips, bodyUnit));
+        next.hips = formatNumberForInput(
+          lengthFromCm(measurements.hips, bodyUnit),
+        );
         prefilled.add('hips');
       }
       if (measurements.height != null) {
@@ -185,7 +198,9 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
           next.heightFeet = String(feet);
           next.height = formatNumberForInput(inches);
         } else {
-          next.height = formatNumberForInput(lengthFromCm(measurements.height, heightMode));
+          next.height = formatNumberForInput(
+            lengthFromCm(measurements.height, heightMode),
+          );
         }
         prefilled.add('height');
       }
@@ -194,11 +209,13 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
         prefilled.add('steps');
       }
       if (measurements.body_fat_percentage != null) {
-        next.bodyFatPercentage = formatNumberForInput(measurements.body_fat_percentage);
+        next.bodyFatPercentage = formatNumberForInput(
+          measurements.body_fat_percentage,
+        );
         prefilled.add('bodyFatPercentage');
       }
     }
-    setForm((current) => {
+    setForm(current => {
       if (dirtyFields.size === 0) return next;
 
       const merged = { ...current };
@@ -211,11 +228,19 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
       return merged;
     });
     setPrefilledKeys(prefilled);
-  }, [selectedDate, isLoading, isPreferencesLoading, measurements, weightMode, bodyUnit, heightMode]);
+  }, [
+    selectedDate,
+    isLoading,
+    isPreferencesLoading,
+    measurements,
+    weightMode,
+    bodyUnit,
+    heightMode,
+  ]);
 
   const updateField = useCallback((key: keyof FormState, value: string) => {
     dirtyFieldsRef.current.add(FORM_FIELD_KEYS[key]);
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm(prev => ({ ...prev, [key]: value }));
   }, []);
 
   const handleSelectDate = useCallback((date: string) => {
@@ -244,19 +269,35 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
       }
       const parsed = parseDecimalInput(trimmed);
       if (Number.isNaN(parsed)) {
-        Toast.show({ type: 'error', text1: `Invalid ${label}`, text2: 'Enter a number.' });
+        Toast.show({
+          type: 'error',
+          text1: `Invalid ${label}`,
+          text2: 'Enter a number.',
+        });
         return { kind: 'invalid' };
       }
       if (parsed < 0) {
-        Toast.show({ type: 'error', text1: `Invalid ${label}`, text2: 'Value must be 0 or greater.' });
+        Toast.show({
+          type: 'error',
+          text1: `Invalid ${label}`,
+          text2: 'Value must be 0 or greater.',
+        });
         return { kind: 'invalid' };
       }
       if (opts?.integer && !Number.isInteger(parsed)) {
-        Toast.show({ type: 'error', text1: `Invalid ${label}`, text2: `${label} must be a whole number.` });
+        Toast.show({
+          type: 'error',
+          text1: `Invalid ${label}`,
+          text2: `${label} must be a whole number.`,
+        });
         return { kind: 'invalid' };
       }
       if (opts?.max != null && parsed > opts.max) {
-        Toast.show({ type: 'error', text1: `Invalid ${label}`, text2: opts.maxMessage ?? `Must be ${opts.max} or less.` });
+        Toast.show({
+          type: 'error',
+          text1: `Invalid ${label}`,
+          text2: opts.maxMessage ?? `Must be ${opts.max} or less.`,
+        });
         return { kind: 'invalid' };
       }
       return { kind: 'value', value: parsed };
@@ -295,21 +336,49 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
         const stones = stRaw === '' ? 0 : parseDecimalInput(stRaw);
         const lbs = lbRaw === '' ? 0 : parseDecimalInput(lbRaw);
         if (Number.isNaN(stones) || Number.isNaN(lbs)) {
-          Toast.show({ type: 'error', text1: 'Invalid weight', text2: 'Enter a number for stones and lbs.' });
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid weight',
+            text2: 'Enter a number for stones and lbs.',
+          });
           return;
         }
         if (stones < 0 || lbs < 0) {
-          Toast.show({ type: 'error', text1: 'Invalid weight', text2: 'Values must be 0 or greater.' });
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid weight',
+            text2: 'Values must be 0 or greater.',
+          });
           return;
         }
         payload.weight = stonesLbsToKg(stones, lbs);
       }
     } else {
-      if (!apply('weight', evaluateField('weight', 'weight'), (v) => weightToKg(v, weightMode))) return;
+      if (
+        !apply('weight', evaluateField('weight', 'weight'), v =>
+          weightToKg(v, weightMode),
+        )
+      )
+        return;
     }
-    if (!apply('neck', evaluateField('neck', 'neck'), (v) => lengthToCm(v, bodyUnit))) return;
-    if (!apply('waist', evaluateField('waist', 'waist'), (v) => lengthToCm(v, bodyUnit))) return;
-    if (!apply('hips', evaluateField('hips', 'hips'), (v) => lengthToCm(v, bodyUnit))) return;
+    if (
+      !apply('neck', evaluateField('neck', 'neck'), v =>
+        lengthToCm(v, bodyUnit),
+      )
+    )
+      return;
+    if (
+      !apply('waist', evaluateField('waist', 'waist'), v =>
+        lengthToCm(v, bodyUnit),
+      )
+    )
+      return;
+    if (
+      !apply('hips', evaluateField('hips', 'hips'), v =>
+        lengthToCm(v, bodyUnit),
+      )
+    )
+      return;
     if (heightMode === 'ft_in') {
       const feetRaw = form.heightFeet.trim();
       const inchesRaw = form.height.trim();
@@ -322,19 +391,39 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
         const feet = feetRaw === '' ? 0 : parseDecimalInput(feetRaw);
         const inches = inchesRaw === '' ? 0 : parseDecimalInput(inchesRaw);
         if (Number.isNaN(feet) || Number.isNaN(inches)) {
-          Toast.show({ type: 'error', text1: 'Invalid height', text2: 'Enter a number for feet and inches.' });
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid height',
+            text2: 'Enter a number for feet and inches.',
+          });
           return;
         }
         if (feet < 0 || inches < 0) {
-          Toast.show({ type: 'error', text1: 'Invalid height', text2: 'Values must be 0 or greater.' });
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid height',
+            text2: 'Values must be 0 or greater.',
+          });
           return;
         }
         payload.height = feetInchesToCm(feet, inches);
       }
     } else {
-      if (!apply('height', evaluateField('height', 'height'), (v) => lengthToCm(v, heightMode))) return;
+      if (
+        !apply('height', evaluateField('height', 'height'), v =>
+          lengthToCm(v, heightMode),
+        )
+      )
+        return;
     }
-    if (!apply('steps', evaluateField('steps', 'steps', { integer: true }), (v) => v)) return;
+    if (
+      !apply(
+        'steps',
+        evaluateField('steps', 'steps', { integer: true }),
+        v => v,
+      )
+    )
+      return;
     if (
       !apply(
         'bodyFatPercentage',
@@ -342,7 +431,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
           max: 100,
           maxMessage: 'Body fat % must be between 0 and 100.',
         }),
-        (v) => v,
+        v => v,
       )
     )
       return;
@@ -356,9 +445,13 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
       'steps',
       'bodyFatPercentage',
     ];
-    const hasAnyField = fieldKeys.some((k) => payload[k] !== undefined);
+    const hasAnyField = fieldKeys.some(k => payload[k] !== undefined);
     if (!hasAnyField) {
-      Toast.show({ type: 'info', text1: 'Nothing to save', text2: 'Enter or clear at least one value.' });
+      Toast.show({
+        type: 'info',
+        text1: 'Nothing to save',
+        text2: 'Enter or clear at least one value.',
+      });
       return;
     }
 
@@ -372,7 +465,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
     };
 
     if (cleared.length > 0) {
-      const labels = cleared.map((k) => FIELD_LABELS[k]);
+      const labels = cleared.map(k => FIELD_LABELS[k]);
       const noun = cleared.length === 1 ? 'measurement' : 'measurements';
       Alert.alert(
         `Clear ${cleared.length} ${noun}?`,
@@ -386,14 +479,25 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
     }
 
     doSave();
-  }, [form, prefilledKeys, selectedDate, weightMode, bodyUnit, heightMode, upsertMutation, navigation]);
+  }, [
+    form,
+    prefilledKeys,
+    selectedDate,
+    weightMode,
+    bodyUnit,
+    heightMode,
+    upsertMutation,
+    navigation,
+  ]);
 
-  const isSaveDisabled = isLoading || isPreferencesLoading || upsertMutation.isPending;
+  const isSaveDisabled =
+    isLoading || isPreferencesLoading || upsertMutation.isPending;
 
   const weightLabel =
     weightMode === 'st_lbs' ? 'Weight (st, lb)' : `Weight (${weightMode})`;
   const bodySuffix = bodyUnit === 'cm' ? 'cm' : 'in';
-  const heightSuffix = heightMode === 'cm' ? 'cm' : heightMode === 'inches' ? 'in' : 'ft, in';
+  const heightSuffix =
+    heightMode === 'cm' ? 'cm' : heightMode === 'inches' ? 'in' : 'ft, in';
 
   const isHeightEmpty =
     heightMode === 'ft_in'
@@ -444,7 +548,6 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
         bottomOffset={80}
         keyboardShouldPersistTaps="handled"
       >
-
         {/* Date row */}
         <TouchableOpacity
           onPress={() => calendarSheetRef.current?.present()}
@@ -455,23 +558,30 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
           <Text className="text-accent-primary text-base font-medium mx-1.5">
             {formatDateLabel(selectedDate)}
           </Text>
-          <Icon name="chevron-down" size={12} color={accentPrimary} weight="medium" />
+          <Icon
+            name="chevron-down"
+            size={12}
+            color={accentPrimary}
+            weight="medium"
+          />
         </TouchableOpacity>
 
-        {(isLoading || isPreferencesLoading) ? (
+        {isLoading || isPreferencesLoading ? (
           <View className="py-12 items-center">
             <ActivityIndicator size="small" color={accentPrimary} />
           </View>
         ) : (
           <>
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-1">{weightLabel}</Text>
+              <Text className="text-text-secondary text-sm mb-1">
+                {weightLabel}
+              </Text>
               {weightMode === 'st_lbs' ? (
                 <View className="flex-row gap-3">
                   <View className="flex-1">
                     <FormInput
                       value={form.weightStones}
-                      onChangeText={(v) => updateField('weightStones', v)}
+                      onChangeText={v => updateField('weightStones', v)}
                       keyboardType="number-pad"
                       placeholder="st"
                       returnKeyType="done"
@@ -480,7 +590,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
                   <View className="flex-1">
                     <FormInput
                       value={form.weight}
-                      onChangeText={(v) => updateField('weight', v)}
+                      onChangeText={v => updateField('weight', v)}
                       keyboardType="decimal-pad"
                       placeholder="lb"
                       returnKeyType="done"
@@ -490,7 +600,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
               ) : (
                 <FormInput
                   value={form.weight}
-                  onChangeText={(v) => updateField('weight', v)}
+                  onChangeText={v => updateField('weight', v)}
                   keyboardType="decimal-pad"
                   placeholder="0"
                   returnKeyType="done"
@@ -500,10 +610,12 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
 
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-1">Body fat %</Text>
+              <Text className="text-text-secondary text-sm mb-1">
+                Body fat %
+              </Text>
               <FormInput
                 value={form.bodyFatPercentage}
-                onChangeText={(v) => updateField('bodyFatPercentage', v)}
+                onChangeText={v => updateField('bodyFatPercentage', v)}
                 keyboardType="decimal-pad"
                 placeholder="0"
                 returnKeyType="done"
@@ -512,13 +624,15 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
 
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-1">Height ({heightSuffix})</Text>
+              <Text className="text-text-secondary text-sm mb-1">
+                Height ({heightSuffix})
+              </Text>
               {heightMode === 'ft_in' ? (
                 <View className="flex-row gap-3">
                   <View className="flex-1">
                     <FormInput
                       value={form.heightFeet}
-                      onChangeText={(v) => updateField('heightFeet', v)}
+                      onChangeText={v => updateField('heightFeet', v)}
                       keyboardType="number-pad"
                       placeholder="ft"
                       returnKeyType="done"
@@ -527,7 +641,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
                   <View className="flex-1">
                     <FormInput
                       value={form.height}
-                      onChangeText={(v) => updateField('height', v)}
+                      onChangeText={v => updateField('height', v)}
                       keyboardType="decimal-pad"
                       placeholder="in"
                       returnKeyType="done"
@@ -537,7 +651,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
               ) : (
                 <FormInput
                   value={form.height}
-                  onChangeText={(v) => updateField('height', v)}
+                  onChangeText={v => updateField('height', v)}
                   keyboardType="decimal-pad"
                   placeholder="0"
                   returnKeyType="done"
@@ -547,10 +661,12 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
 
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-1">Neck ({bodySuffix})</Text>
+              <Text className="text-text-secondary text-sm mb-1">
+                Neck ({bodySuffix})
+              </Text>
               <FormInput
                 value={form.neck}
-                onChangeText={(v) => updateField('neck', v)}
+                onChangeText={v => updateField('neck', v)}
                 keyboardType="decimal-pad"
                 placeholder="0"
                 returnKeyType="done"
@@ -559,10 +675,12 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
 
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-1">Waist ({bodySuffix})</Text>
+              <Text className="text-text-secondary text-sm mb-1">
+                Waist ({bodySuffix})
+              </Text>
               <FormInput
                 value={form.waist}
-                onChangeText={(v) => updateField('waist', v)}
+                onChangeText={v => updateField('waist', v)}
                 keyboardType="decimal-pad"
                 placeholder="0"
                 returnKeyType="done"
@@ -571,10 +689,12 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
 
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-1">Hips ({bodySuffix})</Text>
+              <Text className="text-text-secondary text-sm mb-1">
+                Hips ({bodySuffix})
+              </Text>
               <FormInput
                 value={form.hips}
-                onChangeText={(v) => updateField('hips', v)}
+                onChangeText={v => updateField('hips', v)}
                 keyboardType="decimal-pad"
                 placeholder="0"
                 returnKeyType="done"
@@ -586,7 +706,7 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text className="text-text-secondary text-sm mb-1">Steps</Text>
               <FormInput
                 value={form.steps}
-                onChangeText={(v) => updateField('steps', v)}
+                onChangeText={v => updateField('steps', v)}
                 keyboardType="number-pad"
                 placeholder="0"
                 returnKeyType="done"
@@ -617,7 +737,10 @@ const MeasurementsAddScreen: React.FC<Props> = ({ navigation, route }) => {
           {upsertMutation.isPending ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text className="text-sm font-semibold text-center" style={{ color: '#fff' }}>
+            <Text
+              className="text-sm font-semibold text-center"
+              style={{ color: '#fff' }}
+            >
               Save
             </Text>
           )}

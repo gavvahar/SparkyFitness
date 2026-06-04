@@ -2,7 +2,12 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import MealDetailScreen from '../../src/screens/MealDetailScreen';
-import { useDeleteMeal, useMeal, useProfile, useServerConnection } from '../../src/hooks';
+import {
+  useDeleteMeal,
+  useMeal,
+  useProfile,
+  useServerConnection,
+} from '../../src/hooks';
 import type { Meal } from '../../src/types/meals';
 
 jest.mock('../../src/hooks', () => ({
@@ -10,7 +15,12 @@ jest.mock('../../src/hooks', () => ({
   useMeal: jest.fn(),
   useProfile: jest.fn(),
   useServerConnection: jest.fn(),
-  usePreferences: jest.fn(() => ({ preferences: undefined, isLoading: false, isError: false, refetch: jest.fn() })),
+  usePreferences: jest.fn(() => ({
+    preferences: undefined,
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  })),
 }));
 
 jest.mock('../../src/components/ActiveWorkoutBar', () => ({
@@ -43,10 +53,14 @@ jest.mock('../../src/components/NutritionMacroCard', () => {
   };
 });
 
-const mockUseDeleteMeal = useDeleteMeal as jest.MockedFunction<typeof useDeleteMeal>;
+const mockUseDeleteMeal = useDeleteMeal as jest.MockedFunction<
+  typeof useDeleteMeal
+>;
 const mockUseMeal = useMeal as jest.MockedFunction<typeof useMeal>;
 const mockUseProfile = useProfile as jest.MockedFunction<typeof useProfile>;
-const mockUseServerConnection = useServerConnection as jest.MockedFunction<typeof useServerConnection>;
+const mockUseServerConnection = useServerConnection as jest.MockedFunction<
+  typeof useServerConnection
+>;
 const mockConfirmAndDelete = jest.fn();
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };

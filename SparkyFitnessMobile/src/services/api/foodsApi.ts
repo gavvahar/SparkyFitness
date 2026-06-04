@@ -58,8 +58,15 @@ export const fetchFoodsPage = async ({
 /**
  * Searches foods by name with server-side pagination.
  */
-export const searchFoods = async (searchTerm: string): Promise<FoodSearchResponse> => {
-  const response = await fetchFoodsPage({ searchTerm, page: 1, itemsPerPage: 20, sortBy: 'name:asc' });
+export const searchFoods = async (
+  searchTerm: string,
+): Promise<FoodSearchResponse> => {
+  const response = await fetchFoodsPage({
+    searchTerm,
+    page: 1,
+    itemsPerPage: 20,
+    sortBy: 'name:asc',
+  });
   return {
     foods: response.foods,
     totalCount: response.pagination.totalCount,
@@ -69,7 +76,9 @@ export const searchFoods = async (searchTerm: string): Promise<FoodSearchRespons
 /**
  * Fetches all variants for a given food item.
  */
-export const fetchFoodVariants = async (foodId: string): Promise<FoodVariantDetail[]> => {
+export const fetchFoodVariants = async (
+  foodId: string,
+): Promise<FoodVariantDetail[]> => {
   return apiFetch<FoodVariantDetail[]>({
     endpoint: `/api/foods/food-variants?food_id=${foodId}`,
     serviceName: 'Foods API',
@@ -109,7 +118,9 @@ export interface CreateFoodVariantPayload {
 /**
  * Creates a new food variant for an existing food.
  */
-export const createFoodVariant = async (payload: CreateFoodVariantPayload): Promise<FoodVariantDetail> => {
+export const createFoodVariant = async (
+  payload: CreateFoodVariantPayload,
+): Promise<FoodVariantDetail> => {
   return apiFetch<FoodVariantDetail>({
     endpoint: '/api/foods/food-variants',
     serviceName: 'Foods API',
@@ -118,7 +129,6 @@ export const createFoodVariant = async (payload: CreateFoodVariantPayload): Prom
     body: payload,
   });
 };
-
 
 export interface SaveFoodPayload {
   name: string;
@@ -188,7 +198,10 @@ export interface UpdateFoodVariantPayload {
 /**
  * Updates a food variant's nutrition values.
  */
-export const updateFoodVariant = async (variantId: string, payload: UpdateFoodVariantPayload): Promise<FoodVariantDetail> => {
+export const updateFoodVariant = async (
+  variantId: string,
+  payload: UpdateFoodVariantPayload,
+): Promise<FoodVariantDetail> => {
   return apiFetch<FoodVariantDetail>({
     endpoint: `/api/foods/food-variants/${variantId}`,
     serviceName: 'Foods API',
@@ -205,7 +218,9 @@ export interface DeleteFoodVariantResponse {
 /**
  * Deletes a food variant by ID.
  */
-export const deleteFoodVariant = async (variantId: string): Promise<DeleteFoodVariantResponse> => {
+export const deleteFoodVariant = async (
+  variantId: string,
+): Promise<DeleteFoodVariantResponse> => {
   return apiFetch<DeleteFoodVariantResponse>({
     endpoint: `/api/foods/food-variants/${variantId}`,
     serviceName: 'Foods API',
@@ -232,7 +247,10 @@ export interface DeleteFoodResponse {
 /**
  * Updates a food item's metadata (name, brand).
  */
-export const updateFood = async (foodId: string, payload: UpdateFoodPayload): Promise<FoodItem> => {
+export const updateFood = async (
+  foodId: string,
+  payload: UpdateFoodPayload,
+): Promise<FoodItem> => {
   return apiFetch<FoodItem>({
     endpoint: `/api/foods/${foodId}`,
     serviceName: 'Foods API',
@@ -245,7 +263,9 @@ export const updateFood = async (foodId: string, payload: UpdateFoodPayload): Pr
 /**
  * Deletes a food item by ID.
  */
-export const deleteFood = async (foodId: string): Promise<DeleteFoodResponse> => {
+export const deleteFood = async (
+  foodId: string,
+): Promise<DeleteFoodResponse> => {
   return apiFetch<DeleteFoodResponse>({
     endpoint: `/api/foods/${foodId}`,
     serviceName: 'Foods API',

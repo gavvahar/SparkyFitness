@@ -30,7 +30,9 @@ export function getFoodEntryMealTypeKey(entry: FoodEntry): MealTypeKey {
     : 'other';
 }
 
-export function groupFoodEntriesByMealType(entries: FoodEntry[]): MealEntryGroups {
+export function groupFoodEntriesByMealType(
+  entries: FoodEntry[],
+): MealEntryGroups {
   const grouped = emptyMealGroups();
 
   for (const entry of entries) {
@@ -40,12 +42,18 @@ export function groupFoodEntriesByMealType(entries: FoodEntry[]): MealEntryGroup
   return grouped;
 }
 
-export function filterFoodEntriesByMealType(entries: FoodEntry[], mealType: MealTypeKey): FoodEntry[] {
+export function filterFoodEntriesByMealType(
+  entries: FoodEntry[],
+  mealType: MealTypeKey,
+): FoodEntry[] {
   const key = mealType.toLowerCase();
-  return entries.filter((entry) => getFoodEntryMealTypeKey(entry) === key);
+  return entries.filter(entry => getFoodEntryMealTypeKey(entry) === key);
 }
 
-export function calculateEntryValue(value: number | undefined, entry: FoodEntry): number {
+export function calculateEntryValue(
+  value: number | undefined,
+  entry: FoodEntry,
+): number {
   if (value === undefined || !entry.serving_size) return 0;
   return (value * entry.quantity) / entry.serving_size;
 }
@@ -68,12 +76,17 @@ function sumField(entries: FoodEntry[], field: keyof FoodEntry): number {
   }, 0);
 }
 
-function optionalSum(entries: FoodEntry[], field: keyof FoodEntry): number | undefined {
-  const hasValue = entries.some((entry) => typeof entry[field] === 'number');
+function optionalSum(
+  entries: FoodEntry[],
+  field: keyof FoodEntry,
+): number | undefined {
+  const hasValue = entries.some(entry => typeof entry[field] === 'number');
   return hasValue ? Math.round(sumField(entries, field)) : undefined;
 }
 
-export function calculateMealNutrition(entries: FoodEntry[]): FoodDisplayValues {
+export function calculateMealNutrition(
+  entries: FoodEntry[],
+): FoodDisplayValues {
   return {
     servingSize: 1,
     servingUnit: 'meal',

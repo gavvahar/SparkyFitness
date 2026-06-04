@@ -16,7 +16,9 @@ import type { FoodItem } from '../types/foods';
 
 type FoodsLibraryScreenProps = RootStackScreenProps<'FoodsLibrary'>;
 
-const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) => {
+const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const accentColor = useCSSVariable('--color-accent-primary') as string;
@@ -37,9 +39,12 @@ const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) =
     refetch,
   } = useFoodsLibrary(searchText, { enabled: isConnected });
 
-  const handleFoodPress = useCallback((food: FoodItem) => {
-    navigation.navigate('FoodDetail', { item: foodItemToFoodInfo(food) });
-  }, [navigation]);
+  const handleFoodPress = useCallback(
+    (food: FoodItem) => {
+      navigation.navigate('FoodDetail', { item: foodItemToFoodInfo(food) });
+    },
+    [navigation],
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -64,7 +69,9 @@ const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) =
   const renderEmpty = () => (
     <View className="px-6 py-10 items-center">
       <Text className="text-text-primary text-base font-medium text-center">
-        {searchText.trim().length > 0 ? 'No matching foods found' : 'No foods found'}
+        {searchText.trim().length > 0
+          ? 'No matching foods found'
+          : 'No foods found'}
       </Text>
       <Text className="text-text-secondary text-sm mt-2 text-center">
         {searchText.trim().length > 0
@@ -83,7 +90,11 @@ const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) =
           iconSize={64}
           title="No server configured"
           subtitle="Configure your server connection in Settings to view your food library."
-          action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }), variant: 'primary' }}
+          action={{
+            label: 'Go to Settings',
+            onPress: () => navigation.navigate('Tabs', { screen: 'Settings' }),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -100,7 +111,11 @@ const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) =
           iconSize={64}
           title="Failed to load foods"
           subtitle="Please check your connection and try again."
-          action={{ label: 'Retry', onPress: () => refetch(), variant: 'primary' }}
+          action={{
+            label: 'Retry',
+            onPress: () => refetch(),
+            variant: 'primary',
+          }}
         />
       );
     }
@@ -108,7 +123,7 @@ const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) =
     return (
       <FlatList
         data={foods}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={({ item, index }) => (
           <FoodLibraryRow
             food={item}
@@ -133,9 +148,16 @@ const FoodsLibraryScreen: React.FC<FoodsLibraryScreenProps> = ({ navigation }) =
         }}
         onEndReachedThreshold={0.5}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={accentColor}
+          />
         }
-        contentContainerStyle={{ paddingBottom: scrollBottomPadding, flexGrow: 1 }}
+        contentContainerStyle={{
+          paddingBottom: scrollBottomPadding,
+          flexGrow: 1,
+        }}
       />
     );
   };

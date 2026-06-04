@@ -29,7 +29,7 @@ const SleepAnalysisValue = {
   inBed: 0,
   asleepUnspecified: 1,
   awake: 2,
-  asleepCore: 3,  // Light sleep
+  asleepCore: 3, // Light sleep
   asleepDeep: 4,
   asleepREM: 5,
 } as const;
@@ -61,7 +61,7 @@ const randomFloat = (min: number, max: number): number =>
 const splitIntoChunks = (total: number, count: number): number[] => {
   if (count <= 1) return [total];
 
-  const minPerChunk = Math.max(1, Math.floor(total / count * 0.1));
+  const minPerChunk = Math.max(1, Math.floor((total / count) * 0.1));
   const chunks: number[] = [];
   let remaining = total;
 
@@ -69,7 +69,10 @@ const splitIntoChunks = (total: number, count: number): number[] => {
     const avgRemaining = remaining / (count - i);
     const lower = Math.max(minPerChunk, avgRemaining * 0.5);
     const upper = avgRemaining * 1.5;
-    const chunk = Math.min(Math.floor(randomFloat(lower, upper)), remaining - minPerChunk * (count - i - 1));
+    const chunk = Math.min(
+      Math.floor(randomFloat(lower, upper)),
+      remaining - minPerChunk * (count - i - 1),
+    );
     chunks.push(Math.max(minPerChunk, chunk));
     remaining -= chunks[i];
   }
@@ -123,17 +126,25 @@ const WRITE_PERMISSIONS = [
 const requestWritePermissions = async (): Promise<boolean> => {
   try {
     const granted = await requestAuthorization({
-      toShare: WRITE_PERMISSIONS as unknown as Parameters<typeof requestAuthorization>[0]['toShare'],
+      toShare: WRITE_PERMISSIONS as unknown as Parameters<
+        typeof requestAuthorization
+      >[0]['toShare'],
       toRead: [],
     });
     if (!granted) {
-      addLog(`[SeedHealthData] Write permissions were denied by user`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Write permissions were denied by user`,
+        'WARNING',
+      );
       return false;
     }
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[SeedHealthData] Failed to request write permissions: ${message}`, 'ERROR');
+    addLog(
+      `[SeedHealthData] Failed to request write permissions: ${message}`,
+      'ERROR',
+    );
     return false;
   }
 };
@@ -144,20 +155,45 @@ const requestWritePermissions = async (): Promise<boolean> => {
 
 const QUANTITY_CONFIGS: QuantitySeedConfig[] = [
   // Steps: 5000-12000 per day
-  { identifier: 'HKQuantityTypeIdentifierStepCount', unit: 'count', range: [5000, 12000], samplesPerDay: 8 },
+  {
+    identifier: 'HKQuantityTypeIdentifierStepCount',
+    unit: 'count',
+    range: [5000, 12000],
+    samplesPerDay: 8,
+  },
   // Active Calories: 200-600 kcal per day
-  { identifier: 'HKQuantityTypeIdentifierActiveEnergyBurned', unit: 'kcal', range: [200, 600], samplesPerDay: 6 },
+  {
+    identifier: 'HKQuantityTypeIdentifierActiveEnergyBurned',
+    unit: 'kcal',
+    range: [200, 600],
+    samplesPerDay: 6,
+  },
   // Basal Calories: 1400-1800 kcal per day
-  { identifier: 'HKQuantityTypeIdentifierBasalEnergyBurned', unit: 'kcal', range: [1400, 1800], samplesPerDay: 4 },
+  {
+    identifier: 'HKQuantityTypeIdentifierBasalEnergyBurned',
+    unit: 'kcal',
+    range: [1400, 1800],
+    samplesPerDay: 4,
+  },
   // Distance: 3000-8000 meters per day
-  { identifier: 'HKQuantityTypeIdentifierDistanceWalkingRunning', unit: 'm', range: [3000, 8000], samplesPerDay: 6 },
+  {
+    identifier: 'HKQuantityTypeIdentifierDistanceWalkingRunning',
+    unit: 'm',
+    range: [3000, 8000],
+    samplesPerDay: 6,
+  },
   // Floors climbed: 5-25 flights per day
-  { identifier: 'HKQuantityTypeIdentifierFlightsClimbed', unit: 'count', range: [5, 25], samplesPerDay: 4 },
+  {
+    identifier: 'HKQuantityTypeIdentifierFlightsClimbed',
+    unit: 'count',
+    range: [5, 25],
+    samplesPerDay: 4,
+  },
 ];
 
 const seedQuantitySamples = async (
   config: QuantitySeedConfig,
-  dates: Date[]
+  dates: Date[],
 ): Promise<number> => {
   let count = 0;
   const numSamples = config.samplesPerDay ?? 1;
@@ -190,7 +226,7 @@ const seedQuantitySamples = async (
           value,
           startTime,
           endTime,
-          {}
+          {},
         );
 
         if (success) {
@@ -200,7 +236,9 @@ const seedQuantitySamples = async (
         // Multiple records per day to mimic real HealthKit data
         const dailyTotal = randomInt(config.range[0], config.range[1]);
         const todayDate = isToday(date);
-        const samplesForDay = todayDate ? Math.ceil(numSamples / 3) : numSamples;
+        const samplesForDay = todayDate
+          ? Math.ceil(numSamples / 3)
+          : numSamples;
         const chunks = splitIntoChunks(dailyTotal, samplesForDay);
 
         // Define the active window for the day
@@ -262,21 +300,28 @@ const seedQuantitySamples = async (
               chunks[i],
               startTime,
               endTime,
-              {}
+              {},
             );
 
             if (success) {
               count++;
             }
           } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            addLog(`[SeedHealthData] Failed to seed ${config.identifier}: ${message}`, 'WARNING');
+            const message =
+              error instanceof Error ? error.message : String(error);
+            addLog(
+              `[SeedHealthData] Failed to seed ${config.identifier}: ${message}`,
+              'WARNING',
+            );
           }
         }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHealthData] Failed to seed ${config.identifier}: ${message}`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Failed to seed ${config.identifier}: ${message}`,
+        'WARNING',
+      );
     }
   }
 
@@ -320,7 +365,7 @@ const seedHeartRate = async (dates: Date[]): Promise<number> => {
           bpm,
           sampleTime,
           endTime,
-          {}
+          {},
         );
 
         if (success) {
@@ -328,7 +373,10 @@ const seedHeartRate = async (dates: Date[]): Promise<number> => {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[SeedHealthData] Failed to seed heart rate: ${message}`, 'WARNING');
+        addLog(
+          `[SeedHealthData] Failed to seed heart rate: ${message}`,
+          'WARNING',
+        );
       }
     }
   }
@@ -371,7 +419,7 @@ const seedWeight = async (dates: Date[]): Promise<number> => {
         weight,
         sampleTime,
         endTime,
-        {}
+        {},
       );
 
       if (success) {
@@ -407,7 +455,7 @@ const seedHeight = async (): Promise<number> => {
       height,
       sampleTime,
       endTime,
-      {}
+      {},
     );
 
     return success ? 1 : 0;
@@ -457,7 +505,7 @@ const seedHydration = async (dates: Date[]): Promise<number> => {
           volumeMl,
           startTime,
           endTime,
-          {}
+          {},
         );
 
         if (success) {
@@ -465,7 +513,10 @@ const seedHydration = async (dates: Date[]): Promise<number> => {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[SeedHealthData] Failed to seed hydration: ${message}`, 'WARNING');
+        addLog(
+          `[SeedHealthData] Failed to seed hydration: ${message}`,
+          'WARNING',
+        );
       }
     }
   }
@@ -503,7 +554,7 @@ const seedBodyTemperature = async (dates: Date[]): Promise<number> => {
         parseFloat(temperature.toFixed(1)),
         sampleTime,
         endTime,
-        {}
+        {},
       );
 
       if (success) {
@@ -511,7 +562,10 @@ const seedBodyTemperature = async (dates: Date[]): Promise<number> => {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHealthData] Failed to seed body temperature: ${message}`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Failed to seed body temperature: ${message}`,
+        'WARNING',
+      );
     }
   }
 
@@ -523,14 +577,14 @@ const seedBodyTemperature = async (dates: Date[]): Promise<number> => {
 // ============================================================================
 
 const SLEEP_STAGE_SEQUENCE = [
-  SleepAnalysisValue.asleepCore,    // Light sleep
-  SleepAnalysisValue.asleepDeep,    // Deep sleep
-  SleepAnalysisValue.asleepREM,     // REM
-  SleepAnalysisValue.asleepCore,    // Light sleep
-  SleepAnalysisValue.awake,         // Brief wake
-  SleepAnalysisValue.asleepCore,    // Light sleep
-  SleepAnalysisValue.asleepDeep,    // Deep sleep
-  SleepAnalysisValue.asleepREM,     // REM
+  SleepAnalysisValue.asleepCore, // Light sleep
+  SleepAnalysisValue.asleepDeep, // Deep sleep
+  SleepAnalysisValue.asleepREM, // REM
+  SleepAnalysisValue.asleepCore, // Light sleep
+  SleepAnalysisValue.awake, // Brief wake
+  SleepAnalysisValue.asleepCore, // Light sleep
+  SleepAnalysisValue.asleepDeep, // Deep sleep
+  SleepAnalysisValue.asleepREM, // REM
 ];
 
 const seedSleep = async (dates: Date[]): Promise<number> => {
@@ -551,7 +605,9 @@ const seedSleep = async (dates: Date[]): Promise<number> => {
 
       const sleepEnd = new Date(sleepStart);
       sleepEnd.setHours(sleepEnd.getHours() + Math.floor(sleepDurationHours));
-      sleepEnd.setMinutes(sleepEnd.getMinutes() + Math.floor((sleepDurationHours % 1) * 60));
+      sleepEnd.setMinutes(
+        sleepEnd.getMinutes() + Math.floor((sleepDurationHours % 1) * 60),
+      );
 
       // Create sleep stages
       const totalMinutes = (sleepEnd.getTime() - sleepStart.getTime()) / 60000;
@@ -563,7 +619,9 @@ const seedSleep = async (dates: Date[]): Promise<number> => {
       for (let i = 0; i < stageCount; i++) {
         const stageDuration = avgStageDuration + randomInt(-15, 15);
         const stageEnd = new Date(currentTime);
-        stageEnd.setMinutes(stageEnd.getMinutes() + Math.max(10, stageDuration));
+        stageEnd.setMinutes(
+          stageEnd.getMinutes() + Math.max(10, stageDuration),
+        );
 
         // Don't exceed total sleep duration
         if (stageEnd > sleepEnd) {
@@ -578,7 +636,7 @@ const seedSleep = async (dates: Date[]): Promise<number> => {
             stageValue,
             currentTime,
             stageEnd,
-            {}
+            {},
           );
 
           if (success) {
@@ -605,14 +663,49 @@ const seedSleep = async (dates: Date[]): Promise<number> => {
 // ============================================================================
 
 const WORKOUT_TYPES = [
-  { type: WorkoutType.running, name: 'Running', durationMin: 20, durationMax: 60 },
-  { type: WorkoutType.walking, name: 'Walking', durationMin: 15, durationMax: 45 },
-  { type: WorkoutType.cycling, name: 'Cycling', durationMin: 20, durationMax: 60 },
-  { type: WorkoutType.traditionalStrengthTraining, name: 'Strength Training', durationMin: 30, durationMax: 60 },
+  {
+    type: WorkoutType.running,
+    name: 'Running',
+    durationMin: 20,
+    durationMax: 60,
+  },
+  {
+    type: WorkoutType.walking,
+    name: 'Walking',
+    durationMin: 15,
+    durationMax: 45,
+  },
+  {
+    type: WorkoutType.cycling,
+    name: 'Cycling',
+    durationMin: 20,
+    durationMax: 60,
+  },
+  {
+    type: WorkoutType.traditionalStrengthTraining,
+    name: 'Strength Training',
+    durationMin: 30,
+    durationMax: 60,
+  },
   { type: WorkoutType.yoga, name: 'Yoga', durationMin: 20, durationMax: 45 },
-  { type: WorkoutType.highIntensityIntervalTraining, name: 'HIIT', durationMin: 15, durationMax: 30 },
-  { type: WorkoutType.swimming, name: 'Swimming', durationMin: 20, durationMax: 45 },
-  { type: WorkoutType.hiking, name: 'Hiking', durationMin: 30, durationMax: 120 },
+  {
+    type: WorkoutType.highIntensityIntervalTraining,
+    name: 'HIIT',
+    durationMin: 15,
+    durationMax: 30,
+  },
+  {
+    type: WorkoutType.swimming,
+    name: 'Swimming',
+    durationMin: 20,
+    durationMax: 45,
+  },
+  {
+    type: WorkoutType.hiking,
+    name: 'Hiking',
+    durationMin: 30,
+    durationMax: 120,
+  },
 ];
 
 const seedWorkouts = async (dates: Date[]): Promise<number> => {
@@ -652,21 +745,35 @@ const seedWorkouts = async (dates: Date[]): Promise<number> => {
       }
 
       // Estimated calories based on workout type and duration
-      const caloriesPerMinute = workout.type === WorkoutType.highIntensityIntervalTraining ? 12 :
-        workout.type === WorkoutType.running ? 10 :
-        workout.type === WorkoutType.cycling ? 8 :
-        workout.type === WorkoutType.swimming ? 9 :
-        6;
+      const caloriesPerMinute =
+        workout.type === WorkoutType.highIntensityIntervalTraining
+          ? 12
+          : workout.type === WorkoutType.running
+            ? 10
+            : workout.type === WorkoutType.cycling
+              ? 8
+              : workout.type === WorkoutType.swimming
+                ? 9
+                : 6;
       const totalCalories = durationMinutes * caloriesPerMinute;
 
       // Estimated distance for applicable workouts (in meters)
       let totalDistance: number | undefined;
-      const distanceWorkoutTypes = [WorkoutType.running, WorkoutType.walking, WorkoutType.cycling, WorkoutType.hiking] as number[];
+      const distanceWorkoutTypes = [
+        WorkoutType.running,
+        WorkoutType.walking,
+        WorkoutType.cycling,
+        WorkoutType.hiking,
+      ] as number[];
       if (distanceWorkoutTypes.includes(workout.type)) {
-        const speedMperMin = workout.type === WorkoutType.running ? 150 :
-          workout.type === WorkoutType.cycling ? 300 :
-          workout.type === WorkoutType.hiking ? 80 :
-          90; // walking
+        const speedMperMin =
+          workout.type === WorkoutType.running
+            ? 150
+            : workout.type === WorkoutType.cycling
+              ? 300
+              : workout.type === WorkoutType.hiking
+                ? 80
+                : 90; // walking
         totalDistance = durationMinutes * speedMperMin;
       }
 
@@ -679,7 +786,7 @@ const seedWorkouts = async (dates: Date[]): Promise<number> => {
           energyBurned: totalCalories,
           ...(totalDistance !== undefined && { distance: totalDistance }),
         },
-        {}
+        {},
       );
 
       count++;
@@ -705,9 +812,19 @@ interface RunningMetricConfig {
 
 const RUNNING_METRIC_CONFIGS: RunningMetricConfig[] = [
   // Running speed: 2.5-5.0 m/s (9-18 km/h, easy jog to fast run)
-  { identifier: 'HKQuantityTypeIdentifierRunningSpeed', unit: 'm/s', label: 'RunningSpeed', range: [2.5, 5.0] },
+  {
+    identifier: 'HKQuantityTypeIdentifierRunningSpeed',
+    unit: 'm/s',
+    label: 'RunningSpeed',
+    range: [2.5, 5.0],
+  },
   // Running power: 200-450 W
-  { identifier: 'HKQuantityTypeIdentifierRunningPower', unit: 'W', label: 'RunningPower', range: [200, 450] },
+  {
+    identifier: 'HKQuantityTypeIdentifierRunningPower',
+    unit: 'W',
+    label: 'RunningPower',
+    range: [200, 450],
+  },
 ];
 
 /**
@@ -717,7 +834,7 @@ const RUNNING_METRIC_CONFIGS: RunningMetricConfig[] = [
  */
 const seedRunningMetric = async (
   config: RunningMetricConfig,
-  dates: Date[]
+  dates: Date[],
 ): Promise<number> => {
   let count = 0;
   const samplesPerRun = 20;
@@ -747,7 +864,9 @@ const seedRunningMetric = async (
 
       // Simulate a ~30 minute run with samples every ~90 seconds
       const runDurationMinutes = todayDate ? 20 : randomInt(25, 40);
-      const intervalSeconds = Math.floor((runDurationMinutes * 60) / samplesPerRun);
+      const intervalSeconds = Math.floor(
+        (runDurationMinutes * 60) / samplesPerRun,
+      );
 
       // Base pace for this run (varies day to day)
       const [minVal, maxVal] = config.range;
@@ -771,7 +890,10 @@ const seedRunningMetric = async (
         const phaseFactor = -4 * (progressRatio - 0.5) ** 2 + 1; // peaks at 0.5
         const phaseAdjustment = phaseFactor * (maxVal - minVal) * 0.15;
         const noise = randomFloat(-0.1, 0.1) * (maxVal - minVal);
-        const value = Math.max(minVal, Math.min(maxVal, dayBaseline + phaseAdjustment + noise));
+        const value = Math.max(
+          minVal,
+          Math.min(maxVal, dayBaseline + phaseAdjustment + noise),
+        );
 
         try {
           const success = await saveQuantitySample(
@@ -780,7 +902,7 @@ const seedRunningMetric = async (
             parseFloat(value.toFixed(2)),
             sampleStart,
             sampleEnd,
-            {}
+            {},
           );
           if (success) count++;
         } catch {
@@ -789,7 +911,10 @@ const seedRunningMetric = async (
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHealthData] Failed to seed ${config.label}: ${message}`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Failed to seed ${config.label}: ${message}`,
+        'WARNING',
+      );
     }
   }
 
@@ -806,7 +931,10 @@ const seedRunningMetric = async (
  * 2-3 records in the 6-12 month range.
  */
 export const seedHistoricalSteps = async (): Promise<SeedResult> => {
-  addLog('[SeedHealthData] Starting to seed historical step data (past year)...', 'INFO');
+  addLog(
+    '[SeedHealthData] Starting to seed historical step data (past year)...',
+    'INFO',
+  );
 
   try {
     const permissionsGranted = await requestWritePermissions();
@@ -814,7 +942,8 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
       return {
         success: false,
         recordsInserted: 0,
-        error: 'Write permissions not granted. Please grant permissions in Health app settings.',
+        error:
+          'Write permissions not granted. Please grant permissions in Health app settings.',
       };
     }
 
@@ -822,7 +951,11 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
     let totalRecords = 0;
 
     // Pick random dates in each range
-    const pickRandomDates = (minDaysAgo: number, maxDaysAgo: number, count: number): Date[] => {
+    const pickRandomDates = (
+      minDaysAgo: number,
+      maxDaysAgo: number,
+      count: number,
+    ): Date[] => {
       const dates: Date[] = [];
       for (let i = 0; i < count; i++) {
         const daysAgo = randomInt(minDaysAgo, maxDaysAgo);
@@ -845,15 +978,24 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
     const midRangeDates = pickRandomDates(90, 180, randomInt(2, 3));
     const midCount = await seedQuantitySamples(stepsConfig, midRangeDates);
     totalRecords += midCount;
-    addLog(`[SeedHistoricalSteps] Seeded ${midCount} step records in 3-6 month range`, 'INFO');
+    addLog(
+      `[SeedHistoricalSteps] Seeded ${midCount} step records in 3-6 month range`,
+      'INFO',
+    );
 
     // 2-3 records between 6-12 months ago (~180-365 days)
     const farRangeDates = pickRandomDates(180, 365, randomInt(2, 3));
     const farCount = await seedQuantitySamples(stepsConfig, farRangeDates);
     totalRecords += farCount;
-    addLog(`[SeedHistoricalSteps] Seeded ${farCount} step records in 6-12 month range`, 'INFO');
+    addLog(
+      `[SeedHistoricalSteps] Seeded ${farCount} step records in 6-12 month range`,
+      'INFO',
+    );
 
-    addLog(`[SeedHistoricalSteps] Done — ${totalRecords} total step records seeded`, 'INFO');
+    addLog(
+      `[SeedHistoricalSteps] Done — ${totalRecords} total step records seeded`,
+      'INFO',
+    );
 
     return { success: true, recordsInserted: totalRecords };
   } catch (error) {
@@ -864,7 +1006,10 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
 };
 
 export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
-  addLog(`[SeedHealthData] Starting to seed ${days} days of health data for iOS...`, 'INFO');
+  addLog(
+    `[SeedHealthData] Starting to seed ${days} days of health data for iOS...`,
+    'INFO',
+  );
 
   try {
     const permissionsGranted = await requestWritePermissions();
@@ -872,7 +1017,8 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
       return {
         success: false,
         recordsInserted: 0,
-        error: 'Write permissions not granted. Please grant permissions in Health app settings.',
+        error:
+          'Write permissions not granted. Please grant permissions in Health app settings.',
       };
     }
 
@@ -886,10 +1032,16 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
         const count = await seedQuantitySamples(config, dates);
         totalRecords += count;
         results.push({ type: config.identifier.split('Identifier')[1], count });
-        addLog(`[SeedHealthData] Seeded ${config.identifier.split('Identifier')[1]}: ${count} records`, 'INFO');
+        addLog(
+          `[SeedHealthData] Seeded ${config.identifier.split('Identifier')[1]}: ${count} records`,
+          'INFO',
+        );
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[SeedHealthData] Failed to seed ${config.identifier}: ${message}`, 'WARNING');
+        addLog(
+          `[SeedHealthData] Failed to seed ${config.identifier}: ${message}`,
+          'WARNING',
+        );
       }
     }
 
@@ -901,7 +1053,10 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
       addLog(`[SeedHealthData] Seeded HeartRate: ${count} records`, 'INFO');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHealthData] Failed to seed HeartRate: ${message}`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Failed to seed HeartRate: ${message}`,
+        'WARNING',
+      );
     }
 
     // Seed weight
@@ -934,7 +1089,10 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
       addLog(`[SeedHealthData] Seeded Hydration: ${count} records`, 'INFO');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHealthData] Failed to seed Hydration: ${message}`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Failed to seed Hydration: ${message}`,
+        'WARNING',
+      );
     }
 
     // Seed body temperature
@@ -942,10 +1100,16 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
       const count = await seedBodyTemperature(dates);
       totalRecords += count;
       results.push({ type: 'BodyTemperature', count });
-      addLog(`[SeedHealthData] Seeded BodyTemperature: ${count} records`, 'INFO');
+      addLog(
+        `[SeedHealthData] Seeded BodyTemperature: ${count} records`,
+        'INFO',
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHealthData] Failed to seed BodyTemperature: ${message}`, 'WARNING');
+      addLog(
+        `[SeedHealthData] Failed to seed BodyTemperature: ${message}`,
+        'WARNING',
+      );
     }
 
     // Seed sleep
@@ -976,17 +1140,26 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
         const count = await seedRunningMetric(config, dates);
         totalRecords += count;
         results.push({ type: config.label, count });
-        addLog(`[SeedHealthData] Seeded ${config.label}: ${count} records`, 'INFO');
+        addLog(
+          `[SeedHealthData] Seeded ${config.label}: ${count} records`,
+          'INFO',
+        );
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[SeedHealthData] Failed to seed ${config.label}: ${message}`, 'WARNING');
+        addLog(
+          `[SeedHealthData] Failed to seed ${config.label}: ${message}`,
+          'WARNING',
+        );
       }
     }
 
     const successTypes = results.filter(r => r.count > 0).length;
     const totalTypes = results.length;
 
-    addLog(`[SeedHealthData] Successfully seeded ${totalRecords} records (${successTypes}/${totalTypes} types)`, 'INFO');
+    addLog(
+      `[SeedHealthData] Successfully seeded ${totalRecords} records (${successTypes}/${totalTypes} types)`,
+      'INFO',
+    );
 
     return {
       success: true,

@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, Image, ScrollView, Platform, Alert, ActivityIndicator, AppState } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Platform,
+  Alert,
+  ActivityIndicator,
+  AppState,
+} from 'react-native';
 import Button from '../components/ui/Button';
 import Icon from '../components/Icon';
 import { useActiveWorkoutBarPadding } from '../components/ActiveWorkoutBar';
@@ -25,7 +34,11 @@ import {
   startObservers,
   stopObservers,
 } from '../services/healthConnectService';
-import { configureBackgroundSync, stopBackgroundSync, performBackgroundSync } from '../services/backgroundSyncService';
+import {
+  configureBackgroundSync,
+  stopBackgroundSync,
+  performBackgroundSync,
+} from '../services/backgroundSyncService';
 import {
   tryClaimAutoSync,
   isForegroundAutoSyncWindowOpen,
@@ -45,7 +58,10 @@ import { addLog } from '../services/LogService';
 import { formatRelativeTime } from '../utils/dateUtils';
 import { HEALTH_METRICS } from '../HealthMetrics';
 import type { HealthMetric } from '../HealthMetrics';
-import type { HealthMetricStates, HealthDataDisplayState } from '../types/healthRecords';
+import type {
+  HealthMetricStates,
+  HealthDataDisplayState,
+} from '../types/healthRecords';
 import { useSyncHealthData } from '../hooks';
 import type { RootStackScreenProps } from '../types/navigation';
 import { fetchHealthDisplayData } from '../services/healthDataDisplay';
@@ -59,42 +75,51 @@ interface TimeRangeOption {
 }
 
 const timeRangeOptions: TimeRangeOption[] = [
-  { label: "Today", value: "today" },
-  { label: "Last 24 Hours", value: "24h" },
-  { label: "Last 3 Days", value: "3d" },
-  { label: "Last 7 Days", value: "7d" },
-  { label: "Last 30 Days", value: "30d" },
-  { label: "Last 90 Days", value: "90d" },
-  { label: "Last 6 Months", value: "180d" },
-  { label: "Last Year", value: "365d" },
+  { label: 'Today', value: 'today' },
+  { label: 'Last 24 Hours', value: '24h' },
+  { label: 'Last 3 Days', value: '3d' },
+  { label: 'Last 7 Days', value: '7d' },
+  { label: 'Last 30 Days', value: '30d' },
+  { label: 'Last 90 Days', value: '90d' },
+  { label: 'Last 6 Months', value: '180d' },
+  { label: 'Last Year', value: '365d' },
 ];
 
 const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
-  const accentPrimary = useCSSVariable('--color-accent-primary') as string | undefined;
-  const [healthMetricStates, setHealthMetricStates] = useState<HealthMetricStates>({});
-  const [isBackgroundSyncEnabled, setIsBackgroundSyncEnabled] = useState<boolean>(false);
-  const [isSyncOnOpenEnabled, setIsSyncOnOpenEnabled] = useState<boolean>(false);
+  const accentPrimary = useCSSVariable('--color-accent-primary') as
+    | string
+    | undefined;
+  const [healthMetricStates, setHealthMetricStates] =
+    useState<HealthMetricStates>({});
+  const [isBackgroundSyncEnabled, setIsBackgroundSyncEnabled] =
+    useState<boolean>(false);
+  const [isSyncOnOpenEnabled, setIsSyncOnOpenEnabled] =
+    useState<boolean>(false);
   const [lastSyncedTime, setLastSyncedTime] = useState<string | null>(null);
-  const [lastSyncedTimeLoaded, setLastSyncedTimeLoaded] = useState<boolean>(false);
-  const [isHealthConnectInitialized, setIsHealthConnectInitialized] = useState<boolean>(false);
+  const [lastSyncedTimeLoaded, setLastSyncedTimeLoaded] =
+    useState<boolean>(false);
+  const [isHealthConnectInitialized, setIsHealthConnectInitialized] =
+    useState<boolean>(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('3d');
   const [healthData, setHealthData] = useState<HealthDataDisplayState>({});
   const [isLoadingHealthData, setIsLoadingHealthData] = useState(true);
   const [healthDataRefreshKey, setHealthDataRefreshKey] = useState(0);
   const isAndroid = Platform.OS === 'android';
-  const healthSettingsName = isAndroid ? 'Health Connect settings' : 'Health app settings';
+  const healthSettingsName = isAndroid
+    ? 'Health Connect settings'
+    : 'Health app settings';
 
   const [isSharingReport, setIsSharingReport] = useState(false);
 
   const isAllMetricsEnabled = useMemo(
     () => HEALTH_METRICS.every(metric => healthMetricStates[metric.stateKey]),
-    [healthMetricStates]
+    [healthMetricStates],
   );
 
   const syncMutation = useSyncHealthData({
-    onSuccess: (newLastSyncedTime) => {
+    onSuccess: newLastSyncedTime => {
       setLastSyncedTime(newLastSyncedTime);
     },
   });
@@ -109,7 +134,8 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
     setIsHealthConnectInitialized(initialized);
 
     const loadedTimeRange = await loadTimeRange();
-    const initialTimeRange: TimeRange = loadedTimeRange !== null ? loadedTimeRange : '3d';
+    const initialTimeRange: TimeRange =
+      loadedTimeRange !== null ? loadedTimeRange : '3d';
 
     const newHealthMetricStates: HealthMetricStates = {};
     for (const metric of HEALTH_METRICS) {
@@ -142,7 +168,7 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
       return () => {
         // Optional: cleanup function when the screen loses focus
       };
-    }, [initialize])
+    }, [initialize]),
   );
 
   // Fetch health data display values after init, on range change, or after permission changes
@@ -156,10 +182,14 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
         setIsLoadingHealthData(false);
       }
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isHealthConnectInitialized, selectedTimeRange, healthDataRefreshKey]);
 
-  const handleToggleBackgroundSync = async (newValue: boolean): Promise<void> => {
+  const handleToggleBackgroundSync = async (
+    newValue: boolean,
+  ): Promise<void> => {
     if (newValue && Platform.OS === 'android') {
       try {
         const granted = await requestHealthPermissions([
@@ -168,14 +198,21 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
         if (!granted) {
           Alert.alert(
             'Permission Required',
-            'Background access permission is required for background sync. Please grant the permission in Health Connect settings.'
+            'Background access permission is required for background sync. Please grant the permission in Health Connect settings.',
           );
           return;
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        Alert.alert('Permission Error', `Failed to request background access permission: ${errorMessage}`);
-        addLog(`[SyncScreen] Background access permission error: ${errorMessage}`, 'ERROR');
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        Alert.alert(
+          'Permission Error',
+          `Failed to request background access permission: ${errorMessage}`,
+        );
+        addLog(
+          `[SyncScreen] Background access permission error: ${errorMessage}`,
+          'ERROR',
+        );
         return;
       }
     }
@@ -197,7 +234,10 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
 
           performBackgroundSync('healthkit-observer')
             .catch(error => {
-              console.error('[SyncScreen] Observer-triggered sync failed:', error);
+              console.error(
+                '[SyncScreen] Observer-triggered sync failed:',
+                error,
+              );
             })
             .finally(() => {
               release();
@@ -219,7 +259,7 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
 
   const handleToggleHealthMetric = async (
     metric: HealthMetric,
-    newValue: boolean
+    newValue: boolean,
   ): Promise<void> => {
     setHealthMetricStates(prevStates => ({
       ...prevStates,
@@ -233,26 +273,44 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
       try {
         const granted = await requestHealthPermissions(metric.permissions);
         if (!granted) {
-          Alert.alert('Permission Denied', `Please grant ${metric.label.toLowerCase()} permission in ${healthSettingsName}.`);
+          Alert.alert(
+            'Permission Denied',
+            `Please grant ${metric.label.toLowerCase()} permission in ${healthSettingsName}.`,
+          );
           setHealthMetricStates(prevStates => ({
             ...prevStates,
             [metric.stateKey]: false,
           }));
           await saveHealthPreference(metric.preferenceKey, false);
-          addLog(`Permission Denied: ${metric.label} permission not granted.`, 'WARNING');
+          addLog(
+            `Permission Denied: ${metric.label} permission not granted.`,
+            'WARNING',
+          );
         } else {
-          addLog(`${metric.label} sync enabled and permissions granted.`, 'INFO');
+          addLog(
+            `${metric.label} sync enabled and permissions granted.`,
+            'INFO',
+          );
           enableBackgroundDeliveryForMetric(metric.recordType).catch(() => {});
         }
       } catch (permissionError) {
-        const errorMessage = permissionError instanceof Error ? permissionError.message : String(permissionError);
-        Alert.alert('Permission Error', `Failed to request ${metric.label.toLowerCase()} permissions: ${errorMessage}`);
+        const errorMessage =
+          permissionError instanceof Error
+            ? permissionError.message
+            : String(permissionError);
+        Alert.alert(
+          'Permission Error',
+          `Failed to request ${metric.label.toLowerCase()} permissions: ${errorMessage}`,
+        );
         setHealthMetricStates(prevStates => ({
           ...prevStates,
           [metric.stateKey]: false,
         }));
         await saveHealthPreference(metric.preferenceKey, false);
-        addLog(`Permission Request Error for ${metric.label}: ${errorMessage}`, 'ERROR');
+        addLog(
+          `Permission Request Error for ${metric.label}: ${errorMessage}`,
+          'ERROR',
+        );
       }
     }
     refreshSubscriptions();
@@ -268,8 +326,13 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
     });
 
     if (newValue) {
-      const allPermissions = HEALTH_METRICS.flatMap(metric => metric.permissions);
-      addLog(`[SyncScreen] Requesting permissions for all ${HEALTH_METRICS.length} metrics`, 'DEBUG');
+      const allPermissions = HEALTH_METRICS.flatMap(
+        metric => metric.permissions,
+      );
+      addLog(
+        `[SyncScreen] Requesting permissions for all ${HEALTH_METRICS.length} metrics`,
+        'DEBUG',
+      );
 
       try {
         const granted = await requestHealthPermissions(allPermissions);
@@ -277,25 +340,43 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
         if (!granted) {
           Alert.alert(
             'Permissions Required',
-            `Some permissions were not granted. Please enable all required health permissions in the ${healthSettingsName} to sync all data.`
+            `Some permissions were not granted. Please enable all required health permissions in the ${healthSettingsName} to sync all data.`,
           );
           HEALTH_METRICS.forEach(metric => {
             newHealthMetricStates[metric.stateKey] = false;
           });
-          addLog('[SyncScreen] Not all permissions were granted. Reverting "Enable All".', 'WARNING');
+          addLog(
+            '[SyncScreen] Not all permissions were granted. Reverting "Enable All".',
+            'WARNING',
+          );
         } else {
-          addLog(`[SyncScreen] All ${HEALTH_METRICS.length} metric permissions granted`, 'INFO');
+          addLog(
+            `[SyncScreen] All ${HEALTH_METRICS.length} metric permissions granted`,
+            'INFO',
+          );
         }
       } catch (permissionError) {
-        const errorMessage = permissionError instanceof Error ? permissionError.message : String(permissionError);
-        Alert.alert('Permission Error', `An error occurred while requesting health permissions: ${errorMessage}`);
+        const errorMessage =
+          permissionError instanceof Error
+            ? permissionError.message
+            : String(permissionError);
+        Alert.alert(
+          'Permission Error',
+          `An error occurred while requesting health permissions: ${errorMessage}`,
+        );
         HEALTH_METRICS.forEach(metric => {
           newHealthMetricStates[metric.stateKey] = false;
         });
-        addLog(`[SyncScreen] Error requesting all permissions: ${errorMessage}`, 'ERROR');
+        addLog(
+          `[SyncScreen] Error requesting all permissions: ${errorMessage}`,
+          'ERROR',
+        );
       }
     } else {
-      addLog(`[SyncScreen] Disabling all ${HEALTH_METRICS.length} metrics`, 'DEBUG');
+      addLog(
+        `[SyncScreen] Disabling all ${HEALTH_METRICS.length} metrics`,
+        'DEBUG',
+      );
       disableAllBackgroundDelivery().catch(() => {});
       cleanupAllSubscriptions();
     }
@@ -305,15 +386,23 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
     const saveErrors: string[] = [];
     for (const metric of HEALTH_METRICS) {
       try {
-        await saveHealthPreference(metric.preferenceKey, newHealthMetricStates[metric.stateKey]);
+        await saveHealthPreference(
+          metric.preferenceKey,
+          newHealthMetricStates[metric.stateKey],
+        );
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         saveErrors.push(`${metric.label}: ${errorMessage}`);
       }
     }
 
     if (saveErrors.length > 0) {
-      addLog(`[SyncScreen] Failed to save ${saveErrors.length}/${HEALTH_METRICS.length} metric preferences`, 'WARNING', saveErrors);
+      addLog(
+        `[SyncScreen] Failed to save ${saveErrors.length}/${HEALTH_METRICS.length} metric preferences`,
+        'WARNING',
+        saveErrors,
+      );
     }
 
     if (newValue) {
@@ -329,8 +418,12 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
     try {
       await shareHealthDiagnosticReport();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      Alert.alert('Error', `Failed to generate health data report: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Alert.alert(
+        'Error',
+        `Failed to generate health data report: ${errorMessage}`,
+      );
     } finally {
       setIsSharingReport(false);
     }
@@ -344,7 +437,11 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingTop: 16, paddingBottom: insets.bottom + 80 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          padding: 16,
+          paddingTop: 16,
+          paddingBottom: insets.bottom + 80 + activeWorkoutBarPadding,
+        }}
         contentInsetAdjustmentBehavior="never"
       >
         {/* Header */}
@@ -358,18 +455,22 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
             >
               <Icon name="chevron-back" size={22} color={accentPrimary} />
             </Button>
-            <Text className="text-2xl font-bold text-text-primary">Health Data Sync</Text>
+            <Text className="text-2xl font-bold text-text-primary">
+              Health Data Sync
+            </Text>
           </View>
         </View>
 
         {/* Sync Range */}
         <View className="bg-surface rounded-xl p-4 py-3 mb-4 shadow-sm">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-text-primary">Sync Range</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Sync Range
+            </Text>
             <BottomSheetPicker
               value={selectedTimeRange}
               options={timeRangeOptions}
-              onSelect={async (value) => {
+              onSelect={async value => {
                 setSelectedTimeRange(value);
                 await saveTimeRange(value);
               }}
@@ -377,9 +478,13 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
               containerStyle={{ flex: 1, maxWidth: 180, marginLeft: 16 }}
             />
           </View>
-          <Text className="text-text-secondary text-xs mt-1">Controls how much data will be included in the next sync</Text>
+          <Text className="text-text-secondary text-xs mt-1">
+            Controls how much data will be included in the next sync
+          </Text>
           {(selectedTimeRange === '180d' || selectedTimeRange === '365d') && (
-            <Text className="text-text-secondary text-xs mt-2">Large time ranges may take a while.</Text>
+            <Text className="text-text-secondary text-xs mt-2">
+              Large time ranges may take a while.
+            </Text>
           )}
         </View>
         {/* Sync Now Button */}
@@ -387,7 +492,11 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
           variant="primary"
           className="flex-row items-center mb-2"
           onPress={handleSync}
-          disabled={syncMutation.isPending || isSyncClaimed() || !isHealthConnectInitialized}
+          disabled={
+            syncMutation.isPending ||
+            isSyncClaimed() ||
+            !isHealthConnectInitialized
+          }
         >
           <Image
             source={require('../../assets/icons/sync_now_alt.png')}
@@ -395,11 +504,14 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
             tintColor="#fff"
           />
           <View className="flex-1">
-            <Text className="text-white text-lg font-semibold">{syncMutation.isPending ? "Syncing..." : "Sync Now"}</Text>
-            <Text className="text-white/80 text-sm mt-0.5">Send your health data to your server</Text>
+            <Text className="text-white text-lg font-semibold">
+              {syncMutation.isPending ? 'Syncing...' : 'Sync Now'}
+            </Text>
+            <Text className="text-white/80 text-sm mt-0.5">
+              Send your health data to your server
+            </Text>
           </View>
         </Button>
-
 
         {!isHealthConnectInitialized && (
           <Text className="text-red-500 mt-2.5 text-center">
@@ -412,11 +524,18 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
         {/* Last Synced Time - always reserve space to prevent layout shift */}
         <View>
           <Text className="text-text-muted text-center mb-2">
-            {lastSyncedTimeLoaded
-              ? (lastSyncedTime
-                ? <><Text className="font-bold">Last synced:</Text> {formatRelativeTime(new Date(lastSyncedTime))}</>
-                : formatRelativeTime(null))
-              : ' '}
+            {lastSyncedTimeLoaded ? (
+              lastSyncedTime ? (
+                <>
+                  <Text className="font-bold">Last synced:</Text>{' '}
+                  {formatRelativeTime(new Date(lastSyncedTime))}
+                </>
+              ) : (
+                formatRelativeTime(null)
+              )
+            ) : (
+              ' '
+            )}
           </Text>
           {Platform.OS === 'ios' && (
             <Text className="text-text-muted text-center text-xs mb-2">
@@ -433,14 +552,18 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
         {/* Health Disclaimer */}
         {Platform.OS === 'android' && (
           <Text className="text-text-secondary text-sm text-center mb-4 mt-2">
-            <Text className="font-semibold">Not medical advice.</Text> Consult a healthcare professional for medical advice, diagnosis, or treatment.
+            <Text className="font-semibold">Not medical advice.</Text> Consult a
+            healthcare professional for medical advice, diagnosis, or treatment.
           </Text>
         )}
         <SyncFrequency
           isEnabled={isBackgroundSyncEnabled}
           onToggle={handleToggleBackgroundSync}
         />
-        <SyncOnOpen isEnabled={isSyncOnOpenEnabled} onToggle={handleToggleSyncOnOpen} />
+        <SyncOnOpen
+          isEnabled={isSyncOnOpenEnabled}
+          onToggle={handleToggleSyncOnOpen}
+        />
 
         <HealthDataSync
           healthMetricStates={healthMetricStates}
@@ -475,12 +598,12 @@ const SyncScreen: React.FC<SyncScreenProps> = ({ navigation }) => {
               </View>
             </Button>
             <Text className="text-text-muted text-xs px-2 mt-2">
-              Reads the last 4 hours of data from Health Connect for troubleshooting.
-              Values are rounded for privacy. Nothing is sent automatically.
+              Reads the last 4 hours of data from Health Connect for
+              troubleshooting. Values are rounded for privacy. Nothing is sent
+              automatically.
             </Text>
           </View>
         )}
-
       </ScrollView>
     </View>
   );

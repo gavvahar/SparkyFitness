@@ -13,7 +13,8 @@ let claimed = false;
 let foregroundAutoSyncWindowOpen = false;
 const AUTO_SYNC_COOLDOWN_MS = 5 * 60 * 1000;
 
-const autoSyncKeyForConfig = (configId: string): string => `@AutoSync:lastAutoSyncAt:${configId}`;
+const autoSyncKeyForConfig = (configId: string): string =>
+  `@AutoSync:lastAutoSyncAt:${configId}`;
 
 export const tryClaimAutoSync = (): (() => void) | null => {
   if (claimed) return null;
@@ -34,9 +35,12 @@ export const setForegroundAutoSyncWindowOpen = (isOpen: boolean): void => {
   foregroundAutoSyncWindowOpen = isOpen;
 };
 
-export const isForegroundAutoSyncWindowOpen = (): boolean => foregroundAutoSyncWindowOpen;
+export const isForegroundAutoSyncWindowOpen = (): boolean =>
+  foregroundAutoSyncWindowOpen;
 
-export const shouldRunForegroundResumeAutoSync = async (configId: string): Promise<boolean> => {
+export const shouldRunForegroundResumeAutoSync = async (
+  configId: string,
+): Promise<boolean> => {
   try {
     const value = await AsyncStorage.getItem(autoSyncKeyForConfig(configId));
     if (!value) return true;
@@ -46,15 +50,24 @@ export const shouldRunForegroundResumeAutoSync = async (configId: string): Promi
 
     return Date.now() - lastAutoSyncAt >= AUTO_SYNC_COOLDOWN_MS;
   } catch (error) {
-    console.error('[AutoSyncCoordinator] Failed to load auto-sync cooldown:', error);
+    console.error(
+      '[AutoSyncCoordinator] Failed to load auto-sync cooldown:',
+      error,
+    );
     return true;
   }
 };
 
 export const recordAutoSyncTime = async (configId: string): Promise<void> => {
   try {
-    await AsyncStorage.setItem(autoSyncKeyForConfig(configId), Date.now().toString());
+    await AsyncStorage.setItem(
+      autoSyncKeyForConfig(configId),
+      Date.now().toString(),
+    );
   } catch (error) {
-    console.error('[AutoSyncCoordinator] Failed to record auto-sync time:', error);
+    console.error(
+      '[AutoSyncCoordinator] Failed to record auto-sync time:',
+      error,
+    );
   }
 };

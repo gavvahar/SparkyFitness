@@ -27,7 +27,13 @@ export interface HKSleepRecord {
 // ==========================================
 
 /** Sleep stage type including 'in_bed' */
-export type SleepStageType = 'awake' | 'rem' | 'light' | 'deep' | 'in_bed' | 'unknown';
+export type SleepStageType =
+  | 'awake'
+  | 'rem'
+  | 'light'
+  | 'deep'
+  | 'in_bed'
+  | 'unknown';
 
 /** Internal session state during sleep aggregation (uses Date objects) */
 export interface SleepSessionAccumulator {
@@ -87,8 +93,8 @@ export interface ExerciseSet {
   set_type?: string;
   reps?: number;
   weight?: number;
-  duration?: number;    // minutes
-  rest_time?: number;   // seconds
+  duration?: number; // minutes
+  rest_time?: number; // seconds
   notes?: string;
   rpe?: number;
 }

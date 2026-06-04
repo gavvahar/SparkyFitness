@@ -4,24 +4,10 @@
     "strict": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@workspace/shared": [
-        "../shared/src/index.ts"
-      ]
+      "@/*": ["./*"],
+      "@workspace/shared": ["../shared/src/index.ts"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "__tests__",
-    "plugins",
-    "drivers",
-    "reports",
-    "plans",
-    "devdocs"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["__tests__", "plugins", "drivers", "reports", "plans", "devdocs"]
 }

@@ -75,7 +75,10 @@ describe('FoodPhotoImproveScreen', () => {
       <SafeAreaProvider initialMetrics={{ insets, frame }}>
         <FoodPhotoImproveScreen
           navigation={navigation}
-          route={{ ...baseRoute, params: { ...baseRoute.params, ...overrides } }}
+          route={{
+            ...baseRoute,
+            params: { ...baseRoute.params, ...overrides },
+          }}
         />
       </SafeAreaProvider>,
     );
@@ -187,11 +190,14 @@ describe('FoodPhotoImproveScreen', () => {
   it('Cancel aborts the in-flight request and suppresses the error toast', async () => {
     const resetFn = jest.fn();
     let pending = false;
-    mockUseEstimate.mockImplementation(() => ({
-      mutate: mockMutate,
-      isPending: pending,
-      reset: resetFn,
-    }) as any);
+    mockUseEstimate.mockImplementation(
+      () =>
+        ({
+          mutate: mockMutate,
+          isPending: pending,
+          reset: resetFn,
+        }) as any,
+    );
 
     pending = false;
     const screen = renderScreen();

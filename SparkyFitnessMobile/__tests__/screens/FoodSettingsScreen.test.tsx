@@ -11,7 +11,10 @@ jest.mock('../../src/hooks/useExternalProviders', () => ({
 
 jest.mock('../../src/components/BottomSheetPicker', () => {
   const { View } = require('react-native');
-  return { __esModule: true, default: () => <View testID="bottom-sheet-picker" /> };
+  return {
+    __esModule: true,
+    default: () => <View testID="bottom-sheet-picker" />,
+  };
 });
 
 jest.mock('../../src/components/Icon', () => {
@@ -59,9 +62,7 @@ describe('FoodSettingsScreen', () => {
     const { getByText } = renderScreen({});
     expect(getByText('Show Net Carbs')).toBeTruthy();
     expect(
-      getByText(
-        /When enabled, carbohydrate summaries display net carbs/i,
-      ),
+      getByText(/When enabled, carbohydrate summaries display net carbs/i),
     ).toBeTruthy();
   });
 

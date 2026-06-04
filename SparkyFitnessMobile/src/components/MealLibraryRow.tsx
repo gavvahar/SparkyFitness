@@ -26,11 +26,17 @@ const MealLibraryRow: React.FC<MealLibraryRowProps> = ({
     >
       <View className="flex-row justify-between items-center">
         <View className="flex-1 mr-3">
-          <Text className="text-text-primary text-base font-medium" numberOfLines={1}>
+          <Text
+            className="text-text-primary text-base font-medium"
+            numberOfLines={1}
+          >
             {meal.name}
           </Text>
           {meal.description ? (
-            <Text className="text-text-secondary text-sm mt-0.5" numberOfLines={1}>
+            <Text
+              className="text-text-secondary text-sm mt-0.5"
+              numberOfLines={1}
+            >
               {meal.description}
             </Text>
           ) : null}

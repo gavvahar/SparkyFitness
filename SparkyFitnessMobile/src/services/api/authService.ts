@@ -3,7 +3,10 @@ import { clearSessionToken, ServerConfig } from '../storage';
 import { addLog } from '../LogService';
 
 export class LoginError extends Error {
-  constructor(message: string, public statusCode?: number) {
+  constructor(
+    message: string,
+    public statusCode?: number,
+  ) {
     super(message);
     this.name = 'LoginError';
   }
@@ -68,7 +71,9 @@ export const notifyNoConfigs = (): void => {
 };
 
 let pendingProxyHeaders: Record<string, string> = {};
-export const setPendingProxyHeaders = (headers: Record<string, string>): void => {
+export const setPendingProxyHeaders = (
+  headers: Record<string, string>,
+): void => {
   pendingProxyHeaders = headers;
 };
 export const clearPendingProxyHeaders = (): void => {
@@ -79,7 +84,9 @@ export const clearPendingProxyHeaders = (): void => {
  * Returns the appropriate Authorization header for the given config.
  * Session configs use the session token; API key configs use the API key.
  */
-export const getAuthHeaders = (config: ServerConfig): Record<string, string> => {
+export const getAuthHeaders = (
+  config: ServerConfig,
+): Record<string, string> => {
   if (config.authType === 'session' && config.sessionToken) {
     return { Authorization: `Bearer ${config.sessionToken}` };
   }
@@ -102,7 +109,9 @@ type NetworkingModule = {
   clearCookies: (callback: (result: boolean) => void) => void;
 };
 
-const networkingModule = NativeModules.Networking as NetworkingModule | undefined;
+const networkingModule = NativeModules.Networking as
+  | NetworkingModule
+  | undefined;
 
 const normalizeOrigin = (origin?: string | null): string | undefined => {
   if (!origin) {
@@ -113,7 +122,10 @@ const normalizeOrigin = (origin?: string | null): string | undefined => {
     return new URL(origin).origin;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[AuthService] Invalid trusted_origin from server: ${origin} (${message})`, 'WARNING');
+    addLog(
+      `[AuthService] Invalid trusted_origin from server: ${origin} (${message})`,
+      'WARNING',
+    );
     return undefined;
   }
 };
@@ -123,12 +135,17 @@ const getFallbackAuthOrigin = (serverUrl: string): string | undefined => {
     return new URL(serverUrl).origin;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[AuthService] Invalid server URL for auth origin: ${serverUrl} (${message})`, 'WARNING');
+    addLog(
+      `[AuthService] Invalid server URL for auth origin: ${serverUrl} (${message})`,
+      'WARNING',
+    );
     return undefined;
   }
 };
 
-const getTrustedAuthOrigin = async (serverUrl: string): Promise<string | undefined> => {
+const getTrustedAuthOrigin = async (
+  serverUrl: string,
+): Promise<string | undefined> => {
   const baseUrl = normalizeUrl(serverUrl);
 
   if (trustedOriginCache.has(baseUrl)) {
@@ -160,7 +177,9 @@ const getTrustedAuthOrigin = async (serverUrl: string): Promise<string | undefin
   return trustedOrigin;
 };
 
-const getMfaHeaders = async (serverUrl: string): Promise<Record<string, string>> => {
+const getMfaHeaders = async (
+  serverUrl: string,
+): Promise<Record<string, string>> => {
   const origin = await getTrustedAuthOrigin(serverUrl);
 
   if (!origin) {
@@ -201,7 +220,7 @@ const parseAuthErrorText = (errorText: string): string => {
 };
 
 export const clearAuthCookies = async (): Promise<void> => {
-  await new Promise<void>((resolve) => {
+  await new Promise<void>(resolve => {
     try {
       networkingModule?.clearCookies(() => resolve());
       if (!networkingModule) {
@@ -314,12 +333,17 @@ export const verifyTotp = async (
   });
 
   if (!response.ok) {
-    throw new LoginError(parseAuthErrorText(await response.text()), response.status);
+    throw new LoginError(
+      parseAuthErrorText(await response.text()),
+      response.status,
+    );
   }
 
   const body = await response.json();
   if (!body.token) {
-    throw new LoginError('Verification response did not include a session token.');
+    throw new LoginError(
+      'Verification response did not include a session token.',
+    );
   }
 
   return {
@@ -334,9 +358,7 @@ export const verifyTotp = async (
 /**
  * Triggers the server to send an email OTP code to the user.
  */
-export const sendEmailOtp = async (
-  serverUrl: string,
-): Promise<void> => {
+export const sendEmailOtp = async (serverUrl: string): Promise<void> => {
   const baseUrl = normalizeUrl(serverUrl);
   const headers = await getMfaHeaders(baseUrl);
 
@@ -347,7 +369,10 @@ export const sendEmailOtp = async (
   });
 
   if (!response.ok) {
-    throw new LoginError(parseAuthErrorText(await response.text()), response.status);
+    throw new LoginError(
+      parseAuthErrorText(await response.text()),
+      response.status,
+    );
   }
 };
 
@@ -369,12 +394,17 @@ export const verifyEmailOtp = async (
   });
 
   if (!response.ok) {
-    throw new LoginError(parseAuthErrorText(await response.text()), response.status);
+    throw new LoginError(
+      parseAuthErrorText(await response.text()),
+      response.status,
+    );
   }
 
   const body = await response.json();
   if (!body.token) {
-    throw new LoginError('Verification response did not include a session token.');
+    throw new LoginError(
+      'Verification response did not include a session token.',
+    );
   }
 
   return {

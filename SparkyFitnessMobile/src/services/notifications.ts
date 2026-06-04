@@ -54,7 +54,10 @@ export async function ensureNotificationPermission(): Promise<boolean> {
     }
     return false;
   } catch (err) {
-    addLog(`ensureNotificationPermission failed: ${(err as Error).message}`, 'ERROR');
+    addLog(
+      `ensureNotificationPermission failed: ${(err as Error).message}`,
+      'ERROR',
+    );
     return false;
   }
 }
@@ -81,17 +84,25 @@ export async function scheduleRestNotification(
     });
     return id;
   } catch (err) {
-    addLog(`scheduleRestNotification failed: ${(err as Error).message}`, 'ERROR');
+    addLog(
+      `scheduleRestNotification failed: ${(err as Error).message}`,
+      'ERROR',
+    );
     return null;
   }
 }
 
-export async function cancelScheduledNotification(id: string | null): Promise<void> {
+export async function cancelScheduledNotification(
+  id: string | null,
+): Promise<void> {
   if (id == null) return;
   try {
     await Notifications.cancelScheduledNotificationAsync(id);
   } catch (err) {
-    addLog(`cancelScheduledNotification failed: ${(err as Error).message}`, 'ERROR');
+    addLog(
+      `cancelScheduledNotification failed: ${(err as Error).message}`,
+      'ERROR',
+    );
   }
 }
 

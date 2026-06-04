@@ -44,7 +44,14 @@ export { useFoods } from './useFoods';
 export { useDebounce } from './useDebounce';
 export { useFoodSearch } from './useFoodSearch';
 export { useFoodsLibrary } from './useFoodsLibrary';
-export { useMeals, useRecentMeals, useMeal, useCreateMeal, useUpdateMeal, useDeleteMeal } from './useMeals';
+export {
+  useMeals,
+  useRecentMeals,
+  useMeal,
+  useCreateMeal,
+  useUpdateMeal,
+  useDeleteMeal,
+} from './useMeals';
 export { useMealSearch } from './useMealSearch';
 export { useExternalProviders } from './useExternalProviders';
 export { useExternalFoodSearch } from './useExternalFoodSearch';
@@ -56,7 +63,11 @@ export { useFoodVariants } from './useFoodVariants';
 export { useSaveFood } from './useSaveFood';
 export { useAddFoodEntry } from './useAddFoodEntry';
 export { useMeasurementsRange } from './useMeasurementsRange';
-export type { StepsDataPoint, StepsRange, WeightDataPoint } from './useMeasurementsRange';
+export type {
+  StepsDataPoint,
+  StepsRange,
+  WeightDataPoint,
+} from './useMeasurementsRange';
 export { useExerciseHistory } from './useExerciseHistory';
 export { useSuggestedExercises } from './useSuggestedExercises';
 export { useExerciseSearch } from './useExerciseSearch';

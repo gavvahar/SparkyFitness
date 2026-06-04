@@ -23,13 +23,16 @@ export async function fetchUserAiConfigAllowed(): Promise<boolean> {
   }
 
   try {
-    const response = await fetch(`${baseUrl}/api/global-settings/allow-user-ai-config`, {
-      method: 'GET',
-      headers: {
-        ...proxyHeadersToRecord(config.proxyHeaders),
-        ...getAuthHeaders(config),
+    const response = await fetch(
+      `${baseUrl}/api/global-settings/allow-user-ai-config`,
+      {
+        method: 'GET',
+        headers: {
+          ...proxyHeadersToRecord(config.proxyHeaders),
+          ...getAuthHeaders(config),
+        },
       },
-    });
+    );
     if (!response.ok) {
       if (response.status === 401 && config.authType === 'session') {
         notifySessionExpired(config.id);
@@ -65,13 +68,16 @@ export async function fetchActiveAiServiceSetting(): Promise<ActiveAiServiceSett
   }
 
   try {
-    const response = await fetch(`${baseUrl}/api/chat/ai-service-settings/active`, {
-      method: 'GET',
-      headers: {
-        ...proxyHeadersToRecord(config.proxyHeaders),
-        ...getAuthHeaders(config),
+    const response = await fetch(
+      `${baseUrl}/api/chat/ai-service-settings/active`,
+      {
+        method: 'GET',
+        headers: {
+          ...proxyHeadersToRecord(config.proxyHeaders),
+          ...getAuthHeaders(config),
+        },
       },
-    });
+    );
     if (!response.ok) {
       if (response.status === 401 && config.authType === 'session') {
         notifySessionExpired(config.id);
@@ -98,7 +104,9 @@ export async function fetchActiveAiServiceSetting(): Promise<ActiveAiServiceSett
   }
 }
 
-const FOOD_PHOTO_SUPPORTED_PROVIDERS = new Set(Object.keys(FOOD_PHOTO_PROVIDER_LABELS));
+const FOOD_PHOTO_SUPPORTED_PROVIDERS = new Set(
+  Object.keys(FOOD_PHOTO_PROVIDER_LABELS),
+);
 
 export function isFoodPhotoAvailable(
   setting: ActiveAiServiceSetting | null | undefined,

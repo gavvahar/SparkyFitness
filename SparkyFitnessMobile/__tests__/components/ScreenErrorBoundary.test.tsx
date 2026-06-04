@@ -1,7 +1,10 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
-import ScreenErrorBoundary, { withErrorBoundary, SectionErrorBoundary } from '../../src/components/ScreenErrorBoundary';
+import ScreenErrorBoundary, {
+  withErrorBoundary,
+  SectionErrorBoundary,
+} from '../../src/components/ScreenErrorBoundary';
 import { addLog } from '../../src/services/LogService';
 import { queryClient } from '../../src/hooks/queryClient';
 
@@ -114,7 +117,10 @@ describe('ScreenErrorBoundary', () => {
 
 describe('withErrorBoundary HOC', () => {
   it('forwards all props to the wrapped component', () => {
-    interface TestProps { label: string; count: number }
+    interface TestProps {
+      label: string;
+      count: number;
+    }
     function TestScreen({ label, count }: TestProps) {
       return <Text>{`${label}-${count}`}</Text>;
     }
@@ -131,7 +137,9 @@ describe('withErrorBoundary HOC', () => {
       throw new Error('crash');
     }
 
-    const SafeCrash = withErrorBoundary(CrashScreen, 'Crash', { canGoBack: true });
+    const SafeCrash = withErrorBoundary(CrashScreen, 'Crash', {
+      canGoBack: true,
+    });
     const { getByText } = render(<SafeCrash navigation={{ goBack }} />);
     fireEvent.press(getByText('Go Back'));
     expect(goBack).toHaveBeenCalled();

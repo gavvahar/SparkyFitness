@@ -5,7 +5,9 @@ describe('getApiErrorMessage', () => {
     const error = new ApiError(
       'Bad Gateway',
       502,
-      JSON.stringify({ error: 'FatSecret API error (code 21): Invalid IP address detected' }),
+      JSON.stringify({
+        error: 'FatSecret API error (code 21): Invalid IP address detected',
+      }),
     );
     expect(getApiErrorMessage(error)).toBe(
       'FatSecret API error (code 21): Invalid IP address detected',
@@ -13,7 +15,11 @@ describe('getApiErrorMessage', () => {
   });
 
   it('returns the message from an ApiError with a { message } body', () => {
-    const error = new ApiError('Bad Gateway', 502, JSON.stringify({ message: 'Something failed' }));
+    const error = new ApiError(
+      'Bad Gateway',
+      502,
+      JSON.stringify({ message: 'Something failed' }),
+    );
     expect(getApiErrorMessage(error)).toBe('Something failed');
   });
 

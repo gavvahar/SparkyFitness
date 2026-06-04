@@ -1,7 +1,4 @@
-import {
-  insertRecords,
-  requestPermission,
-} from 'react-native-health-connect';
+import { insertRecords, requestPermission } from 'react-native-health-connect';
 import { addLog } from './LogService';
 
 // ============================================================================
@@ -14,8 +11,23 @@ interface SeedResult {
   error?: string;
 }
 
-type IntervalValueType = 'count' | 'floors' | 'energy' | 'distance' | 'elevation' | 'volume';
-type InstantValueType = 'mass' | 'length' | 'percentage' | 'temperature' | 'rate' | 'bloodGlucose' | 'power' | 'enum' | 'marker';
+type IntervalValueType =
+  | 'count'
+  | 'floors'
+  | 'energy'
+  | 'distance'
+  | 'elevation'
+  | 'volume';
+type InstantValueType =
+  | 'mass'
+  | 'length'
+  | 'percentage'
+  | 'temperature'
+  | 'rate'
+  | 'bloodGlucose'
+  | 'power'
+  | 'enum'
+  | 'marker';
 
 type IntervalSeedConfig = {
   recordType: string;
@@ -52,7 +64,11 @@ type CustomSeedConfig = {
   seeder: (days: number) => Promise<number>;
 };
 
-type SeedConfig = IntervalSeedConfig | InstantSeedConfig | SamplesSeedConfig | CustomSeedConfig;
+type SeedConfig =
+  | IntervalSeedConfig
+  | InstantSeedConfig
+  | SamplesSeedConfig
+  | CustomSeedConfig;
 
 // ============================================================================
 // Utility Functions
@@ -97,15 +113,15 @@ const getPastDates = (days: number): Date[] => {
  * is at least ~10% of the even share to avoid zero/tiny entries.
  */
 const splitIntoChunks = (total: number, count: number): number[] => {
-  const minShare = Math.floor(total / count * 0.1);
+  const minShare = Math.floor((total / count) * 0.1);
   const remaining = total - minShare * count;
 
   // Generate random weights and normalize them to distribute the remainder
   const weights = Array.from({ length: count }, () => Math.random());
   const weightSum = weights.reduce((sum, w) => sum + w, 0);
 
-  const chunks = weights.map((w) =>
-    Math.floor(minShare + (w / weightSum) * remaining)
+  const chunks = weights.map(w =>
+    Math.floor(minShare + (w / weightSum) * remaining),
   );
 
   // Assign any rounding remainder to the last chunk
@@ -119,24 +135,31 @@ const splitIntoChunks = (total: number, count: number): number[] => {
 // Value Builders
 // ============================================================================
 
-const INTERVAL_VALUE_BUILDERS: Record<IntervalValueType, (v: number) => unknown> = {
-  count: (v) => v,
-  floors: (v) => v,
-  energy: (v) => ({ value: v, unit: 'kilocalories' }),
-  distance: (v) => ({ value: v, unit: 'meters' }),
-  elevation: (v) => ({ value: v, unit: 'meters' }),
-  volume: (v) => ({ value: v, unit: 'milliliters' }),
+const INTERVAL_VALUE_BUILDERS: Record<
+  IntervalValueType,
+  (v: number) => unknown
+> = {
+  count: v => v,
+  floors: v => v,
+  energy: v => ({ value: v, unit: 'kilocalories' }),
+  distance: v => ({ value: v, unit: 'meters' }),
+  elevation: v => ({ value: v, unit: 'meters' }),
+  volume: v => ({ value: v, unit: 'milliliters' }),
 };
 
-const INSTANT_VALUE_BUILDERS: Record<InstantValueType, (v: number, config: InstantSeedConfig) => unknown> = {
+const INSTANT_VALUE_BUILDERS: Record<
+  InstantValueType,
+  (v: number, config: InstantSeedConfig) => unknown
+> = {
   mass: (v, c) => ({ value: v, unit: c.unit || 'kilograms' }),
   length: (v, c) => ({ value: v, unit: c.unit || 'meters' }),
-  percentage: (v) => v, // Raw number for percentage fields
-  temperature: (v) => ({ value: v, unit: 'celsius' }),
-  rate: (v) => v,
-  bloodGlucose: (v) => ({ value: v, unit: 'millimolesPerLiter' }),
-  power: (v) => ({ value: v, unit: 'kilocaloriesPerDay' }),
-  enum: (_v, c) => c.enumValues?.[randomInt(0, (c.enumValues?.length ?? 1) - 1)] ?? 1,
+  percentage: v => v, // Raw number for percentage fields
+  temperature: v => ({ value: v, unit: 'celsius' }),
+  rate: v => v,
+  bloodGlucose: v => ({ value: v, unit: 'millimolesPerLiter' }),
+  power: v => ({ value: v, unit: 'kilocaloriesPerDay' }),
+  enum: (_v, c) =>
+    c.enumValues?.[randomInt(0, (c.enumValues?.length ?? 1) - 1)] ?? 1,
   marker: () => undefined,
 };
 
@@ -144,7 +167,11 @@ const INSTANT_VALUE_BUILDERS: Record<InstantValueType, (v: number, config: Insta
 // Record Builders
 // ============================================================================
 
-const buildIntervalRecord = (config: IntervalSeedConfig, startTime: Date, endTime: Date) => {
+const buildIntervalRecord = (
+  config: IntervalSeedConfig,
+  startTime: Date,
+  endTime: Date,
+) => {
   const value = randomInt(config.range[0], config.range[1]);
   const builder = INTERVAL_VALUE_BUILDERS[config.valueType];
 
@@ -166,7 +193,9 @@ const buildInstantRecord = (config: InstantSeedConfig, time: Date) => {
     return record;
   }
 
-  const value = config.range ? randomFloat(config.range[0], config.range[1]) : 0;
+  const value = config.range
+    ? randomFloat(config.range[0], config.range[1])
+    : 0;
   const builder = INSTANT_VALUE_BUILDERS[config.valueType];
   record[config.valueKey] = builder(value, config);
 
@@ -180,7 +209,7 @@ const buildInstantRecord = (config: InstantSeedConfig, time: Date) => {
 const buildMultiRecordDay = (
   config: IntervalSeedConfig,
   date: Date,
-  numRecords: number
+  numRecords: number,
 ): ReturnType<typeof buildIntervalRecord>[] => {
   const dailyTotal = randomInt(config.range[0], config.range[1]);
   const chunks = splitIntoChunks(dailyTotal, numRecords);
@@ -195,14 +224,19 @@ const buildMultiRecordDay = (
 
   return chunks.map((chunkValue, i) => {
     const windowStartMinutes = dayStartHour * 60 + i * windowMinutes;
-    const offsetMinutes = today ? i * 10 : randomInt(0, Math.max(0, windowMinutes - 20));
+    const offsetMinutes = today
+      ? i * 10
+      : randomInt(0, Math.max(0, windowMinutes - 20));
 
     const startTime = new Date(date);
     startTime.setHours(0, 0, 0, 0);
     startTime.setMinutes(windowStartMinutes + offsetMinutes);
 
     const endTime = new Date(startTime);
-    const maxDuration = Math.max(5, Math.min(15, windowMinutes - offsetMinutes));
+    const maxDuration = Math.max(
+      5,
+      Math.min(15, windowMinutes - offsetMinutes),
+    );
     endTime.setMinutes(endTime.getMinutes() + randomInt(5, maxDuration));
 
     return {
@@ -216,10 +250,10 @@ const buildMultiRecordDay = (
 
 const seedIntervalRecords = async (
   config: IntervalSeedConfig,
-  days: number
+  days: number,
 ): Promise<number> => {
   const dates = getPastDates(days);
-  const records = dates.flatMap((date) => {
+  const records = dates.flatMap(date => {
     if (!config.recordsPerDay) {
       const startHour = getSafeHour(date, 8);
       const startTime = new Date(date);
@@ -243,10 +277,10 @@ const seedIntervalRecords = async (
 
 const seedInstantRecords = async (
   config: InstantSeedConfig,
-  days: number
+  days: number,
 ): Promise<number> => {
   const dates = getPastDates(days);
-  const records = dates.map((date) => {
+  const records = dates.map(date => {
     const hour = getSafeHour(date, 7);
     const time = new Date(date);
     time.setHours(hour, 15, 0, 0);
@@ -254,16 +288,18 @@ const seedInstantRecords = async (
     return buildInstantRecord(config, time);
   });
 
-  await insertRecords(records as unknown as Parameters<typeof insertRecords>[0]);
+  await insertRecords(
+    records as unknown as Parameters<typeof insertRecords>[0],
+  );
   return records.length;
 };
 
 const seedSamplesRecords = async (
   config: SamplesSeedConfig,
-  days: number
+  days: number,
 ): Promise<number> => {
   const dates = getPastDates(days);
-  const records = dates.map((date) => {
+  const records = dates.map(date => {
     const startHour = getSafeHour(date, 8);
     const startTime = new Date(date);
     startTime.setHours(startHour, 0, 0, 0);
@@ -271,7 +307,8 @@ const seedSamplesRecords = async (
     endTime.setHours(startHour, 30, 0, 0);
 
     const samples = [];
-    const intervalMs = (endTime.getTime() - startTime.getTime()) / config.samplesPerRecord;
+    const intervalMs =
+      (endTime.getTime() - startTime.getTime()) / config.samplesPerRecord;
     for (let i = 0; i < config.samplesPerRecord; i++) {
       const sampleTime = new Date(startTime.getTime() + intervalMs * i);
       const rawValue = randomFloat(config.range[0], config.range[1]);
@@ -516,7 +553,9 @@ const seedSleepSession = async (days: number): Promise<number> => {
 
     const endTime = new Date(startTime);
     endTime.setHours(endTime.getHours() + Math.floor(sleepDurationHours));
-    endTime.setMinutes(endTime.getMinutes() + Math.floor((sleepDurationHours % 1) * 60));
+    endTime.setMinutes(
+      endTime.getMinutes() + Math.floor((sleepDurationHours % 1) * 60),
+    );
 
     const stages = [];
     let currentTime = new Date(startTime);
@@ -594,41 +633,210 @@ const seedNutrition = async (days: number): Promise<number> => {
 
 const SEED_CONFIGS: SeedConfig[] = [
   // Interval records
-  { recordType: 'Steps', seedType: 'interval', valueKey: 'count', valueType: 'count', range: [5000, 15000], recordsPerDay: 8 },
-  { recordType: 'Distance', seedType: 'interval', valueKey: 'distance', valueType: 'distance', range: [3000, 12000], recordsPerDay: 6 },
-  { recordType: 'FloorsClimbed', seedType: 'interval', valueKey: 'floors', valueType: 'floors', range: [5, 25], recordsPerDay: 4 },
-  { recordType: 'WheelchairPushes', seedType: 'interval', valueKey: 'count', valueType: 'count', range: [100, 500] },
-  { recordType: 'ElevationGained', seedType: 'interval', valueKey: 'elevation', valueType: 'elevation', range: [20, 150] },
-  { recordType: 'ActiveCaloriesBurned', seedType: 'interval', valueKey: 'energy', valueType: 'energy', range: [200, 800], recordsPerDay: 6 },
-  { recordType: 'TotalCaloriesBurned', seedType: 'interval', valueKey: 'energy', valueType: 'energy', range: [1800, 3000], recordsPerDay: 6 },
+  {
+    recordType: 'Steps',
+    seedType: 'interval',
+    valueKey: 'count',
+    valueType: 'count',
+    range: [5000, 15000],
+    recordsPerDay: 8,
+  },
+  {
+    recordType: 'Distance',
+    seedType: 'interval',
+    valueKey: 'distance',
+    valueType: 'distance',
+    range: [3000, 12000],
+    recordsPerDay: 6,
+  },
+  {
+    recordType: 'FloorsClimbed',
+    seedType: 'interval',
+    valueKey: 'floors',
+    valueType: 'floors',
+    range: [5, 25],
+    recordsPerDay: 4,
+  },
+  {
+    recordType: 'WheelchairPushes',
+    seedType: 'interval',
+    valueKey: 'count',
+    valueType: 'count',
+    range: [100, 500],
+  },
+  {
+    recordType: 'ElevationGained',
+    seedType: 'interval',
+    valueKey: 'elevation',
+    valueType: 'elevation',
+    range: [20, 150],
+  },
+  {
+    recordType: 'ActiveCaloriesBurned',
+    seedType: 'interval',
+    valueKey: 'energy',
+    valueType: 'energy',
+    range: [200, 800],
+    recordsPerDay: 6,
+  },
+  {
+    recordType: 'TotalCaloriesBurned',
+    seedType: 'interval',
+    valueKey: 'energy',
+    valueType: 'energy',
+    range: [1800, 3000],
+    recordsPerDay: 6,
+  },
 
   // Samples-based records
-  { recordType: 'Speed', seedType: 'samples', sampleKey: 'speed', unit: 'metersPerSecond', range: [1, 5], samplesPerRecord: 5, valueIsObject: true },
-  { recordType: 'Power', seedType: 'samples', sampleKey: 'power', unit: 'watts', range: [50, 300], samplesPerRecord: 5, valueIsObject: true },
+  {
+    recordType: 'Speed',
+    seedType: 'samples',
+    sampleKey: 'speed',
+    unit: 'metersPerSecond',
+    range: [1, 5],
+    samplesPerRecord: 5,
+    valueIsObject: true,
+  },
+  {
+    recordType: 'Power',
+    seedType: 'samples',
+    sampleKey: 'power',
+    unit: 'watts',
+    range: [50, 300],
+    samplesPerRecord: 5,
+    valueIsObject: true,
+  },
   // StepsCadence omitted - Health Connect returns cryptic "count" error when writing
-  { recordType: 'CyclingPedalingCadence', seedType: 'samples', sampleKey: 'revolutionsPerMinute', range: [60, 100], samplesPerRecord: 5 },
+  {
+    recordType: 'CyclingPedalingCadence',
+    seedType: 'samples',
+    sampleKey: 'revolutionsPerMinute',
+    range: [60, 100],
+    samplesPerRecord: 5,
+  },
 
   // Instant records
-  { recordType: 'Height', seedType: 'instant', valueKey: 'height', valueType: 'length', unit: 'meters', range: [1.5, 1.9] },
-  { recordType: 'BodyFat', seedType: 'instant', valueKey: 'percentage', valueType: 'percentage', range: [15, 30] },
-  { recordType: 'LeanBodyMass', seedType: 'instant', valueKey: 'mass', valueType: 'mass', unit: 'kilograms', range: [45, 70] },
-  { recordType: 'BoneMass', seedType: 'instant', valueKey: 'mass', valueType: 'mass', unit: 'kilograms', range: [2, 4] },
-  { recordType: 'BodyTemperature', seedType: 'instant', valueKey: 'temperature', valueType: 'temperature', range: [36.1, 37.2] },
-  { recordType: 'BasalBodyTemperature', seedType: 'instant', valueKey: 'temperature', valueType: 'temperature', range: [36.0, 36.8] },
-  { recordType: 'RestingHeartRate', seedType: 'instant', valueKey: 'beatsPerMinute', valueType: 'rate', range: [55, 75] },
-  { recordType: 'RespiratoryRate', seedType: 'instant', valueKey: 'rate', valueType: 'rate', range: [12, 20] },
-  { recordType: 'OxygenSaturation', seedType: 'instant', valueKey: 'percentage', valueType: 'percentage', range: [95, 100] },
-  { recordType: 'BloodGlucose', seedType: 'instant', valueKey: 'level', valueType: 'bloodGlucose', range: [4, 10] }, // mmol/L (normal range)
-  { recordType: 'BasalMetabolicRate', seedType: 'instant', valueKey: 'basalMetabolicRate', valueType: 'power', range: [1400, 2000] },
-  { recordType: 'Vo2Max', seedType: 'instant', valueKey: 'vo2MillilitersPerMinuteKilogram', valueType: 'rate', range: [30, 50] },
-  { recordType: 'CervicalMucus', seedType: 'instant', valueKey: 'appearance', valueType: 'enum', enumValues: [1, 2, 3, 4, 5] },
-  { recordType: 'OvulationTest', seedType: 'instant', valueKey: 'result', valueType: 'enum', enumValues: [1, 2, 3] },
-  { recordType: 'IntermenstrualBleeding', seedType: 'instant', valueKey: null, valueType: 'marker' },
+  {
+    recordType: 'Height',
+    seedType: 'instant',
+    valueKey: 'height',
+    valueType: 'length',
+    unit: 'meters',
+    range: [1.5, 1.9],
+  },
+  {
+    recordType: 'BodyFat',
+    seedType: 'instant',
+    valueKey: 'percentage',
+    valueType: 'percentage',
+    range: [15, 30],
+  },
+  {
+    recordType: 'LeanBodyMass',
+    seedType: 'instant',
+    valueKey: 'mass',
+    valueType: 'mass',
+    unit: 'kilograms',
+    range: [45, 70],
+  },
+  {
+    recordType: 'BoneMass',
+    seedType: 'instant',
+    valueKey: 'mass',
+    valueType: 'mass',
+    unit: 'kilograms',
+    range: [2, 4],
+  },
+  {
+    recordType: 'BodyTemperature',
+    seedType: 'instant',
+    valueKey: 'temperature',
+    valueType: 'temperature',
+    range: [36.1, 37.2],
+  },
+  {
+    recordType: 'BasalBodyTemperature',
+    seedType: 'instant',
+    valueKey: 'temperature',
+    valueType: 'temperature',
+    range: [36.0, 36.8],
+  },
+  {
+    recordType: 'RestingHeartRate',
+    seedType: 'instant',
+    valueKey: 'beatsPerMinute',
+    valueType: 'rate',
+    range: [55, 75],
+  },
+  {
+    recordType: 'RespiratoryRate',
+    seedType: 'instant',
+    valueKey: 'rate',
+    valueType: 'rate',
+    range: [12, 20],
+  },
+  {
+    recordType: 'OxygenSaturation',
+    seedType: 'instant',
+    valueKey: 'percentage',
+    valueType: 'percentage',
+    range: [95, 100],
+  },
+  {
+    recordType: 'BloodGlucose',
+    seedType: 'instant',
+    valueKey: 'level',
+    valueType: 'bloodGlucose',
+    range: [4, 10],
+  }, // mmol/L (normal range)
+  {
+    recordType: 'BasalMetabolicRate',
+    seedType: 'instant',
+    valueKey: 'basalMetabolicRate',
+    valueType: 'power',
+    range: [1400, 2000],
+  },
+  {
+    recordType: 'Vo2Max',
+    seedType: 'instant',
+    valueKey: 'vo2MillilitersPerMinuteKilogram',
+    valueType: 'rate',
+    range: [30, 50],
+  },
+  {
+    recordType: 'CervicalMucus',
+    seedType: 'instant',
+    valueKey: 'appearance',
+    valueType: 'enum',
+    enumValues: [1, 2, 3, 4, 5],
+  },
+  {
+    recordType: 'OvulationTest',
+    seedType: 'instant',
+    valueKey: 'result',
+    valueType: 'enum',
+    enumValues: [1, 2, 3],
+  },
+  {
+    recordType: 'IntermenstrualBleeding',
+    seedType: 'instant',
+    valueKey: null,
+    valueType: 'marker',
+  },
 
   // Custom seeders
   { recordType: 'HeartRate', seedType: 'custom', seeder: seedHeartRate },
-  { recordType: 'BloodPressure', seedType: 'custom', seeder: seedBloodPressure },
-  { recordType: 'ExerciseSession', seedType: 'custom', seeder: seedExerciseSessions },
+  {
+    recordType: 'BloodPressure',
+    seedType: 'custom',
+    seeder: seedBloodPressure,
+  },
+  {
+    recordType: 'ExerciseSession',
+    seedType: 'custom',
+    seeder: seedExerciseSessions,
+  },
   { recordType: 'Weight', seedType: 'custom', seeder: seedWeight },
   { recordType: 'Hydration', seedType: 'custom', seeder: seedHydration },
   { recordType: 'SleepSession', seedType: 'custom', seeder: seedSleepSession },
@@ -650,34 +858,47 @@ const requestWritePermissions = async (): Promise<boolean> => {
   try {
     const permissionsToRequest = getWritePermissions();
     const permissions = await requestPermission(
-      permissionsToRequest as unknown as Parameters<typeof requestPermission>[0]
+      permissionsToRequest as unknown as Parameters<
+        typeof requestPermission
+      >[0],
     );
 
-    const granted = permissionsToRequest.filter((requested) =>
+    const granted = permissionsToRequest.filter(requested =>
       permissions.some(
-        (p) => p.recordType === requested.recordType && p.accessType === 'write'
-      )
+        p => p.recordType === requested.recordType && p.accessType === 'write',
+      ),
     );
 
-    const denied = permissionsToRequest.filter((requested) =>
-      !permissions.some(
-        (p) => p.recordType === requested.recordType && p.accessType === 'write'
-      )
+    const denied = permissionsToRequest.filter(
+      requested =>
+        !permissions.some(
+          p =>
+            p.recordType === requested.recordType && p.accessType === 'write',
+        ),
     );
 
     if (denied.length > 0) {
-      const deniedTypes = denied.map((p) => p.recordType).join(', ');
-      addLog(`[SeedHealthData] Some write permissions not returned: ${deniedTypes}. Will attempt to seed anyway.`, 'WARNING');
+      const deniedTypes = denied.map(p => p.recordType).join(', ');
+      addLog(
+        `[SeedHealthData] Some write permissions not returned: ${deniedTypes}. Will attempt to seed anyway.`,
+        'WARNING',
+      );
     }
 
-    addLog(`[SeedHealthData] ${granted.length}/${permissionsToRequest.length} write permissions confirmed`, 'INFO');
+    addLog(
+      `[SeedHealthData] ${granted.length}/${permissionsToRequest.length} write permissions confirmed`,
+      'INFO',
+    );
 
     // Return true if at least some permissions were granted.
     // Individual record insertions will fail gracefully if a specific permission is missing.
     return granted.length > 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[SeedHealthData] Failed to request write permissions: ${message}`, 'ERROR');
+    addLog(
+      `[SeedHealthData] Failed to request write permissions: ${message}`,
+      'ERROR',
+    );
     return false;
   }
 };
@@ -692,7 +913,10 @@ const requestWritePermissions = async (): Promise<boolean> => {
  * 2-3 records in the 6-12 month range.
  */
 export const seedHistoricalSteps = async (): Promise<SeedResult> => {
-  addLog('[SeedHealthData] Starting to seed historical step data (past year)...', 'INFO');
+  addLog(
+    '[SeedHealthData] Starting to seed historical step data (past year)...',
+    'INFO',
+  );
 
   try {
     // Request only Steps write permission
@@ -702,14 +926,25 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
       ] as unknown as Parameters<typeof requestPermission>[0]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[SeedHistoricalSteps] Failed to request write permissions: ${message}`, 'ERROR');
-      return { success: false, recordsInserted: 0, error: 'Write permissions not granted.' };
+      addLog(
+        `[SeedHistoricalSteps] Failed to request write permissions: ${message}`,
+        'ERROR',
+      );
+      return {
+        success: false,
+        recordsInserted: 0,
+        error: 'Write permissions not granted.',
+      };
     }
 
     const now = new Date();
     let totalRecords = 0;
 
-    const pickRandomDates = (minDaysAgo: number, maxDaysAgo: number, count: number): Date[] => {
+    const pickRandomDates = (
+      minDaysAgo: number,
+      maxDaysAgo: number,
+      count: number,
+    ): Date[] => {
       const dates: Date[] = [];
       for (let i = 0; i < count; i++) {
         const daysAgo = randomInt(minDaysAgo, maxDaysAgo);
@@ -733,22 +968,39 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
     // 2-3 records between 3-6 months ago (~90-180 days)
     const midRangeDays = pickRandomDates(90, 180, randomInt(2, 3));
     for (const date of midRangeDays) {
-      const records = buildMultiRecordDay(stepsConfig, date, stepsConfig.recordsPerDay!);
+      const records = buildMultiRecordDay(
+        stepsConfig,
+        date,
+        stepsConfig.recordsPerDay!,
+      );
       await insertRecords(records as Parameters<typeof insertRecords>[0]);
       totalRecords += records.length;
     }
-    addLog(`[SeedHistoricalSteps] Seeded step records for ${midRangeDays.length} days in 3-6 month range`, 'INFO');
+    addLog(
+      `[SeedHistoricalSteps] Seeded step records for ${midRangeDays.length} days in 3-6 month range`,
+      'INFO',
+    );
 
     // 2-3 records between 6-12 months ago (~180-365 days)
     const farRangeDays = pickRandomDates(180, 365, randomInt(2, 3));
     for (const date of farRangeDays) {
-      const records = buildMultiRecordDay(stepsConfig, date, stepsConfig.recordsPerDay!);
+      const records = buildMultiRecordDay(
+        stepsConfig,
+        date,
+        stepsConfig.recordsPerDay!,
+      );
       await insertRecords(records as Parameters<typeof insertRecords>[0]);
       totalRecords += records.length;
     }
-    addLog(`[SeedHistoricalSteps] Seeded step records for ${farRangeDays.length} days in 6-12 month range`, 'INFO');
+    addLog(
+      `[SeedHistoricalSteps] Seeded step records for ${farRangeDays.length} days in 6-12 month range`,
+      'INFO',
+    );
 
-    addLog(`[SeedHistoricalSteps] Done — ${totalRecords} total step records seeded`, 'INFO');
+    addLog(
+      `[SeedHistoricalSteps] Done — ${totalRecords} total step records seeded`,
+      'INFO',
+    );
 
     return { success: true, recordsInserted: totalRecords };
   } catch (error) {
@@ -759,7 +1011,10 @@ export const seedHistoricalSteps = async (): Promise<SeedResult> => {
 };
 
 export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
-  addLog(`[SeedHealthData] Starting to seed ${days} days of health data...`, 'INFO');
+  addLog(
+    `[SeedHealthData] Starting to seed ${days} days of health data...`,
+    'INFO',
+  );
 
   try {
     const permissionsGranted = await requestWritePermissions();
@@ -767,7 +1022,8 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
       return {
         success: false,
         recordsInserted: 0,
-        error: 'Write permissions not granted. Please grant permissions in Health Connect settings.',
+        error:
+          'Write permissions not granted. Please grant permissions in Health Connect settings.',
       };
     }
 
@@ -796,11 +1052,17 @@ export const seedHealthData = async (days: number = 7): Promise<SeedResult> => {
         addLog(`[SeedHealthData] Seeded ${config.recordType}`, 'INFO');
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[SeedHealthData] Failed to seed ${config.recordType}: ${message}`, 'WARNING');
+        addLog(
+          `[SeedHealthData] Failed to seed ${config.recordType}: ${message}`,
+          'WARNING',
+        );
       }
     }
 
-    addLog(`[SeedHealthData] Successfully seeded ${totalRecords} records`, 'INFO');
+    addLog(
+      `[SeedHealthData] Successfully seeded ${totalRecords} records`,
+      'INFO',
+    );
 
     return {
       success: true,

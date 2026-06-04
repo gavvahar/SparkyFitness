@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Text,
@@ -18,7 +24,12 @@ import { useCSSVariable } from 'uniwind';
 import { useQueryClient } from '@tanstack/react-query';
 import Icon from '../components/Icon';
 import SegmentedControl from '../components/SegmentedControl';
-import { useServerConnection, useExternalProviders, useSuggestedExercises, useExerciseSearch } from '../hooks';
+import {
+  useServerConnection,
+  useExternalProviders,
+  useSuggestedExercises,
+  useExerciseSearch,
+} from '../hooks';
 import { suggestedExercisesQueryKey } from '../hooks/queryKeys';
 import { useExternalExerciseSearch } from '../hooks/useExternalExerciseSearch';
 import { importExercise } from '../services/api/externalExerciseSearchApi';
@@ -41,7 +52,10 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'online', label: 'Online' },
 ] as const;
 
-const ExerciseSearchScreen: React.FC<ExerciseSearchScreenProps> = ({ navigation, route }) => {
+const ExerciseSearchScreen: React.FC<ExerciseSearchScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { returnKey } = route.params;
 
   const insets = useSafeAreaInsets();
@@ -57,10 +71,19 @@ const ExerciseSearchScreen: React.FC<ExerciseSearchScreenProps> = ({ navigation,
   const [activeTab, setActiveTab] = useState<TabKey>('search');
   const [searchText, setSearchText] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [importingExerciseId, setImportingExerciseId] = useState<string | null>(null);
+  const [importingExerciseId, setImportingExerciseId] = useState<string | null>(
+    null,
+  );
 
-  const { recentExercises, topExercises, isLoading: isSuggestedLoading, isError: isSuggestedError, refetch: refetchSuggested } = useSuggestedExercises();
-  const { searchResults, isSearching, isSearchActive, isSearchError } = useExerciseSearch(searchText);
+  const {
+    recentExercises,
+    topExercises,
+    isLoading: isSuggestedLoading,
+    isError: isSuggestedError,
+    refetch: refetchSuggested,
+  } = useSuggestedExercises();
+  const { searchResults, isSearching, isSearchActive, isSearchError } =
+    useExerciseSearch(searchText);
 
   const {
     providers,
@@ -76,12 +99,12 @@ const ExerciseSearchScreen: React.FC<ExerciseSearchScreenProps> = ({ navigation,
   const hasUserSelectedProvider = useRef(false);
 
   const selectedProviderType = useMemo(
-    () => providers.find((p) => p.id === selectedProvider)?.provider_type ?? '',
+    () => providers.find(p => p.id === selectedProvider)?.provider_type ?? '',
     [providers, selectedProvider],
   );
 
   const selectedProviderName = useMemo(
-    () => providers.find((p) => p.id === selectedProvider)?.provider_name ?? '',
+    () => providers.find(p => p.id === selectedProvider)?.provider_name ?? '',
     [providers, selectedProvider],
   );
 
@@ -99,58 +122,76 @@ const ExerciseSearchScreen: React.FC<ExerciseSearchScreenProps> = ({ navigation,
     providerId: selectedProvider ?? undefined,
   });
 
-useEffect(() => {
+  useEffect(() => {
     if (providers.length === 0) return;
-    if (hasUserSelectedProvider.current && providers.some((p) => p.id === selectedProvider)) return;
+    if (
+      hasUserSelectedProvider.current &&
+      providers.some(p => p.id === selectedProvider)
+    )
+      return;
     setSelectedProvider(providers[0].id);
   }, [providers, selectedProvider]);
 
   // --- Selection handlers ---
 
-  const handleSelectExercise = useCallback((exercise: Exercise) => {
-    navigation.dispatch({
-      ...CommonActions.setParams({ selectedExercise: exercise, selectionNonce: Date.now() }),
-      source: returnKey,
-    });
-    navigation.goBack();
-  }, [returnKey, navigation]);
+  const handleSelectExercise = useCallback(
+    (exercise: Exercise) => {
+      navigation.dispatch({
+        ...CommonActions.setParams({
+          selectedExercise: exercise,
+          selectionNonce: Date.now(),
+        }),
+        source: returnKey,
+      });
+      navigation.goBack();
+    },
+    [returnKey, navigation],
+  );
 
-  const handleImportExercise = useCallback(async (item: ExternalExerciseItem) => {
-    setImportingExerciseId(item.id);
-    try {
-      const exercise = await importExercise(item.source, item.id);
-      queryClient.invalidateQueries({ queryKey: suggestedExercisesQueryKey });
-      handleSelectExercise(exercise);
-    } catch {
-      // Silently fail — user can retry
-    } finally {
-      setImportingExerciseId(null);
-    }
-  }, [queryClient, handleSelectExercise]);
+  const handleImportExercise = useCallback(
+    async (item: ExternalExerciseItem) => {
+      setImportingExerciseId(item.id);
+      try {
+        const exercise = await importExercise(item.source, item.id);
+        queryClient.invalidateQueries({ queryKey: suggestedExercisesQueryKey });
+        handleSelectExercise(exercise);
+      } catch {
+        // Silently fail — user can retry
+      } finally {
+        setImportingExerciseId(null);
+      }
+    },
+    [queryClient, handleSelectExercise],
+  );
 
   // --- Shared renderers ---
 
-  const renderExerciseRow = useCallback(({ item }: { item: Exercise }) => (
-    <TouchableOpacity
-      className="px-4 py-3 border-b border-border-subtle"
-      activeOpacity={0.7}
-      onPress={() => handleSelectExercise(item)}
-    >
-      <Text className="text-text-primary text-base font-medium">{item.name}</Text>
-      {item.category && (
-        <Text className="text-sm mt-0.5" style={{ color: textSecondary }}>
-          {item.category}
+  const renderExerciseRow = useCallback(
+    ({ item }: { item: Exercise }) => (
+      <TouchableOpacity
+        className="px-4 py-3 border-b border-border-subtle"
+        activeOpacity={0.7}
+        onPress={() => handleSelectExercise(item)}
+      >
+        <Text className="text-text-primary text-base font-medium">
+          {item.name}
         </Text>
-      )}
-    </TouchableOpacity>
-  ), [handleSelectExercise, textSecondary]);
+        {item.category && (
+          <Text className="text-sm mt-0.5" style={{ color: textSecondary }}>
+            {item.category}
+          </Text>
+        )}
+      </TouchableOpacity>
+    ),
+    [handleSelectExercise, textSecondary],
+  );
 
   const sections = useMemo(() => {
     const allSections: ExerciseSection[] = [
       { title: 'Recent', data: recentExercises },
       { title: 'Popular', data: topExercises },
     ];
-    return allSections.filter((section) => section.data.length > 0);
+    return allSections.filter(section => section.data.length > 0);
   }, [recentExercises, topExercises]);
 
   const renderSectionHeader = ({ section }: { section: ExerciseSection }) => (
@@ -165,7 +206,10 @@ useEffect(() => {
     <View className="px-4 py-2">
       <View
         className="flex-row items-center bg-raised rounded-lg px-3 py-2.5"
-        style={{ borderWidth: 1, borderColor: isSearchFocused ? accentColor : borderSubtle }}
+        style={{
+          borderWidth: 1,
+          borderColor: isSearchFocused ? accentColor : borderSubtle,
+        }}
       >
         <Icon name="search" size={18} color={textMuted} />
         <View className="flex-1 ml-2">
@@ -184,7 +228,12 @@ useEffect(() => {
           />
         </View>
         {searchText.length > 0 && (
-          <Button variant="ghost" onPress={() => setSearchText('')} hitSlop={8} className="p-0">
+          <Button
+            variant="ghost"
+            onPress={() => setSearchText('')}
+            hitSlop={8}
+            className="p-0"
+          >
             <Icon name="close" size={16} color={textMuted} />
           </Button>
         )}
@@ -200,7 +249,9 @@ useEffect(() => {
     }
 
     if (isSearchError) {
-      return <StatusView icon="alert-circle" title="Failed to search exercises" />;
+      return (
+        <StatusView icon="alert-circle" title="Failed to search exercises" />
+      );
     }
 
     if (searchResults.length === 0) {
@@ -210,7 +261,7 @@ useEffect(() => {
     return (
       <FlatList
         data={searchResults}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderExerciseRow}
         keyboardShouldPersistTaps="handled"
         contentContainerClassName="pb-safe-or-4"
@@ -220,7 +271,12 @@ useEffect(() => {
 
   const renderSearchTab = () => {
     if (!isConnected) {
-      return <StatusView icon="cloud-offline" title="Connect to a server to view exercises" />;
+      return (
+        <StatusView
+          icon="cloud-offline"
+          title="Connect to a server to view exercises"
+        />
+      );
     }
 
     if (isSearchActive) {
@@ -260,7 +316,11 @@ useEffect(() => {
 
   // --- Online tab ---
 
-  const renderExternalExerciseItem = ({ item }: { item: ExternalExerciseItem }) => (
+  const renderExternalExerciseItem = ({
+    item,
+  }: {
+    item: ExternalExerciseItem;
+  }) => (
     <TouchableOpacity
       className="px-4 py-3 border-b border-border-subtle"
       activeOpacity={0.7}
@@ -269,9 +329,13 @@ useEffect(() => {
     >
       <View className="flex-row justify-between items-center">
         <View className="flex-1 mr-3">
-          <Text className="text-text-primary text-base font-medium">{item.name}</Text>
+          <Text className="text-text-primary text-base font-medium">
+            {item.name}
+          </Text>
           {item.category && (
-            <Text className="text-text-secondary text-sm mt-0.5">{item.category}</Text>
+            <Text className="text-text-secondary text-sm mt-0.5">
+              {item.category}
+            </Text>
           )}
         </View>
         {importingExerciseId === item.id ? (
@@ -324,7 +388,12 @@ useEffect(() => {
     }
 
     if (isOnlineSearchError) {
-      return <StatusView icon="alert-circle" title={`Failed to search ${selectedProviderName}`} />;
+      return (
+        <StatusView
+          icon="alert-circle"
+          title={`Failed to search ${selectedProviderName}`}
+        />
+      );
     }
 
     if (onlineSearchResults.length === 0) {
@@ -345,7 +414,12 @@ useEffect(() => {
 
   const renderOnlineTab = () => {
     if (!isConnected) {
-      return <StatusView icon="cloud-offline" title="Connect to a server to search online exercises" />;
+      return (
+        <StatusView
+          icon="cloud-offline"
+          title="Connect to a server to search online exercises"
+        />
+      );
     }
 
     if (isProvidersLoading) {
@@ -363,7 +437,13 @@ useEffect(() => {
     }
 
     if (providers.length === 0) {
-      return <StatusView icon="globe" iconColor={textMuted} title="No online exercise providers configured" />;
+      return (
+        <StatusView
+          icon="globe"
+          iconColor={textMuted}
+          title="No online exercise providers configured"
+        />
+      );
     }
 
     return (
@@ -374,7 +454,7 @@ useEffect(() => {
           contentContainerClassName="px-4 gap-2 items-center"
           className="grow-0"
         >
-          {providers.map((provider) => {
+          {providers.map(provider => {
             const isActive = provider.id === selectedProvider;
             return (
               <TouchableOpacity
@@ -404,7 +484,11 @@ useEffect(() => {
         {isOnlineSearchActive ? (
           renderOnlineSearchResults()
         ) : (
-          <StatusView icon="search" iconColor={textSecondary} title={`Search ${selectedProviderName} for exercises`} />
+          <StatusView
+            icon="search"
+            iconColor={textSecondary}
+            title={`Search ${selectedProviderName} for exercises`}
+          />
         )}
       </View>
     );
@@ -420,7 +504,10 @@ useEffect(() => {
   };
 
   return (
-    <View className="flex-1 bg-background" style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}>
+    <View
+      className="flex-1 bg-background"
+      style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}
+    >
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border-subtle">
         <Button
@@ -439,7 +526,11 @@ useEffect(() => {
 
       {/* Segmented control */}
       <View className="px-4 mt-2">
-        <SegmentedControl segments={TABS} activeKey={activeTab} onSelect={setActiveTab} />
+        <SegmentedControl
+          segments={TABS}
+          activeKey={activeTab}
+          onSelect={setActiveTab}
+        />
       </View>
 
       {/* Search bar */}

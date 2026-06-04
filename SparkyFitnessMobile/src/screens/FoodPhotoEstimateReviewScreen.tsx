@@ -1,10 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useCSSVariable } from 'uniwind';
@@ -20,7 +15,10 @@ import {
   type ConfidenceTone,
 } from '../utils/foodPhotoEstimate';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { FoodPhotoFlowScreenProps, RootStackParamList } from '../types/navigation';
+import type {
+  FoodPhotoFlowScreenProps,
+  RootStackParamList,
+} from '../types/navigation';
 
 type Props = FoodPhotoFlowScreenProps<'EstimateReview'>;
 
@@ -59,7 +57,10 @@ const parsedOptional = (raw: string): number | null | undefined => {
 const positiveOrUndefined = (v: number | undefined | null) =>
   v !== undefined && v !== null && v > 0 ? v : undefined;
 
-const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) => {
+const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({
+  navigation,
+  route,
+}) => {
   const insets = useSafeAreaInsets();
   const [accentPrimary, textPrimary] = useCSSVariable([
     '--color-accent-primary',
@@ -67,7 +68,9 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
   ]) as [string, string];
 
   const dismissFlow = () =>
-    navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.popToTop();
+    navigation
+      .getParent<NativeStackNavigationProp<RootStackParamList>>()
+      ?.popToTop();
 
   const { date, estimate, request } = route.params;
 
@@ -80,7 +83,7 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
           ? toFieldString(request.totalWeight)
           : String(Math.round(estimate.totals.total_grams)),
       servingUnit:
-        request?.totalWeight !== undefined ? request.weightUnit ?? 'g' : 'g',
+        request?.totalWeight !== undefined ? (request.weightUnit ?? 'g') : 'g',
       calories: toFieldString(estimate.totals.calories_kcal),
       protein: toFieldString(estimate.totals.protein_g),
       carbs: toFieldString(estimate.totals.carbs_g),
@@ -104,7 +107,11 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
 
   const handleSubmit = (data: FoodFormData) => {
     if (!data.name.trim()) {
-      Toast.show({ type: 'error', text1: 'Name required', text2: 'Give this food a name.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Name required',
+        text2: 'Give this food a name.',
+      });
       return;
     }
 
@@ -121,7 +128,8 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
       Toast.show({
         type: 'error',
         text1: 'Invalid nutrition',
-        text2: 'Calories, protein, carbs, and fat must be non-negative numbers.',
+        text2:
+          'Calories, protein, carbs, and fat must be non-negative numbers.',
       });
       return;
     }
@@ -139,7 +147,7 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
       vitamin_a: parsedOptional(data.vitaminA),
       vitamin_c: parsedOptional(data.vitaminC),
     };
-    if (Object.values(optionalNutrients).some((v) => v === null)) {
+    if (Object.values(optionalNutrients).some(v => v === null)) {
       Toast.show({
         type: 'error',
         text1: 'Invalid nutrition',
@@ -203,11 +211,18 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
           >
             {item.name}
             {prepLabel ? (
-              <Text className="text-text-secondary font-normal"> · {prepLabel}</Text>
+              <Text className="text-text-secondary font-normal">
+                {' '}
+                · {prepLabel}
+              </Text>
             ) : null}
           </Text>
-          <View className={`px-2 py-0.5 rounded-full ${TONE_BG_CLASS[itemTone]}`}>
-            <Text className={`text-xs font-semibold ${TONE_TEXT_CLASS[itemTone]}`}>
+          <View
+            className={`px-2 py-0.5 rounded-full ${TONE_BG_CLASS[itemTone]}`}
+          >
+            <Text
+              className={`text-xs font-semibold ${TONE_TEXT_CLASS[itemTone]}`}
+            >
               {itemLabel}
             </Text>
           </View>
@@ -224,10 +239,12 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
     <View>
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() => setShowConfidenceReason((v) => !v)}
+        onPress={() => setShowConfidenceReason(v => !v)}
         className={`flex-row items-center justify-between rounded-lg p-3 ${TONE_BG_CLASS[overallTone]}`}
       >
-        <Text className={`text-sm font-semibold ${TONE_TEXT_CLASS[overallTone]}`}>
+        <Text
+          className={`text-sm font-semibold ${TONE_TEXT_CLASS[overallTone]}`}
+        >
           {overallLabel} estimate
         </Text>
         <Icon
@@ -257,12 +274,15 @@ const FoodPhotoEstimateReviewScreen: React.FC<Props> = ({ navigation, route }) =
         </Text>
         <Button
           variant="ghost"
-          onPress={() => setShowIngredients((prev) => !prev)}
+          onPress={() => setShowIngredients(prev => !prev)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           className="self-start py-0 px-0 mb-3"
           textClassName="text-sm"
         >
-          <Text style={{ color: accentPrimary }} className="text-sm font-medium">
+          <Text
+            style={{ color: accentPrimary }}
+            className="text-sm font-medium"
+          >
             {showIngredients
               ? 'Hide detected ingredients ▴'
               : 'Show detected ingredients ▾'}

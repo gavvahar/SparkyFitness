@@ -2,7 +2,12 @@ import React, { useMemo, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Canvas, Group, Path, Rect, Skia } from '@shopify/react-native-skia';
 import Button from './ui/Button';
-import { useSharedValue, useDerivedValue, withTiming, Easing } from 'react-native-reanimated';
+import {
+  useSharedValue,
+  useDerivedValue,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useCSSVariable } from 'uniwind';
 import Icon from './Icon';
 import { WATER_UNIT_LABELS } from '../utils/unitConversions';
@@ -14,7 +19,7 @@ interface ContainerOption {
 
 interface HydrationGaugeProps {
   consumed: number; // ml
-  goal: number;     // ml
+  goal: number; // ml
   unit?: string;
   containerVolume?: number; // ml per button press
   onIncrement?: () => void;
@@ -27,9 +32,12 @@ interface HydrationGaugeProps {
 
 function convertFromMl(ml: number, unit: string): number {
   switch (unit) {
-    case 'oz': return ml / 29.5735;
-    case 'liter': return ml / 1000;
-    default: return ml;
+    case 'oz':
+      return ml / 29.5735;
+    case 'liter':
+      return ml / 1000;
+    default:
+      return ml;
   }
 }
 
@@ -42,9 +50,16 @@ const FILL_BOTTOM = 124;
 const FILL_HEIGHT = FILL_BOTTOM - FILL_TOP;
 
 const HydrationGauge: React.FC<HydrationGaugeProps> = ({
-  consumed, goal, unit = 'ml', containerVolume,
-  onIncrement, onDecrement, disableDecrement,
-  containers, activeContainerId, onSelectContainer,
+  consumed,
+  goal,
+  unit = 'ml',
+  containerVolume,
+  onIncrement,
+  onDecrement,
+  disableDecrement,
+  containers,
+  activeContainerId,
+  onSelectContainer,
 }) => {
   const hydrationColor = useCSSVariable('--color-hydration') as string;
   const trackColor = useCSSVariable('--color-progress-track') as string;
@@ -109,8 +124,12 @@ const HydrationGauge: React.FC<HydrationGaugeProps> = ({
   const convertedConsumed = convertFromMl(consumed, unit);
   const convertedGoal = convertFromMl(goal, unit);
   const useDecimals = unit === 'liter' || unit === 'oz';
-  const displayConsumed = useDecimals ? parseFloat(convertedConsumed.toFixed(1)) : Math.round(convertedConsumed);
-  const displayGoal = useDecimals ? parseFloat(convertedGoal.toFixed(1)) : Math.round(convertedGoal);
+  const displayConsumed = useDecimals
+    ? parseFloat(convertedConsumed.toFixed(1))
+    : Math.round(convertedConsumed);
+  const displayGoal = useDecimals
+    ? parseFloat(convertedGoal.toFixed(1))
+    : Math.round(convertedGoal);
   const unitLabel = WATER_UNIT_LABELS[unit] ?? unit;
 
   const showButtons = !!onIncrement || !!onDecrement;
@@ -127,7 +146,9 @@ const HydrationGauge: React.FC<HydrationGaugeProps> = ({
               onPress={onDecrement}
               disabled={disableDecrement || noContainer}
               className="p-2"
-              style={disableDecrement || noContainer ? { opacity: 0.3 } : undefined}
+              style={
+                disableDecrement || noContainer ? { opacity: 0.3 } : undefined
+              }
             >
               <Icon name="remove-circle" size={28} color={hydrationColor} />
             </Button>
@@ -135,11 +156,22 @@ const HydrationGauge: React.FC<HydrationGaugeProps> = ({
           <Canvas style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}>
             {/* Fill clipped to bottle shape */}
             <Group clip={bottlePath}>
-              <Rect x={0} y={0} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} color={trackColor} />
+              <Rect
+                x={0}
+                y={0}
+                width={CANVAS_WIDTH}
+                height={CANVAS_HEIGHT}
+                color={trackColor}
+              />
               <Path path={fillPath} color={hydrationColor} />
             </Group>
             {/* Bottle outline */}
-            <Path path={bottlePath} style="stroke" strokeWidth={2} color={outlineColor} />
+            <Path
+              path={bottlePath}
+              style="stroke"
+              strokeWidth={2}
+              color={outlineColor}
+            />
           </Canvas>
           {showButtons && (
             <Button
@@ -170,7 +202,9 @@ const HydrationGauge: React.FC<HydrationGaugeProps> = ({
                     onPress={() => onSelectContainer?.(c.id)}
                     className={`rounded-full px-3 py-1 border ${active ? 'bg-accent-primary border-accent-primary' : 'bg-raised border-border-subtle'}`}
                   >
-                    <Text className={`text-xs font-medium ${active ? 'text-white' : 'text-text-primary'}`}>
+                    <Text
+                      className={`text-xs font-medium ${active ? 'text-white' : 'text-text-primary'}`}
+                    >
                       {c.name}
                     </Text>
                   </Pressable>
@@ -182,12 +216,16 @@ const HydrationGauge: React.FC<HydrationGaugeProps> = ({
       </View>
       {showButtons && containerVolume != null && !showChips && (
         <Text className="text-xs text-text-muted text-center mt-2">
-          {convertFromMl(containerVolume, unit).toLocaleString(undefined, { maximumFractionDigits: 1 })} {unitLabel} per bottle
+          {convertFromMl(containerVolume, unit).toLocaleString(undefined, {
+            maximumFractionDigits: 1,
+          })}{' '}
+          {unitLabel} per bottle
         </Text>
       )}
       {showButtons && containerVolume == null && (
         <Text className="text-xs text-text-muted text-center mt-2">
-          Configure water container on server to{'\n'}enable quick add/remove buttons
+          Configure water container on server to{'\n'}enable quick add/remove
+          buttons
         </Text>
       )}
     </View>

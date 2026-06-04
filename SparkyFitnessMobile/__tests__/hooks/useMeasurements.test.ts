@@ -2,19 +2,25 @@ import { renderHook, waitFor, act } from '@testing-library/react-native';
 import { useMeasurements } from '../../src/hooks/useMeasurements';
 import { measurementsQueryKey } from '../../src/hooks/queryKeys';
 import { fetchMeasurements } from '../../src/services/api/measurementsApi';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/measurementsApi', () => ({
   fetchMeasurements: jest.fn(),
 }));
 
 jest.mock('@react-navigation/native', () => ({
-  useFocusEffect: jest.fn((callback) => {
+  useFocusEffect: jest.fn(callback => {
     callback();
   }),
 }));
 
-const mockFetchMeasurements = fetchMeasurements as jest.MockedFunction<typeof fetchMeasurements>;
+const mockFetchMeasurements = fetchMeasurements as jest.MockedFunction<
+  typeof fetchMeasurements
+>;
 
 describe('useMeasurements', () => {
   let queryClient: QueryClient;
@@ -67,7 +73,6 @@ describe('useMeasurements', () => {
 
       expect(result.current.measurements).toEqual(measurementsData);
     });
-
   });
 
   describe('options', () => {
@@ -82,7 +87,7 @@ describe('useMeasurements', () => {
       });
 
       // Wait a bit to ensure no fetch occurs
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(mockFetchMeasurements).not.toHaveBeenCalled();
     });
@@ -152,11 +157,16 @@ describe('useMeasurements', () => {
 
   describe('query key', () => {
     test('exports correct query key function', () => {
-      expect(measurementsQueryKey('2024-06-15')).toEqual(['measurements', '2024-06-15']);
+      expect(measurementsQueryKey('2024-06-15')).toEqual([
+        'measurements',
+        '2024-06-15',
+      ]);
     });
 
     test('query key changes with date', () => {
-      expect(measurementsQueryKey('2024-06-15')).not.toEqual(measurementsQueryKey('2024-06-16'));
+      expect(measurementsQueryKey('2024-06-15')).not.toEqual(
+        measurementsQueryKey('2024-06-16'),
+      );
     });
   });
 });

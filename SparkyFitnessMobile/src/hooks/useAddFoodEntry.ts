@@ -6,8 +6,15 @@ import {
   saveFood,
   type SaveFoodPayload,
 } from '../services/api/foodsApi';
-import { createFoodEntry, type CreateFoodEntryPayload } from '../services/api/foodEntriesApi';
-import { dailySummaryQueryKey, foodsQueryKey, recentMealsQueryKeyRoot } from './queryKeys';
+import {
+  createFoodEntry,
+  type CreateFoodEntryPayload,
+} from '../services/api/foodEntriesApi';
+import {
+  dailySummaryQueryKey,
+  foodsQueryKey,
+  recentMealsQueryKeyRoot,
+} from './queryKeys';
 import type { FoodEntry } from '../types/foodEntries';
 
 export interface AddFoodEntryInput {
@@ -41,7 +48,9 @@ export function useAddFoodEntry(options?: UseAddFoodEntryOptions) {
         }
 
         if (!variantId) {
-          throw new Error('Server did not return a variant ID for the saved food');
+          throw new Error(
+            'Server did not return a variant ID for the saved food',
+          );
         }
 
         return createFoodEntry({
@@ -53,14 +62,21 @@ export function useAddFoodEntry(options?: UseAddFoodEntryOptions) {
       }
       return createFoodEntry(input.createEntryPayload);
     },
-    onSuccess: (entry) => {
+    onSuccess: entry => {
       if (entry.meal_id) {
-        queryClient.invalidateQueries({ queryKey: recentMealsQueryKeyRoot, refetchType: 'all' });
+        queryClient.invalidateQueries({
+          queryKey: recentMealsQueryKeyRoot,
+          refetchType: 'all',
+        });
       }
       options?.onSuccess?.(entry);
     },
     onError: () => {
-      Toast.show({ type: 'error', text1: 'Failed to add food', text2: 'Please try again.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to add food',
+        text2: 'Please try again.',
+      });
     },
   });
 

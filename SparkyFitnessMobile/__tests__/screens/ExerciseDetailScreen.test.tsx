@@ -20,7 +20,9 @@ jest.mock('../../src/components/ActiveWorkoutBar', () => ({
 }));
 
 jest.mock('../../src/hooks/useExerciseImageSource', () => ({
-  useExerciseImageSource: jest.fn(() => ({ getImageSource: jest.fn(() => null) })),
+  useExerciseImageSource: jest.fn(() => ({
+    getImageSource: jest.fn(() => null),
+  })),
 }));
 
 jest.mock('uniwind', () => ({
@@ -41,7 +43,9 @@ const mockUseServerConnection = useServerConnection as jest.MockedFunction<
   typeof useServerConnection
 >;
 const mockUseDeleteExerciseLibrary =
-  useDeleteExerciseLibrary as jest.MockedFunction<typeof useDeleteExerciseLibrary>;
+  useDeleteExerciseLibrary as jest.MockedFunction<
+    typeof useDeleteExerciseLibrary
+  >;
 const mockConfirmAndDelete = jest.fn();
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -83,7 +87,10 @@ describe('ExerciseDetailScreen', () => {
   const renderScreen = (overrides: Partial<Exercise> = {}) =>
     render(
       <SafeAreaProvider initialMetrics={{ insets, frame }}>
-        <ExerciseDetailScreen navigation={navigation} route={buildRoute(overrides) as any} />
+        <ExerciseDetailScreen
+          navigation={navigation}
+          route={buildRoute(overrides) as any}
+        />
       </SafeAreaProvider>,
     );
 
@@ -130,7 +137,10 @@ describe('ExerciseDetailScreen', () => {
     expect(navigation.navigate).toHaveBeenCalledWith(
       'ActivityAdd',
       expect.objectContaining({
-        selectedExercise: expect.objectContaining({ id: 'ex-1', name: 'Bench Press' }),
+        selectedExercise: expect.objectContaining({
+          id: 'ex-1',
+          name: 'Bench Press',
+        }),
         selectionNonce: expect.any(Number),
       }),
     );
@@ -151,16 +161,22 @@ describe('ExerciseDetailScreen', () => {
   });
 
   it('shows Edit and Delete for non-custom exercises even when the user matches', () => {
-    const screen = renderScreen({ source: 'sparky', userId: 'user-1', isCustom: true });
+    const screen = renderScreen({
+      source: 'sparky',
+      userId: 'user-1',
+      isCustom: true,
+    });
 
     expect(screen.queryByText('Edit')).toBeTruthy();
     expect(screen.queryByText('Delete Exercise')).toBeTruthy();
-    
   });
 
-
   it('hides Edit and Delete when the user does not own the exercise', () => {
-    const screen = renderScreen({ source: 'custom', userId: 'someone-else', isCustom: true });
+    const screen = renderScreen({
+      source: 'custom',
+      userId: 'someone-else',
+      isCustom: true,
+    });
 
     expect(screen.queryByText('Edit')).toBeNull();
     expect(screen.queryByText('Delete Exercise')).toBeNull();

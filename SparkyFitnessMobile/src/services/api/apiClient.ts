@@ -17,7 +17,14 @@ interface ApiFetchOptions {
 }
 
 export async function apiFetch<T>(options: ApiFetchOptions): Promise<T> {
-  const { endpoint, serviceName, operation, method = 'GET', body, headers: customHeaders } = options;
+  const {
+    endpoint,
+    serviceName,
+    operation,
+    method = 'GET',
+    body,
+    headers: customHeaders,
+  } = options;
 
   const config = await getActiveServerConfig();
   if (!config) {
@@ -27,7 +34,9 @@ export async function apiFetch<T>(options: ApiFetchOptions): Promise<T> {
   const baseUrl = normalizeUrl(config.url);
 
   if (!__DEV__ && baseUrl.toLowerCase().startsWith('http://')) {
-    throw new Error('HTTPS is required for server connections. Please update your server URL in Settings.');
+    throw new Error(
+      'HTTPS is required for server connections. Please update your server URL in Settings.',
+    );
   }
 
   try {
@@ -52,11 +61,22 @@ export async function apiFetch<T>(options: ApiFetchOptions): Promise<T> {
         notifySessionExpired(config.id);
       }
       const errorText = await response.text();
-      addLog(`[${serviceName}] Failed to ${operation}: ${response.status}`, 'ERROR', [errorText]);
-      throw new ApiError(`Server error: ${response.status} - ${errorText}`, response.status, errorText);
+      addLog(
+        `[${serviceName}] Failed to ${operation}: ${response.status}`,
+        'ERROR',
+        [errorText],
+      );
+      throw new ApiError(
+        `Server error: ${response.status} - ${errorText}`,
+        response.status,
+        errorText,
+      );
     }
 
-    if (response.status === 204 || response.headers?.get('content-length') === '0') {
+    if (
+      response.status === 204 ||
+      response.headers?.get('content-length') === '0'
+    ) {
       return undefined as T;
     }
 

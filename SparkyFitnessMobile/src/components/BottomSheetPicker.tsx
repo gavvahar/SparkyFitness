@@ -23,7 +23,9 @@ import Icon from './Icon';
 // presentation. No-op on Android.
 const sheetContainer =
   Platform.OS === 'ios'
-    ? ({ children }: React.PropsWithChildren) => <FullWindowOverlay>{children}</FullWindowOverlay>
+    ? ({ children }: React.PropsWithChildren) => (
+        <FullWindowOverlay>{children}</FullWindowOverlay>
+      )
     : undefined;
 
 export interface PickerOption<T> {
@@ -44,7 +46,10 @@ interface BottomSheetPickerProps<T extends string | number> {
   placeholder?: string;
   title?: string;
   containerStyle?: StyleProp<ViewStyle>;
-  renderTrigger?: (props: { onPress: () => void; selectedOption: PickerOption<T> | undefined }) => React.ReactNode;
+  renderTrigger?: (props: {
+    onPress: () => void;
+    selectedOption: PickerOption<T> | undefined;
+  }) => React.ReactNode;
 }
 
 function BottomSheetPicker<T extends string | number>({
@@ -74,11 +79,11 @@ function BottomSheetPicker<T extends string | number>({
   }, [options, sections]);
 
   const flatOptions = useMemo(
-    () => normalizedSections.flatMap((section) => section.options),
+    () => normalizedSections.flatMap(section => section.options),
     [normalizedSections],
   );
 
-  const selectedOption = flatOptions.find((opt) => opt.value === value);
+  const selectedOption = flatOptions.find(opt => opt.value === value);
   const displayText = selectedOption?.label || placeholder;
 
   // For long lists (>8 items), use a fixed max height with scrolling
@@ -93,7 +98,7 @@ function BottomSheetPicker<T extends string | number>({
       bottomSheetRef.current?.dismiss();
       onSelect(item.value);
     },
-    [onSelect]
+    [onSelect],
   );
 
   const handleOpen = useCallback(() => {
@@ -117,7 +122,7 @@ function BottomSheetPicker<T extends string | number>({
         appearsOnIndex={0}
       />
     ),
-    [isDarkMode]
+    [isDarkMode],
   );
 
   const renderOption = (item: PickerOption<T>) => {
@@ -135,9 +140,7 @@ function BottomSheetPicker<T extends string | number>({
         >
           {item.label}
         </Text>
-        {isSelected && (
-          <Icon name="checkmark" size={20} color={primary} />
-        )}
+        {isSelected && <Icon name="checkmark" size={20} color={primary} />}
       </TouchableOpacity>
     );
   };
@@ -157,12 +160,13 @@ function BottomSheetPicker<T extends string | number>({
     );
   };
 
-  const renderSections = () => normalizedSections.map((section, index) => (
-    <React.Fragment key={`section-${section.title ?? 'default'}-${index}`}>
-      {renderSectionHeader(section, index)}
-      {section.options.map(renderOption)}
-    </React.Fragment>
-  ));
+  const renderSections = () =>
+    normalizedSections.map((section, index) => (
+      <React.Fragment key={`section-${section.title ?? 'default'}-${index}`}>
+        {renderSectionHeader(section, index)}
+        {section.options.map(renderOption)}
+      </React.Fragment>
+    ));
 
   return (
     <>

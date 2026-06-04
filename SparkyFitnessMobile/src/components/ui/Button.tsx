@@ -1,8 +1,19 @@
 import React from 'react';
-import { Pressable, Text, type PressableProps, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  Text,
+  type PressableProps,
+  type ViewStyle,
+} from 'react-native';
 import { preview } from 'radon-ide';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'header' | 'link';
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'header'
+  | 'link';
 
 interface ButtonProps extends Omit<PressableProps, 'children'> {
   variant?: ButtonVariant;
@@ -11,7 +22,10 @@ interface ButtonProps extends Omit<PressableProps, 'children'> {
   textClassName?: string;
 }
 
-const variantClasses: Record<ButtonVariant, { container: string; text: string; pressed: string }> = {
+const variantClasses: Record<
+  ButtonVariant,
+  { container: string; text: string; pressed: string }
+> = {
   primary: {
     container: 'bg-accent-primary rounded-xl',
     text: 'text-white font-semibold',
@@ -41,7 +55,7 @@ const variantClasses: Record<ButtonVariant, { container: string; text: string; p
     container: 'bg-transparent',
     text: 'text-text-link font-semibold',
     pressed: 'opacity-70',
-  }
+  },
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -60,15 +74,21 @@ const Button: React.FC<ButtonProps> = ({
     <Pressable
       className={`${basePadding} items-center justify-center ${styles.container} ${disabled ? 'opacity-50' : ''} ${className}`}
       disabled={disabled}
-      {...(variant === 'header' && !rest.hitSlop ? { hitSlop: { top: 10, bottom: 10, left: 10, right: 10 } } : {})}
+      {...(variant === 'header' && !rest.hitSlop
+        ? { hitSlop: { top: 10, bottom: 10, left: 10, right: 10 } }
+        : {})}
       {...rest}
       style={({ pressed }) => [
         pressed && !disabled ? { opacity: 0.8 } : {},
-        typeof rest.style === 'function' ? rest.style({ pressed }) : (rest.style as ViewStyle),
+        typeof rest.style === 'function'
+          ? rest.style({ pressed })
+          : (rest.style as ViewStyle),
       ]}
     >
       {typeof children === 'string' ? (
-        <Text className={`text-base ${styles.text} ${textClassName}`}>{children}</Text>
+        <Text className={`text-base ${styles.text} ${textClassName}`}>
+          {children}
+        </Text>
       ) : (
         children
       )}

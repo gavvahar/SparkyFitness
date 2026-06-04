@@ -23,7 +23,11 @@ interface SwipeableFoodRowProps {
 const ROW_COLLAPSE_DURATION = 300;
 const DELETE_ACTION_WIDTH = 80;
 
-const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, onAdjustServing }) => {
+const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({
+  entry,
+  nutrition,
+  onAdjustServing,
+}) => {
   const navigation = useNavigation();
   const swipeableRef = useRef<any>(null);
   const rowHeight = useSharedValue<number | null>(null);
@@ -39,11 +43,15 @@ const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, o
   const onDeleteSuccess = () => {
     swipeableRef.current?.close();
     isRemoving.value = true;
-    rowHeight.value = withTiming(0, { duration: ROW_COLLAPSE_DURATION }, (finished) => {
-      if (finished) {
-        runOnJS(handleAnimationEnd)();
-      }
-    });
+    rowHeight.value = withTiming(
+      0,
+      { duration: ROW_COLLAPSE_DURATION },
+      finished => {
+        if (finished) {
+          runOnJS(handleAnimationEnd)();
+        }
+      },
+    );
   };
 
   const foodEntryDelete = useDeleteFoodEntry({
@@ -58,9 +66,15 @@ const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, o
     onSuccess: onDeleteSuccess,
   });
 
-  const confirmAndDelete = isMealComponent ? mealDelete.confirmAndDelete : foodEntryDelete.confirmAndDelete;
-  const deleteEntry = isMealComponent ? mealDelete.deleteEntry : foodEntryDelete.deleteEntry;
-  invalidateCacheRef.current = isMealComponent ? mealDelete.invalidateCache : foodEntryDelete.invalidateCache;
+  const confirmAndDelete = isMealComponent
+    ? mealDelete.confirmAndDelete
+    : foodEntryDelete.confirmAndDelete;
+  const deleteEntry = isMealComponent
+    ? mealDelete.deleteEntry
+    : foodEntryDelete.deleteEntry;
+  invalidateCacheRef.current = isMealComponent
+    ? mealDelete.invalidateCache
+    : foodEntryDelete.invalidateCache;
 
   const animatedStyle = useAnimatedStyle(() => {
     if (!isRemoving.value || rowHeight.value === null) {
@@ -72,7 +86,9 @@ const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, o
     };
   });
 
-  const handleLayout = (event: { nativeEvent: { layout: { height: number } } }) => {
+  const handleLayout = (event: {
+    nativeEvent: { layout: { height: number } };
+  }) => {
     if (rowHeight.value === null) {
       rowHeight.value = event.nativeEvent.layout.height;
     }
@@ -89,12 +105,15 @@ const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, o
     </TouchableOpacity>
   );
 
-  const canQuickAdjust = !isMealComponent && !!onAdjustServing && Number(entry.serving_size) > 0;
+  const canQuickAdjust =
+    !isMealComponent && !!onAdjustServing && Number(entry.serving_size) > 0;
   const name = entry.food_name || 'Unknown food';
 
   const handlePress = () => {
     if (isMealComponent && entry.food_entry_meal_id) {
-      navigation.navigate('EditLoggedMeal', { foodEntryMealId: entry.food_entry_meal_id });
+      navigation.navigate('EditLoggedMeal', {
+        foodEntryMealId: entry.food_entry_meal_id,
+      });
       return;
     }
     navigation.navigate('FoodEntryView', { entry });
@@ -107,9 +126,16 @@ const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, o
       onPress?: () => void;
     }[] = [];
     if (canQuickAdjust) {
-      buttons.push({ text: 'Adjust serving', onPress: () => onAdjustServing!(entry) });
+      buttons.push({
+        text: 'Adjust serving',
+        onPress: () => onAdjustServing!(entry),
+      });
     }
-    buttons.push({ text: 'Delete', style: 'destructive', onPress: deleteEntry });
+    buttons.push({
+      text: 'Delete',
+      style: 'destructive',
+      onPress: deleteEntry,
+    });
     buttons.push({ text: 'Cancel', style: 'cancel' });
     Alert.alert(name, undefined, buttons);
   };
@@ -131,7 +157,8 @@ const SwipeableFoodRow: React.FC<SwipeableFoodRowProps> = ({ entry, nutrition, o
           >
             <View className="flex-row flex-wrap items-baseline">
               <Text className="text-md text-text-primary" numberOfLines={1}>
-                {name}{' · '}
+                {name}
+                {' · '}
               </Text>
               <Text className="text-sm text-text-secondary" numberOfLines={1}>
                 {entry.quantity} {entry.unit}

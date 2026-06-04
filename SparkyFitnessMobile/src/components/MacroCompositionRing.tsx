@@ -1,6 +1,16 @@
 import React, { useEffect, useMemo } from 'react';
-import { Canvas, Circle as SkiaCircle, Path, Skia } from '@shopify/react-native-skia';
-import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
+import {
+  Canvas,
+  Circle as SkiaCircle,
+  Path,
+  Skia,
+} from '@shopify/react-native-skia';
+import {
+  Easing,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 interface MacroCompositionRingProps {
   size: number;
@@ -20,7 +30,12 @@ const MacroCompositionRing: React.FC<MacroCompositionRingProps> = ({
   const radius = (size - strokeWidth) / 2;
   const center = size / 2;
   const oval = useMemo(
-    () => ({ x: center - radius, y: center - radius, width: radius * 2, height: radius * 2 }),
+    () => ({
+      x: center - radius,
+      y: center - radius,
+      width: radius * 2,
+      height: radius * 2,
+    }),
     [center, radius],
   );
 

@@ -8,7 +8,10 @@ import {
 export { SyncDuration, SyncInterval };
 
 // Create preference functions with HealthKit-specific prefix and log tag
-const preferences = createPreferenceFunctions('@HealthKit', '[HealthKitService]');
+const preferences = createPreferenceFunctions(
+  '@HealthKit',
+  '[HealthKitService]',
+);
 
 export const saveHealthPreference = preferences.saveHealthPreference;
 export const loadHealthPreference = preferences.loadHealthPreference;

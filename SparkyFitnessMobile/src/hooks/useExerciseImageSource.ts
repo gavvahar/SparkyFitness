@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { getActiveServerConfig, proxyHeadersToRecord } from '../services/storage';
+import {
+  getActiveServerConfig,
+  proxyHeadersToRecord,
+} from '../services/storage';
 import { normalizeUrl } from '../services/api/apiClient';
 import type { ServerConfig } from '../services/storage';
 

@@ -68,8 +68,7 @@ const androidSetSnapshot = CalorieWidgetBridge.setCalorieSnapshot as jest.Mock;
 const androidReload = CalorieWidgetBridge.reloadWidget as jest.Mock;
 const androidSetMacroSnapshot =
   CalorieWidgetBridge.setMacroSnapshot as jest.Mock;
-const androidReloadMacro =
-  CalorieWidgetBridge.reloadMacroWidget as jest.Mock;
+const androidReloadMacro = CalorieWidgetBridge.reloadMacroWidget as jest.Mock;
 
 const flushWidgetPush = async () => {
   await Promise.resolve();

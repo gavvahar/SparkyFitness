@@ -10,7 +10,8 @@ const isDevVariant = () => {
   return env === 'dev' || env === 'development';
 };
 
-const getIosAppGroup = () => (isDevVariant() ? IOS_APP_GROUP_DEV : IOS_APP_GROUP_PROD);
+const getIosAppGroup = () =>
+  isDevVariant() ? IOS_APP_GROUP_DEV : IOS_APP_GROUP_PROD;
 
 module.exports = {
   IOS_APP_GROUP_DEV,

@@ -57,6 +57,8 @@ export function getDefaultMealTypeId(mealTypes: MealType[]): string | null {
   if (mealTypes.length === 0) return null;
 
   const defaultName = getDefaultMealType();
-  const match = mealTypes.find((mt) => mt.name.toLowerCase().startsWith(defaultName));
+  const match = mealTypes.find(mt =>
+    mt.name.toLowerCase().startsWith(defaultName),
+  );
   return match?.id ?? mealTypes[0].id;
 }

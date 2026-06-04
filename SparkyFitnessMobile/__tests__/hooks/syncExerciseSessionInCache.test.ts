@@ -3,10 +3,7 @@ import {
   dailySummaryQueryKey,
   exerciseHistoryQueryKey,
 } from '../../src/hooks/queryKeys';
-import {
-  createTestQueryClient,
-  type QueryClient,
-} from './queryTestUtils';
+import { createTestQueryClient, type QueryClient } from './queryTestUtils';
 import type {
   ExerciseHistoryResponse,
   ExerciseSessionResponse,
@@ -109,17 +106,20 @@ describe('syncExerciseSessionInCache', () => {
       calorieBalance: makeDefaultCalorieBalance(),
     };
 
-    queryClient.setQueryData<InfiniteData<ExerciseHistoryResponse>>(exerciseHistoryQueryKey, {
-      pages: [historyPage],
-      pageParams: [1],
-    });
+    queryClient.setQueryData<InfiniteData<ExerciseHistoryResponse>>(
+      exerciseHistoryQueryKey,
+      {
+        pages: [historyPage],
+        pageParams: [1],
+      },
+    );
     queryClient.setQueryData(dailySummaryQueryKey('2024-06-15'), dailySummary);
 
     syncExerciseSessionInCache(queryClient, updatedSession);
 
-    const cachedHistory = queryClient.getQueryData<InfiniteData<ExerciseHistoryResponse>>(
-      exerciseHistoryQueryKey,
-    );
+    const cachedHistory = queryClient.getQueryData<
+      InfiniteData<ExerciseHistoryResponse>
+    >(exerciseHistoryQueryKey);
     const cachedSummary = queryClient.getQueryData<DailySummaryRawData>(
       dailySummaryQueryKey('2024-06-15'),
     );
@@ -138,16 +138,19 @@ describe('syncExerciseSessionInCache', () => {
       pagination: { page: 1, pageSize: 20, totalCount: 1, hasMore: false },
     };
 
-    queryClient.setQueryData<InfiniteData<ExerciseHistoryResponse>>(exerciseHistoryQueryKey, {
-      pages: [historyPage],
-      pageParams: [1],
-    });
+    queryClient.setQueryData<InfiniteData<ExerciseHistoryResponse>>(
+      exerciseHistoryQueryKey,
+      {
+        pages: [historyPage],
+        pageParams: [1],
+      },
+    );
 
     syncExerciseSessionInCache(queryClient, updatedSession);
 
-    const cached = queryClient.getQueryData<InfiniteData<ExerciseHistoryResponse>>(
-      exerciseHistoryQueryKey,
-    );
+    const cached = queryClient.getQueryData<
+      InfiniteData<ExerciseHistoryResponse>
+    >(exerciseHistoryQueryKey);
     expect(cached?.pages[0]).toBe(historyPage);
   });
 

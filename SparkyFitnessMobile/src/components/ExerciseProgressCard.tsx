@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text } from 'react-native';
-import Animated, { useSharedValue, useDerivedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useDerivedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCSSVariable } from 'uniwind';
 
@@ -14,7 +20,15 @@ interface ProgressBarProps {
   opacity?: number;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ label, current, goal, unit, color, trackColor, opacity = 1 }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  label,
+  current,
+  goal,
+  unit,
+  color,
+  trackColor,
+  opacity = 1,
+}) => {
   const [barWidth, setBarWidth] = useState(0);
   const barHeight = 8;
   const borderRadius = 4;
@@ -30,7 +44,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ label, current, goal, unit, c
         duration: 500,
         easing: Easing.out(Easing.cubic),
       });
-    }, [progress, animatedProgress])
+    }, [progress, animatedProgress]),
   );
 
   const fillWidth = useDerivedValue(() => {
@@ -66,39 +80,55 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ label, current, goal, unit, c
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-sm font-semibold text-text-primary">{label}</Text>
         <Text className="text-sm text-text-primary">
-          {goal > 0 ? `${Math.round(current)} / ${Math.round(goal)} ${unit}` : `${Math.round(current)} ${unit}`}
+          {goal > 0
+            ? `${Math.round(current)} / ${Math.round(goal)} ${unit}`
+            : `${Math.round(current)} ${unit}`}
         </Text>
       </View>
-      {showBar && <View
-        className="h-3"
-        onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
-      >
-        {barWidth > 0 && (
-          <View
-            style={{
-              width: barWidth,
-              height: barHeight,
-              borderRadius,
-              overflow: 'hidden',
-              backgroundColor: trackColor,
-              opacity,
-            }}
-          >
-            <Animated.View
-              style={[
-                { position: 'absolute', left: 0, top: 0, height: barHeight, backgroundColor: color },
-                fillStyle,
-              ]}
-            />
-            <Animated.View
-              style={[
-                { position: 'absolute', top: 0, height: barHeight, backgroundColor: color, opacity: 0.65 },
-                overflowStyle,
-              ]}
-            />
-          </View>
-        )}
-      </View>}
+      {showBar && (
+        <View
+          className="h-3"
+          onLayout={e => setBarWidth(e.nativeEvent.layout.width)}
+        >
+          {barWidth > 0 && (
+            <View
+              style={{
+                width: barWidth,
+                height: barHeight,
+                borderRadius,
+                overflow: 'hidden',
+                backgroundColor: trackColor,
+                opacity,
+              }}
+            >
+              <Animated.View
+                style={[
+                  {
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    height: barHeight,
+                    backgroundColor: color,
+                  },
+                  fillStyle,
+                ]}
+              />
+              <Animated.View
+                style={[
+                  {
+                    position: 'absolute',
+                    top: 0,
+                    height: barHeight,
+                    backgroundColor: color,
+                    opacity: 0.65,
+                  },
+                  overflowStyle,
+                ]}
+              />
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 };
@@ -125,7 +155,9 @@ const ExerciseProgressCard: React.FC<ExerciseProgressCardProps> = ({
 
   return (
     <View className="bg-surface rounded-xl p-4 mb-2 shadow-sm">
-      <Text className="text-md font-bold text-text-secondary mb-4">Exercise</Text>
+      <Text className="text-md font-bold text-text-secondary mb-4">
+        Exercise
+      </Text>
       {hasEntries ? (
         <>
           <ProgressBar
@@ -149,7 +181,9 @@ const ExerciseProgressCard: React.FC<ExerciseProgressCardProps> = ({
           />
         </>
       ) : (
-        <Text className="text-sm text-text-secondary text-center py-2">No exercise entries yet</Text>
+        <Text className="text-sm text-text-secondary text-center py-2">
+          No exercise entries yet
+        </Text>
       )}
     </View>
   );

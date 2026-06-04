@@ -1,5 +1,11 @@
-import './global.css'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import './global.css';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StatusBar, Platform, Alert, AppState, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -17,7 +23,12 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Uniwind, useUniwind, useCSSVariable } from 'uniwind';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { queryClient, serverConnectionQueryKey, serverConfigsQueryKey, useSyncHealthData } from './src/hooks';
+import {
+  queryClient,
+  serverConnectionQueryKey,
+  serverConfigsQueryKey,
+  useSyncHealthData,
+} from './src/hooks';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SyncScreen from './src/screens/SyncScreen';
@@ -71,7 +82,12 @@ import {
   loadSyncOnOpenEnabled,
 } from './src/services/storage';
 import type { TimeRange } from './src/services/storage';
-import { initHealthConnect, loadHealthPreference , startObservers, stopObservers } from './src/services/healthConnectService';
+import {
+  initHealthConnect,
+  loadHealthPreference,
+  startObservers,
+  stopObservers,
+} from './src/services/healthConnectService';
 import { HEALTH_METRICS } from './src/HealthMetrics';
 import {
   configureBackgroundSync,
@@ -89,18 +105,26 @@ import {
 import { initializeTheme } from './src/services/themeService';
 import { initializeHaptics } from './src/services/haptics';
 import { initializeSounds } from './src/services/sounds';
-import { loadActiveDraft, clearDraft } from './src/services/workoutDraftService';
+import {
+  loadActiveDraft,
+  clearDraft,
+} from './src/services/workoutDraftService';
 import { addLog, initLogService } from './src/services/LogService';
 import { initNotifications } from './src/services/notifications';
 import { ensureTimezoneBootstrapped } from './src/services/api/preferencesApi';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Toast from 'react-native-toast-message';
 import type { RootStackParamList, TabParamList } from './src/types/navigation';
 import AddSheet, { addSheetRef } from './src/components/AddSheet';
 import { toastConfig } from './src/components/ui/toastConfig';
 import CustomTabBar from './src/components/CustomTabBar';
-import ActiveWorkoutBar, { navigationRef as rootNavigationRef } from './src/components/ActiveWorkoutBar';
+import ActiveWorkoutBar, {
+  navigationRef as rootNavigationRef,
+} from './src/components/ActiveWorkoutBar';
 import WhatsNewBanner from './src/components/WhatsNewBanner';
 import { withErrorBoundary } from './src/components/ScreenErrorBoundary';
 
@@ -119,7 +143,9 @@ type TabStateSnapshot = {
 const EmptyScreen = () => null;
 const AUTO_SYNC_WATCHDOG_MS = 90_000;
 const androidModalAnimation =
-  Platform.OS === 'android' ? ({ animation: 'slide_from_bottom' } as const) : {};
+  Platform.OS === 'android'
+    ? ({ animation: 'slide_from_bottom' } as const)
+    : {};
 
 // Tab screens — no Go Back (tab bar provides navigation)
 const SafeDashboard = withErrorBoundary(DashboardScreen, 'Dashboard');
@@ -130,51 +156,153 @@ const SafeLibrary = withErrorBoundary(LibraryScreen, 'Library');
 const SafeOnboarding = withErrorBoundary(OnboardingScreen, 'Onboarding');
 
 // Stack screens — with Go Back
-const SafeFoodsLibrary = withErrorBoundary(FoodsLibraryScreen, 'FoodsLibrary', { canGoBack: true });
-const SafeMealsLibrary = withErrorBoundary(MealsLibraryScreen, 'MealsLibrary', { canGoBack: true });
-const SafeExercisesLibrary = withErrorBoundary(ExercisesLibraryScreen, 'ExercisesLibrary', { canGoBack: true });
-const SafeWorkoutPresetsLibrary = withErrorBoundary(WorkoutPresetsLibraryScreen, 'WorkoutPresetsLibrary', { canGoBack: true });
-const SafeFoodDetail = withErrorBoundary(FoodDetailScreen, 'FoodDetail', { canGoBack: true });
-const SafeMealDetail = withErrorBoundary(MealDetailScreen, 'MealDetail', { canGoBack: true });
-const SafeExerciseDetail = withErrorBoundary(ExerciseDetailScreen, 'ExerciseDetail', { canGoBack: true });
-const SafeWorkoutPresetDetail = withErrorBoundary(WorkoutPresetDetailScreen, 'WorkoutPresetDetail', { canGoBack: true });
-const SafeFoodSearch = withErrorBoundary(FoodSearchScreen, 'FoodSearch', { canGoBack: true });
-const SafeFoodEntryAdd = withErrorBoundary(FoodEntryAddScreen, 'FoodEntryAdd', { canGoBack: true });
-const SafeFoodForm = withErrorBoundary(FoodFormScreen, 'FoodForm', { canGoBack: true });
-const SafeEditBarcode = withErrorBoundary(EditBarcodeScreen, 'EditBarcode', { canGoBack: true });
-const SafeExerciseForm = withErrorBoundary(ExerciseFormScreen, 'ExerciseForm', { canGoBack: true });
-const SafeWorkoutPresetForm = withErrorBoundary(WorkoutPresetFormScreen, 'WorkoutPresetForm', { canGoBack: true });
-const SafeFoodScan = withErrorBoundary(FoodScanScreen, 'FoodScan', { canGoBack: true });
-const SafeFoodPhotoIntro = withErrorBoundary(FoodPhotoIntroScreen, 'FoodPhotoIntro', { canGoBack: true });
-const SafeMealAdd = withErrorBoundary(MealAddScreen, 'MealAdd', { canGoBack: true });
-const SafeFoodEntryView = withErrorBoundary(FoodEntryViewScreen, 'FoodEntryView', { canGoBack: true });
-const SafeEditLoggedMeal = withErrorBoundary(EditLoggedMealScreen, 'EditLoggedMeal', { canGoBack: true });
-const SafeMealTypeDetail = withErrorBoundary(MealTypeDetailScreen, 'MealTypeDetail', { canGoBack: true });
-const SafeExerciseSearch = withErrorBoundary(ExerciseSearchScreen, 'ExerciseSearch', { canGoBack: true });
-const SafePresetSearch = withErrorBoundary(PresetSearchScreen, 'PresetSearch', { canGoBack: true });
-const SafeWorkoutAdd = withErrorBoundary(WorkoutAddScreen, 'WorkoutAdd', { canGoBack: true });
-const SafeActivityAdd = withErrorBoundary(ActivityAddScreen, 'ActivityAdd', { canGoBack: true });
-const SafeWorkoutDetail = withErrorBoundary(WorkoutDetailScreen, 'WorkoutDetail', { canGoBack: true });
-const SafeActivityDetail = withErrorBoundary(ActivityDetailScreen, 'ActivityDetail', { canGoBack: true });
+const SafeFoodsLibrary = withErrorBoundary(FoodsLibraryScreen, 'FoodsLibrary', {
+  canGoBack: true,
+});
+const SafeMealsLibrary = withErrorBoundary(MealsLibraryScreen, 'MealsLibrary', {
+  canGoBack: true,
+});
+const SafeExercisesLibrary = withErrorBoundary(
+  ExercisesLibraryScreen,
+  'ExercisesLibrary',
+  { canGoBack: true },
+);
+const SafeWorkoutPresetsLibrary = withErrorBoundary(
+  WorkoutPresetsLibraryScreen,
+  'WorkoutPresetsLibrary',
+  { canGoBack: true },
+);
+const SafeFoodDetail = withErrorBoundary(FoodDetailScreen, 'FoodDetail', {
+  canGoBack: true,
+});
+const SafeMealDetail = withErrorBoundary(MealDetailScreen, 'MealDetail', {
+  canGoBack: true,
+});
+const SafeExerciseDetail = withErrorBoundary(
+  ExerciseDetailScreen,
+  'ExerciseDetail',
+  { canGoBack: true },
+);
+const SafeWorkoutPresetDetail = withErrorBoundary(
+  WorkoutPresetDetailScreen,
+  'WorkoutPresetDetail',
+  { canGoBack: true },
+);
+const SafeFoodSearch = withErrorBoundary(FoodSearchScreen, 'FoodSearch', {
+  canGoBack: true,
+});
+const SafeFoodEntryAdd = withErrorBoundary(FoodEntryAddScreen, 'FoodEntryAdd', {
+  canGoBack: true,
+});
+const SafeFoodForm = withErrorBoundary(FoodFormScreen, 'FoodForm', {
+  canGoBack: true,
+});
+const SafeEditBarcode = withErrorBoundary(EditBarcodeScreen, 'EditBarcode', {
+  canGoBack: true,
+});
+const SafeExerciseForm = withErrorBoundary(ExerciseFormScreen, 'ExerciseForm', {
+  canGoBack: true,
+});
+const SafeWorkoutPresetForm = withErrorBoundary(
+  WorkoutPresetFormScreen,
+  'WorkoutPresetForm',
+  { canGoBack: true },
+);
+const SafeFoodScan = withErrorBoundary(FoodScanScreen, 'FoodScan', {
+  canGoBack: true,
+});
+const SafeFoodPhotoIntro = withErrorBoundary(
+  FoodPhotoIntroScreen,
+  'FoodPhotoIntro',
+  { canGoBack: true },
+);
+const SafeMealAdd = withErrorBoundary(MealAddScreen, 'MealAdd', {
+  canGoBack: true,
+});
+const SafeFoodEntryView = withErrorBoundary(
+  FoodEntryViewScreen,
+  'FoodEntryView',
+  { canGoBack: true },
+);
+const SafeEditLoggedMeal = withErrorBoundary(
+  EditLoggedMealScreen,
+  'EditLoggedMeal',
+  { canGoBack: true },
+);
+const SafeMealTypeDetail = withErrorBoundary(
+  MealTypeDetailScreen,
+  'MealTypeDetail',
+  { canGoBack: true },
+);
+const SafeExerciseSearch = withErrorBoundary(
+  ExerciseSearchScreen,
+  'ExerciseSearch',
+  { canGoBack: true },
+);
+const SafePresetSearch = withErrorBoundary(PresetSearchScreen, 'PresetSearch', {
+  canGoBack: true,
+});
+const SafeWorkoutAdd = withErrorBoundary(WorkoutAddScreen, 'WorkoutAdd', {
+  canGoBack: true,
+});
+const SafeActivityAdd = withErrorBoundary(ActivityAddScreen, 'ActivityAdd', {
+  canGoBack: true,
+});
+const SafeWorkoutDetail = withErrorBoundary(
+  WorkoutDetailScreen,
+  'WorkoutDetail',
+  { canGoBack: true },
+);
+const SafeActivityDetail = withErrorBoundary(
+  ActivityDetailScreen,
+  'ActivityDetail',
+  { canGoBack: true },
+);
 const SafeLogs = withErrorBoundary(LogScreen, 'Logs', { canGoBack: true });
 const SafeSync = withErrorBoundary(SyncScreen, 'Sync', { canGoBack: true });
-const SafeMeasurementsAdd = withErrorBoundary(MeasurementsAddScreen, 'MeasurementsAdd', { canGoBack: true });
-const SafeCalorieSettings = withErrorBoundary(CalorieSettingsScreen, 'CalorieSettings', { canGoBack: true });
-const SafeFoodSettings = withErrorBoundary(FoodSettingsScreen, 'FoodSettings', { canGoBack: true });
-const SafeServerSettings = withErrorBoundary(ServerSettingsScreen, 'ServerSettings', { canGoBack: true });
-const SafeAppSettings = withErrorBoundary(AppSettingsScreen, 'AppSettings', { canGoBack: true });
+const SafeMeasurementsAdd = withErrorBoundary(
+  MeasurementsAddScreen,
+  'MeasurementsAdd',
+  { canGoBack: true },
+);
+const SafeCalorieSettings = withErrorBoundary(
+  CalorieSettingsScreen,
+  'CalorieSettings',
+  { canGoBack: true },
+);
+const SafeFoodSettings = withErrorBoundary(FoodSettingsScreen, 'FoodSettings', {
+  canGoBack: true,
+});
+const SafeServerSettings = withErrorBoundary(
+  ServerSettingsScreen,
+  'ServerSettings',
+  { canGoBack: true },
+);
+const SafeAppSettings = withErrorBoundary(AppSettingsScreen, 'AppSettings', {
+  canGoBack: true,
+});
 const SafeAbout = withErrorBoundary(AboutScreen, 'About', { canGoBack: true });
-const SafeWhatsNew = withErrorBoundary(WhatsNewScreen, 'WhatsNew', { canGoBack: true });
+const SafeWhatsNew = withErrorBoundary(WhatsNewScreen, 'WhatsNew', {
+  canGoBack: true,
+});
 
 function AppContent() {
   const { theme } = useUniwind();
   const {
-    showReauthModal, showSetupModal, showApiKeySwitchModal,
-    expiredConfigId, switchToApiKeyConfig,
-    dismissModal, handleLoginSuccess, handleSwitchToApiKey, handleSwitchToApiKeyDone,
+    showReauthModal,
+    showSetupModal,
+    showApiKeySwitchModal,
+    expiredConfigId,
+    switchToApiKeyConfig,
+    dismissModal,
+    handleLoginSuccess,
+    handleSwitchToApiKey,
+    handleSwitchToApiKeyDone,
   } = useAuth();
 
-  const [initialRoute, setInitialRoute] = useState<'Tabs' | 'Onboarding' | null>(null);
+  const [initialRoute, setInitialRoute] = useState<
+    'Tabs' | 'Onboarding' | null
+  >(null);
   const [linkingEnabled, setLinkingEnabled] = useState(false);
 
   useEffect(() => {
@@ -186,7 +314,10 @@ function AppContent() {
         setLinkingEnabled(route === 'Tabs');
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[App] Failed to load active server config on startup: ${message}`, 'ERROR');
+        addLog(
+          `[App] Failed to load active server config on startup: ${message}`,
+          'ERROR',
+        );
         setInitialRoute('Onboarding');
       } finally {
         await SplashScreen.hideAsync();
@@ -204,13 +335,14 @@ function AppContent() {
     setForegroundAutoSyncWindowOpen(isOpen);
   }, []);
 
-  const [primary, chrome, chromeBorder, bgPrimary, textPrimary] = useCSSVariable([
-    '--color-accent-primary',
-    '--color-chrome',
-    '--color-chrome-border',
-    '--color-background',
-    '--color-text-primary',
-  ]) as [string, string, string, string, string];
+  const [primary, chrome, chromeBorder, bgPrimary, textPrimary] =
+    useCSSVariable([
+      '--color-accent-primary',
+      '--color-chrome',
+      '--color-chrome-border',
+      '--color-background',
+      '--color-text-primary',
+    ]) as [string, string, string, string, string];
 
   // Determine if we're in dark mode based on current theme
   const isDarkMode = theme === 'dark' || theme === 'amoled';
@@ -222,27 +354,33 @@ function AppContent() {
       NavigationBar.setStyle(isDarkMode ? 'dark' : 'light');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[App] Failed to update Android navigation bar style: ${message}`, 'WARNING');
+      addLog(
+        `[App] Failed to update Android navigation bar style: ${message}`,
+        'WARNING',
+      );
     }
   }, [isDarkMode]);
 
-  const navigationTheme = useMemo<Theme>(() => ({
-    dark: isDarkMode,
-    colors: {
-      primary: primary,
-      background: bgPrimary,
-      card: chrome,
-      text: textPrimary,
-      border: chromeBorder,
-      notification: primary,
-    },
-    fonts: {
-      regular: { fontFamily: 'System', fontWeight: '400' },
-      medium: { fontFamily: 'System', fontWeight: '500' },
-      bold: { fontFamily: 'System', fontWeight: '600' },
-      heavy: { fontFamily: 'System', fontWeight: '700' },
-    },
-  }), [isDarkMode, primary, bgPrimary, chrome, textPrimary, chromeBorder]);
+  const navigationTheme = useMemo<Theme>(
+    () => ({
+      dark: isDarkMode,
+      colors: {
+        primary: primary,
+        background: bgPrimary,
+        card: chrome,
+        text: textPrimary,
+        border: chromeBorder,
+        notification: primary,
+      },
+      fonts: {
+        regular: { fontFamily: 'System', fontWeight: '400' },
+        medium: { fontFamily: 'System', fontWeight: '500' },
+        bold: { fontFamily: 'System', fontWeight: '600' },
+        heavy: { fontFamily: 'System', fontWeight: '700' },
+      },
+    }),
+    [isDarkMode, primary, bgPrimary, chrome, textPrimary, chromeBorder],
+  );
 
   const getActiveDiaryDate = useCallback(() => {
     const navigation = navigationRef.current;
@@ -251,8 +389,9 @@ function AppContent() {
       (rootNavigationRef.isReady()
         ? (rootNavigationRef
             .getRootState()
-            .routes.find((route) => route.name === 'Tabs')
-            ?.state as TabStateSnapshot | undefined)
+            .routes.find(route => route.name === 'Tabs')?.state as
+            | TabStateSnapshot
+            | undefined)
         : undefined);
     if (!state) return undefined;
 
@@ -279,14 +418,24 @@ function AppContent() {
     navigation.getParent()?.navigate('FoodScan', { date });
   }, [getActiveDiaryDate]);
 
-  const navigateFromSheet = useCallback((screen: keyof RootStackParamList, params?: RootStackParamList[keyof RootStackParamList]) => {
-    if (rootNavigationRef.isReady()) {
-      rootNavigationRef.dispatch(CommonActions.navigate({ name: screen, params }));
-      return;
-    }
+  const navigateFromSheet = useCallback(
+    (
+      screen: keyof RootStackParamList,
+      params?: RootStackParamList[keyof RootStackParamList],
+    ) => {
+      if (rootNavigationRef.isReady()) {
+        rootNavigationRef.dispatch(
+          CommonActions.navigate({ name: screen, params }),
+        );
+        return;
+      }
 
-    navigationRef.current?.getParent()?.dispatch(CommonActions.navigate({ name: screen, params }));
-  }, []);
+      navigationRef.current
+        ?.getParent()
+        ?.dispatch(CommonActions.navigate({ name: screen, params }));
+    },
+    [],
+  );
 
   const handleStartExerciseForm = useCallback(
     async (screen: 'WorkoutAdd' | 'ActivityAdd' | 'PresetSearch') => {
@@ -350,9 +499,18 @@ function AppContent() {
     [navigateFromSheet, getActiveDiaryDate],
   );
 
-  const handleAddWorkout = useCallback(() => handleStartExerciseForm('WorkoutAdd'), [handleStartExerciseForm]);
-  const handleAddActivity = useCallback(() => handleStartExerciseForm('ActivityAdd'), [handleStartExerciseForm]);
-  const handleAddFromPreset = useCallback(() => handleStartExerciseForm('PresetSearch'), [handleStartExerciseForm]);
+  const handleAddWorkout = useCallback(
+    () => handleStartExerciseForm('WorkoutAdd'),
+    [handleStartExerciseForm],
+  );
+  const handleAddActivity = useCallback(
+    () => handleStartExerciseForm('ActivityAdd'),
+    [handleStartExerciseForm],
+  );
+  const handleAddFromPreset = useCallback(
+    () => handleStartExerciseForm('PresetSearch'),
+    [handleStartExerciseForm],
+  );
 
   const syncMutation = useSyncHealthData();
 
@@ -366,7 +524,10 @@ function AppContent() {
 
     const initialized = await initHealthConnect();
     if (!initialized) {
-      Alert.alert('Health Data Unavailable', 'Could not initialize health data access. Check your permissions in Settings.');
+      Alert.alert(
+        'Health Data Unavailable',
+        'Could not initialize health data access. Check your permissions in Settings.',
+      );
       return;
     }
 
@@ -382,43 +543,51 @@ function AppContent() {
     syncMutation.mutate({ timeRange, healthMetricStates });
   }, [syncMutation]);
 
-  const triggerAutoSync = useCallback(async (configId: string, release: () => void) => {
-    let committed = false;
-    try {
-      if (syncMutation.isPending) return;
+  const triggerAutoSync = useCallback(
+    async (configId: string, release: () => void) => {
+      let committed = false;
+      try {
+        if (syncMutation.isPending) return;
 
-      const initialized = await initHealthConnect();
-      if (!initialized) return;
+        const initialized = await initHealthConnect();
+        if (!initialized) return;
 
-      const loadedTimeRange = await loadTimeRange();
-      const timeRange: TimeRange = loadedTimeRange ?? '3d';
-      const healthMetricStates: Record<string, boolean> = {};
-      await Promise.all(
-        HEALTH_METRICS.map(async (metric) => {
-          const enabled = await loadHealthPreference<boolean>(metric.preferenceKey);
-          healthMetricStates[metric.stateKey] = enabled === true;
-        }),
-      );
+        const loadedTimeRange = await loadTimeRange();
+        const timeRange: TimeRange = loadedTimeRange ?? '3d';
+        const healthMetricStates: Record<string, boolean> = {};
+        await Promise.all(
+          HEALTH_METRICS.map(async metric => {
+            const enabled = await loadHealthPreference<boolean>(
+              metric.preferenceKey,
+            );
+            healthMetricStates[metric.stateKey] = enabled === true;
+          }),
+        );
 
-      committed = true;
-      syncMutation.mutate({
-        timeRange,
-        healthMetricStates,
-      }, {
-        onSuccess: () => {
-          void recordAutoSyncTime(configId);
-        },
-        onSettled: () => {
-          release();
-        },
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      addLog(`[App] Auto sync on open failed: ${message}`, 'ERROR');
-    } finally {
-      if (!committed) release();
-    }
-  }, [syncMutation]);
+        committed = true;
+        syncMutation.mutate(
+          {
+            timeRange,
+            healthMetricStates,
+          },
+          {
+            onSuccess: () => {
+              void recordAutoSyncTime(configId);
+            },
+            onSettled: () => {
+              release();
+            },
+          },
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        addLog(`[App] Auto sync on open failed: ${message}`, 'ERROR');
+      } finally {
+        if (!committed) release();
+      }
+    },
+    [syncMutation],
+  );
 
   const triggerAutoSyncRef = useRef(triggerAutoSync);
   useEffect(() => {
@@ -453,7 +622,10 @@ function AppContent() {
       // has a stable timezone for the very first sync.
       const timezone = await ensureTimezoneBootstrapped();
       if (!timezone) {
-        addLog('[App] Timezone bootstrap did not resolve a timezone before sync setup.', 'WARNING');
+        addLog(
+          '[App] Timezone bootstrap did not resolve a timezone before sync setup.',
+          'WARNING',
+        );
       }
 
       if (cancelled) return;
@@ -462,7 +634,10 @@ function AppContent() {
         await configureBackgroundSync();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[App] Failed to configure background sync: ${message}`, 'ERROR');
+        addLog(
+          `[App] Failed to configure background sync: ${message}`,
+          'ERROR',
+        );
       }
 
       if (cancelled || Platform.OS !== 'ios') return;
@@ -487,8 +662,12 @@ function AppContent() {
 
           performBackgroundSync('healthkit-observer')
             .catch(error => {
-              const message = error instanceof Error ? error.message : String(error);
-              addLog(`[App] Observer-triggered sync failed: ${message}`, 'ERROR');
+              const message =
+                error instanceof Error ? error.message : String(error);
+              addLog(
+                `[App] Observer-triggered sync failed: ${message}`,
+                'ERROR',
+              );
             })
             .finally(() => {
               release();
@@ -496,7 +675,10 @@ function AppContent() {
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[App] Failed to configure HealthKit observers: ${message}`, 'ERROR');
+        addLog(
+          `[App] Failed to configure HealthKit observers: ${message}`,
+          'ERROR',
+        );
       }
     };
 
@@ -507,7 +689,10 @@ function AppContent() {
 
     flushPendingHealthSyncCacheRefresh().catch(error => {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[App] Failed to flush pending health sync refresh: ${message}`, 'ERROR');
+      addLog(
+        `[App] Failed to flush pending health sync refresh: ${message}`,
+        'ERROR',
+      );
     });
 
     return () => {
@@ -557,76 +742,87 @@ function AppContent() {
   useEffect(() => {
     const FOREGROUND_SYNC_MIN_AWAY_MS = 5 * 60 * 1000;
 
-    const subscription = AppState.addEventListener('change', async (nextAppState) => {
-      try {
-        if (nextAppState === 'background') {
-          backgroundEnteredAtRef.current = Date.now();
-          wasInBackgroundRef.current = true;
-          return;
-        }
+    const subscription = AppState.addEventListener(
+      'change',
+      async nextAppState => {
+        try {
+          if (nextAppState === 'background') {
+            backgroundEnteredAtRef.current = Date.now();
+            wasInBackgroundRef.current = true;
+            return;
+          }
 
-        if (nextAppState !== 'active') return;
+          if (nextAppState !== 'active') return;
 
-        await flushPendingHealthSyncCacheRefresh();
-        if (!wasInBackgroundRef.current) return;
+          await flushPendingHealthSyncCacheRefresh();
+          if (!wasInBackgroundRef.current) return;
 
-        const enteredAt = backgroundEnteredAtRef.current;
-        wasInBackgroundRef.current = false;
-        backgroundEnteredAtRef.current = null;
+          const enteredAt = backgroundEnteredAtRef.current;
+          wasInBackgroundRef.current = false;
+          backgroundEnteredAtRef.current = null;
 
-        const timeAway = enteredAt !== null ? Date.now() - enteredAt : Infinity;
-        if (timeAway < FOREGROUND_SYNC_MIN_AWAY_MS) return;
+          const timeAway =
+            enteredAt !== null ? Date.now() - enteredAt : Infinity;
+          if (timeAway < FOREGROUND_SYNC_MIN_AWAY_MS) return;
 
-        const config = await getActiveServerConfig();
-        if (!config) return;
+          const config = await getActiveServerConfig();
+          if (!config) return;
 
-        const syncOnOpen = await loadSyncOnOpenEnabled();
-        if (!syncOnOpen) return;
-        if (!(await shouldRunForegroundResumeAutoSync(config.id))) return;
+          const syncOnOpen = await loadSyncOnOpenEnabled();
+          if (!syncOnOpen) return;
+          if (!(await shouldRunForegroundResumeAutoSync(config.id))) return;
 
-        setForegroundAutoSyncWindowState(true);
-        const coordRelease = tryClaimAutoSync();
-        if (!coordRelease) {
+          setForegroundAutoSyncWindowState(true);
+          const coordRelease = tryClaimAutoSync();
+          if (!coordRelease) {
+            setForegroundAutoSyncWindowState(false);
+            return;
+          }
+
+          const cleanup = () => {
+            setForegroundAutoSyncWindowState(false);
+            coordRelease();
+          };
+          const watchdog = setTimeout(cleanup, AUTO_SYNC_WATCHDOG_MS);
+          const safeCleanup = () => {
+            clearTimeout(watchdog);
+            cleanup();
+          };
+
+          await triggerAutoSyncRef.current(config.id, safeCleanup);
+        } catch (error) {
           setForegroundAutoSyncWindowState(false);
-          return;
+          const message =
+            error instanceof Error ? error.message : String(error);
+          addLog(
+            `[App] Foreground-return sync on open failed: ${message}`,
+            'ERROR',
+          );
         }
-
-        const cleanup = () => {
-          setForegroundAutoSyncWindowState(false);
-          coordRelease();
-        };
-        const watchdog = setTimeout(cleanup, AUTO_SYNC_WATCHDOG_MS);
-        const safeCleanup = () => {
-          clearTimeout(watchdog);
-          cleanup();
-        };
-
-        await triggerAutoSyncRef.current(config.id, safeCleanup);
-      } catch (error) {
-        setForegroundAutoSyncWindowState(false);
-        const message = error instanceof Error ? error.message : String(error);
-        addLog(`[App] Foreground-return sync on open failed: ${message}`, 'ERROR');
-      }
-    });
+      },
+    );
 
     return () => subscription.remove();
   }, [setForegroundAutoSyncWindowState]);
 
-  const linking = useMemo<LinkingOptions<RootStackParamList>>(() => ({
-    prefixes: ['sparkyfitnessmobile://'],
-    config: {
-      initialRouteName: 'Tabs',
-      screens: {
-        Tabs: {
-          screens: {
-            Dashboard: '',
+  const linking = useMemo<LinkingOptions<RootStackParamList>>(
+    () => ({
+      prefixes: ['sparkyfitnessmobile://'],
+      config: {
+        initialRouteName: 'Tabs',
+        screens: {
+          Tabs: {
+            screens: {
+              Dashboard: '',
+            },
           },
+          FoodScan: 'scan',
+          FoodSearch: 'search',
         },
-        FoodScan: 'scan',
-        FoodSearch: 'search',
       },
-    },
-  }), []);
+    }),
+    [],
+  );
 
   if (!initialRoute) return null;
 
@@ -635,7 +831,7 @@ function AppContent() {
       ref={rootNavigationRef}
       theme={navigationTheme}
       linking={linkingEnabled ? linking : undefined}
-      onStateChange={(state) => {
+      onStateChange={state => {
         // Enable deep-link handling once the user has left Onboarding.
         // Without this, widget URLs are ignored for the rest of the session
         // after first-run setup completes.
@@ -648,8 +844,18 @@ function AppContent() {
     >
       <SafeAreaProvider>
         <UniwindInsetsBridge />
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
-        <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: bgPrimary } }} initialRouteName={initialRoute}>
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          translucent
+          backgroundColor="transparent"
+        />
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: bgPrimary },
+          }}
+          initialRouteName={initialRoute}
+        >
           <Stack.Screen
             name="Onboarding"
             component={SafeOnboarding}
@@ -662,7 +868,7 @@ function AppContent() {
                 screenOptions={{
                   headerShown: false,
                 }}
-                tabBar={(props) => (
+                tabBar={props => (
                   // Wrap the tab bar so the active workout HUD can sit
                   // directly on top of it. Order matters: CustomTabBar is
                   // a later sibling than ActiveWorkoutBar, so its Add button
@@ -682,7 +888,7 @@ function AppContent() {
                   name="Add"
                   component={EmptyScreen}
                   listeners={({ navigation }) => ({
-                    tabPress: (e) => {
+                    tabPress: e => {
                       e.preventDefault();
                       navigationRef.current = navigation;
                       addSheetRef.current?.present();
@@ -995,13 +1201,24 @@ function AppContent() {
             }}
           />
         </Stack.Navigator>
-        <AddSheet ref={addSheetRef} onAddFood={handleAddFood} onAddWorkout={handleAddWorkout} onAddActivity={handleAddActivity} onAddFromPreset={handleAddFromPreset} onSyncHealthData={handleSyncHealthData} onBarcodeScan={handleBarcodeScan} onAddMeasurements={handleAddMeasurements} />
+        <AddSheet
+          ref={addSheetRef}
+          onAddFood={handleAddFood}
+          onAddWorkout={handleAddWorkout}
+          onAddActivity={handleAddActivity}
+          onAddFromPreset={handleAddFromPreset}
+          onSyncHealthData={handleSyncHealthData}
+          onBarcodeScan={handleBarcodeScan}
+          onAddMeasurements={handleAddMeasurements}
+        />
         <ReauthModal
           visible={showReauthModal}
           expiredConfigId={expiredConfigId}
           onLoginSuccess={() => {
             handleLoginSuccess();
-            queryClient.invalidateQueries({ queryKey: serverConnectionQueryKey });
+            queryClient.invalidateQueries({
+              queryKey: serverConnectionQueryKey,
+            });
           }}
           onSwitchToApiKey={handleSwitchToApiKey}
           onDismiss={dismissModal}
@@ -1016,7 +1233,9 @@ function AppContent() {
             } else {
               handleLoginSuccess();
             }
-            queryClient.invalidateQueries({ queryKey: serverConnectionQueryKey });
+            queryClient.invalidateQueries({
+              queryKey: serverConnectionQueryKey,
+            });
             queryClient.invalidateQueries({ queryKey: serverConfigsQueryKey });
           }}
           onDismiss={() => {

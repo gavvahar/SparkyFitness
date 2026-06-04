@@ -14,27 +14,45 @@ export { toLocalDateString };
 
 const mapHealthKitSleepStage = (hkStage: string | number): SleepStageType => {
   switch (hkStage) {
-    case 'HKCategoryValueSleepAnalysisAsleepREM': return 'rem';
-    case 'HKCategoryValueSleepAnalysisAsleepDeep': return 'deep';
-    case 'HKCategoryValueSleepAnalysisAsleepCore': return 'light';
-    case 'HKCategoryValueSleepAnalysisAwake': return 'awake';
-    case 'HKCategoryValueSleepAnalysisInBed': return 'in_bed';
-    case 'HKCategoryValueSleepAnalysisAsleep': return 'light'; // Fallback for generic asleep
+    case 'HKCategoryValueSleepAnalysisAsleepREM':
+      return 'rem';
+    case 'HKCategoryValueSleepAnalysisAsleepDeep':
+      return 'deep';
+    case 'HKCategoryValueSleepAnalysisAsleepCore':
+      return 'light';
+    case 'HKCategoryValueSleepAnalysisAwake':
+      return 'awake';
+    case 'HKCategoryValueSleepAnalysisInBed':
+      return 'in_bed';
+    case 'HKCategoryValueSleepAnalysisAsleep':
+      return 'light'; // Fallback for generic asleep
     // Handle numeric enum values often returned by RN HealthKit
-    case 0: return 'in_bed'; // HKCategoryValueSleepAnalysisInBed
-    case 1: return 'light';  // HKCategoryValueSleepAnalysisAsleep (Generic)
-    case 2: return 'awake';  // HKCategoryValueSleepAnalysisAwake
-    case 3: return 'light';  // HKCategoryValueSleepAnalysisAsleepCore
-    case 4: return 'deep';   // HKCategoryValueSleepAnalysisAsleepDeep
-    case 5: return 'rem';    // HKCategoryValueSleepAnalysisAsleepREM
+    case 0:
+      return 'in_bed'; // HKCategoryValueSleepAnalysisInBed
+    case 1:
+      return 'light'; // HKCategoryValueSleepAnalysisAsleep (Generic)
+    case 2:
+      return 'awake'; // HKCategoryValueSleepAnalysisAwake
+    case 3:
+      return 'light'; // HKCategoryValueSleepAnalysisAsleepCore
+    case 4:
+      return 'deep'; // HKCategoryValueSleepAnalysisAsleepDeep
+    case 5:
+      return 'rem'; // HKCategoryValueSleepAnalysisAsleepREM
     default:
-      addLog(`[HealthKitService] Unknown sleep stage value: ${hkStage}`, 'WARNING');
+      addLog(
+        `[HealthKitService] Unknown sleep stage value: ${hkStage}`,
+        'WARNING',
+      );
       return 'unknown';
   }
 };
 
-const finalizeSession = (session: SleepSessionAccumulator): AggregatedSleepSession => {
-  const totalDuration = (session.wake_time.getTime() - session.bedtime.getTime()) / 1000;
+const finalizeSession = (
+  session: SleepSessionAccumulator,
+): AggregatedSleepSession => {
+  const totalDuration =
+    (session.wake_time.getTime() - session.bedtime.getTime()) / 1000;
   const result: AggregatedSleepSession = {
     type: 'SleepSession',
     source: 'HealthKit',
@@ -56,11 +74,15 @@ const finalizeSession = (session: SleepSessionAccumulator): AggregatedSleepSessi
   return result;
 };
 
-export const aggregateSleepSessions = (records: HKSleepRecord[]): AggregatedSleepSession[] => {
+export const aggregateSleepSessions = (
+  records: HKSleepRecord[],
+): AggregatedSleepSession[] => {
   if (!Array.isArray(records)) return [];
 
   // Sort records by start time to process them chronologically
-  const sortedRecords = [...records].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  const sortedRecords = [...records].sort(
+    (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+  );
 
   const aggregatedSessions: AggregatedSleepSession[] = [];
   let currentSession: SleepSessionAccumulator | null = null;
@@ -71,13 +93,18 @@ export const aggregateSleepSessions = (records: HKSleepRecord[]): AggregatedSlee
   for (const record of sortedRecords) {
     const recordStartTime = new Date(record.startTime);
     const recordEndTime = new Date(record.endTime);
-    const duration = (recordEndTime.getTime() - recordStartTime.getTime()) / 1000;
+    const duration =
+      (recordEndTime.getTime() - recordStartTime.getTime()) / 1000;
 
     const stageType = mapHealthKitSleepStage(record.value);
     const recordTz = record.metadata?.HKTimeZone;
 
     // If no current session or a significant gap, start a new session
-    if (!currentSession || (recordStartTime.getTime() - currentSession.wake_time.getTime() > SESSION_GAP_THRESHOLD_MS)) {
+    if (
+      !currentSession ||
+      recordStartTime.getTime() - currentSession.wake_time.getTime() >
+        SESSION_GAP_THRESHOLD_MS
+    ) {
       if (currentSession) {
         // Finalize the previous session before starting a new one
         aggregatedSessions.push(finalizeSession(currentSession));
@@ -146,7 +173,7 @@ export const aggregateByDay = (
   records: TransformedRecord[],
   baseType: string,
   unit: string,
-  strategy: 'min-max-avg' | 'sum' | 'last'
+  strategy: 'min-max-avg' | 'sum' | 'last',
 ): TransformedRecord[] => {
   if (records.length === 0) return [];
 
@@ -168,7 +195,9 @@ export const aggregateByDay = (
     const { record_timezone, record_utc_offset_minutes } = dayRecords[0];
     const tz = {
       ...(record_timezone != null ? { record_timezone } : {}),
-      ...(record_utc_offset_minutes != null ? { record_utc_offset_minutes } : {}),
+      ...(record_utc_offset_minutes != null
+        ? { record_utc_offset_minutes }
+        : {}),
     };
 
     if (strategy === 'min-max-avg') {
@@ -182,19 +211,54 @@ export const aggregateByDay = (
       }
       const avg = total / dayRecords.length;
       result.push(
-        { value: parseFloat(min.toFixed(2)), type: `${baseType}_min`, date, unit, source: dayRecords[0].source, ...tz },
-        { value: parseFloat(max.toFixed(2)), type: `${baseType}_max`, date, unit, source: dayRecords[0].source, ...tz },
-        { value: parseFloat(avg.toFixed(2)), type: `${baseType}_avg`, date, unit, source: dayRecords[0].source, ...tz },
+        {
+          value: parseFloat(min.toFixed(2)),
+          type: `${baseType}_min`,
+          date,
+          unit,
+          source: dayRecords[0].source,
+          ...tz,
+        },
+        {
+          value: parseFloat(max.toFixed(2)),
+          type: `${baseType}_max`,
+          date,
+          unit,
+          source: dayRecords[0].source,
+          ...tz,
+        },
+        {
+          value: parseFloat(avg.toFixed(2)),
+          type: `${baseType}_avg`,
+          date,
+          unit,
+          source: dayRecords[0].source,
+          ...tz,
+        },
       );
     } else if (strategy === 'sum') {
       let total = 0;
       for (const rec of dayRecords) {
         total += rec.value;
       }
-      result.push({ value: parseFloat(total.toFixed(2)), type: baseType, date, unit, source: dayRecords[0].source, ...tz });
+      result.push({
+        value: parseFloat(total.toFixed(2)),
+        type: baseType,
+        date,
+        unit,
+        source: dayRecords[0].source,
+        ...tz,
+      });
     } else if (strategy === 'last') {
       // Take first record: HealthKit queries use ascending: false (newest-first)
-      result.push({ value: dayRecords[0].value, type: baseType, date, unit, source: dayRecords[0].source, ...tz });
+      result.push({
+        value: dayRecords[0].value,
+        type: baseType,
+        date,
+        unit,
+        source: dayRecords[0].source,
+        ...tz,
+      });
     }
   }
 

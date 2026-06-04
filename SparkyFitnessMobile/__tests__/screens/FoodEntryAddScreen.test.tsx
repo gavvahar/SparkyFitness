@@ -14,7 +14,10 @@ import { useAddFoodEntryMeal } from '../../src/hooks/useAddFoodEntryMeal';
 import { setPendingMealIngredientSelection } from '../../src/services/mealBuilderSelection';
 import { buildMealIngredientDraft } from '../../src/utils/mealBuilderDraft';
 
-const mockPop = jest.fn((count: number) => ({ type: 'POP', payload: { count } }));
+const mockPop = jest.fn((count: number) => ({
+  type: 'POP',
+  payload: { count },
+}));
 const mockPopToTop = jest.fn(() => ({ type: 'POP_TO_TOP' }));
 
 jest.mock('@react-navigation/native', () => {
@@ -34,7 +37,12 @@ jest.mock('@tanstack/react-query', () => ({
 
 jest.mock('../../src/hooks', () => ({
   useMealTypes: jest.fn(),
-  usePreferences: jest.fn(() => ({ preferences: undefined, isLoading: false, isError: false, refetch: jest.fn() })),
+  usePreferences: jest.fn(() => ({
+    preferences: undefined,
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  })),
   useServerConnection: jest.fn(() => ({ isConnected: true, isLoading: false })),
 }));
 
@@ -185,23 +193,39 @@ jest.mock('../../src/utils/mealBuilderDraft', () => {
   return {
     ...actual,
     buildMealIngredientDraft: jest.fn(actual.buildMealIngredientDraft),
-    buildMealIngredientDraftFromSavedFood: jest.fn(actual.buildMealIngredientDraftFromSavedFood),
+    buildMealIngredientDraftFromSavedFood: jest.fn(
+      actual.buildMealIngredientDraftFromSavedFood,
+    ),
   };
 });
 
-const { useQuery } = jest.requireMock('@tanstack/react-query') as { useQuery: jest.Mock };
-const mockUseMealTypes = useMealTypes as jest.MockedFunction<typeof useMealTypes>;
-const mockUseFoodVariants = useFoodVariants as jest.MockedFunction<typeof useFoodVariants>;
-const mockUseCreateFoodVariant =
-  useCreateFoodVariant as jest.MockedFunction<typeof useCreateFoodVariant>;
+const { useQuery } = jest.requireMock('@tanstack/react-query') as {
+  useQuery: jest.Mock;
+};
+const mockUseMealTypes = useMealTypes as jest.MockedFunction<
+  typeof useMealTypes
+>;
+const mockUseFoodVariants = useFoodVariants as jest.MockedFunction<
+  typeof useFoodVariants
+>;
+const mockUseCreateFoodVariant = useCreateFoodVariant as jest.MockedFunction<
+  typeof useCreateFoodVariant
+>;
 const mockUseSaveFood = useSaveFood as jest.MockedFunction<typeof useSaveFood>;
-const mockUseAddFoodEntry = useAddFoodEntry as jest.MockedFunction<typeof useAddFoodEntry>;
-const mockUseAddFoodEntryMeal =
-  useAddFoodEntryMeal as jest.MockedFunction<typeof useAddFoodEntryMeal>;
+const mockUseAddFoodEntry = useAddFoodEntry as jest.MockedFunction<
+  typeof useAddFoodEntry
+>;
+const mockUseAddFoodEntryMeal = useAddFoodEntryMeal as jest.MockedFunction<
+  typeof useAddFoodEntryMeal
+>;
 const mockSetPendingMealIngredientSelection =
-  setPendingMealIngredientSelection as jest.MockedFunction<typeof setPendingMealIngredientSelection>;
+  setPendingMealIngredientSelection as jest.MockedFunction<
+    typeof setPendingMealIngredientSelection
+  >;
 const mockBuildMealIngredientDraft =
-  buildMealIngredientDraft as jest.MockedFunction<typeof buildMealIngredientDraft>;
+  buildMealIngredientDraft as jest.MockedFunction<
+    typeof buildMealIngredientDraft
+  >;
 const mockToast = Toast as unknown as { show: jest.Mock };
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -281,11 +305,13 @@ describe('FoodEntryAddScreen', () => {
       <SafeAreaProvider initialMetrics={{ insets, frame }}>
         <FoodEntryAddScreen
           navigation={navigation}
-          route={{
-            key: 'FoodEntryAdd-key',
-            name: 'FoodEntryAdd',
-            params,
-          } as any}
+          route={
+            {
+              key: 'FoodEntryAdd-key',
+              name: 'FoodEntryAdd',
+              params,
+            } as any
+          }
         />
       </SafeAreaProvider>,
     );
@@ -297,7 +323,9 @@ describe('FoodEntryAddScreen', () => {
       isLoading: false,
     });
     mockUseMealTypes.mockReturnValue({
-      mealTypes: [{ id: 'meal-1', name: 'breakfast', is_visible: true, sort_order: 1 }] as any,
+      mealTypes: [
+        { id: 'meal-1', name: 'breakfast', is_visible: true, sort_order: 1 },
+      ] as any,
       defaultMealTypeId: 'meal-1',
       isLoading: false,
       isError: false,
@@ -331,7 +359,7 @@ describe('FoodEntryAddScreen', () => {
       isPending: false,
       isSaved: false,
     });
-    mockUseAddFoodEntry.mockImplementation((options) => ({
+    mockUseAddFoodEntry.mockImplementation(options => ({
       addEntry: (input: any) => {
         mockAddEntry(input);
         options?.onSuccess?.({ entry_date: '2026-04-23' } as any);

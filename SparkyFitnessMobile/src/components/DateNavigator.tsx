@@ -42,11 +42,15 @@ const DateNavigator: React.FC<DateNavigatorProps> = ({
 
   const paddingTop = skipTopInset
     ? 16
-    : (skipSafeAreaTop && Platform.OS === 'ios') ? 16 : insets.top + 16;
+    : skipSafeAreaTop && Platform.OS === 'ios'
+      ? 16
+      : insets.top + 16;
 
   return (
-    <View style={{ paddingTop, paddingHorizontal: skipHorizontalPadding ? 0 : 16 }}
-          className="flex-row justify-between items-center pb-5">
+    <View
+      style={{ paddingTop, paddingHorizontal: skipHorizontalPadding ? 0 : 16 }}
+      className="flex-row justify-between items-center pb-5"
+    >
       <Text className="text-2xl font-bold text-text-primary">{title}</Text>
       <View className="flex-row items-center">
         {!hideChevrons && (
@@ -54,12 +58,20 @@ const DateNavigator: React.FC<DateNavigatorProps> = ({
             <Icon name="chevron-back" size={18} color={secondaryTextColor} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={onDatePress ?? onToday} className="flex-row items-center px-2">
+        <TouchableOpacity
+          onPress={onDatePress ?? onToday}
+          className="flex-row items-center px-2"
+        >
           <Text className="text-text-primary text-lg font-medium">
             {dateLabel}
           </Text>
           {onDatePress && (
-            <Icon name="chevron-down" size={14} color={primaryTextColor} style={{ marginLeft: 4 }} />
+            <Icon
+              name="chevron-down"
+              size={14}
+              color={primaryTextColor}
+              style={{ marginLeft: 4 }}
+            />
           )}
         </TouchableOpacity>
         {!hideChevrons && (

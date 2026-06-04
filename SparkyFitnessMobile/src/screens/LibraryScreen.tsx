@@ -20,7 +20,13 @@ import FoodLibraryRow from '../components/FoodLibraryRow';
 import Icon from '../components/Icon';
 import MealLibraryRow from '../components/MealLibraryRow';
 import StatusView from '../components/StatusView';
-import { useFoods, useMeals, useRecentMeals, useServerConnection, useSuggestedExercises } from '../hooks';
+import {
+  useFoods,
+  useMeals,
+  useRecentMeals,
+  useServerConnection,
+  useSuggestedExercises,
+} from '../hooks';
 import { fetchExercisesCount } from '../services/api/exerciseApi';
 import { fetchFoodsPage } from '../services/api/foodsApi';
 import { fetchWorkoutPresetsPage } from '../services/api/workoutPresetsApi';
@@ -71,7 +77,10 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
   // existing `foodsQueryKey` invalidations in useSaveFood / useDeleteFood.
   const { data: foodsCount, refetch: refetchFoodsCount } = useQuery({
     queryKey: ['foods', 'count'] as const,
-    queryFn: () => fetchFoodsPage({ page: 1, itemsPerPage: 1 }).then((r) => r.pagination.totalCount),
+    queryFn: () =>
+      fetchFoodsPage({ page: 1, itemsPerPage: 1 }).then(
+        r => r.pagination.totalCount,
+      ),
     enabled: isConnected,
     staleTime: 1000 * 60 * 5,
   });
@@ -84,7 +93,9 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
   const { data: presetsCount, refetch: refetchPresetsCount } = useQuery({
     queryKey: ['workoutPresets', 'count'] as const,
     queryFn: () =>
-      fetchWorkoutPresetsPage({ page: 1, pageSize: 1 }).then((r) => r.pagination.totalCount),
+      fetchWorkoutPresetsPage({ page: 1, pageSize: 1 }).then(
+        r => r.pagination.totalCount,
+      ),
     enabled: isConnected,
     staleTime: 1000 * 60 * 5,
   });
@@ -134,16 +145,18 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
         items.push({ type: 'food', data: recentFoods[fi++] });
         if (items.length >= RECENT_LIMIT) break;
       }
-      if (hasExercise) items.push({ type: 'exercise', data: recentExercises[ei++] });
+      if (hasExercise)
+        items.push({ type: 'exercise', data: recentExercises[ei++] });
     }
     return items;
   }, [recentMeals, recentFoods, recentExercises]);
 
-  const isRecentLoading = isFoodsLoading || isRecentMealsLoading || isRecentExercisesLoading;
+  const isRecentLoading =
+    isFoodsLoading || isRecentMealsLoading || isRecentExercisesLoading;
   const showRecentError =
-    !isRecentLoading
-    && recentItems.length === 0
-    && (isFoodsError || isRecentMealsError || isRecentExercisesError);
+    !isRecentLoading &&
+    recentItems.length === 0 &&
+    (isFoodsError || isRecentMealsError || isRecentExercisesError);
 
   const retryRecent = () => {
     void refetchFoods();
@@ -160,7 +173,11 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
           iconSize={64}
           title="No server configured"
           subtitle="Configure your server connection in Settings to view your library."
-          action={{ label: 'Go to Settings', onPress: () => navigation.navigate('Settings'), variant: 'primary' }}
+          action={{
+            label: 'Go to Settings',
+            onPress: () => navigation.navigate('Settings'),
+            variant: 'primary',
+          }}
         />
       </View>
     );
@@ -196,7 +213,9 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
         </View>
 
         <View className="mb-3">
-          <Text className="text-lg font-semibold text-text-primary">Create</Text>
+          <Text className="text-lg font-semibold text-text-primary">
+            Create
+          </Text>
         </View>
 
         <View className="flex-row flex-wrap justify-between mb-6">
@@ -204,7 +223,12 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
             icon="food"
             title="Food"
             subtitle="Manual entry"
-            onPress={() => navigation.navigate('FoodForm', { mode: 'create-food', pickerMode: 'library' })}
+            onPress={() =>
+              navigation.navigate('FoodForm', {
+                mode: 'create-food',
+                pickerMode: 'library',
+              })
+            }
             className="w-[48%] mb-3"
           />
           <CreateTile
@@ -218,20 +242,28 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
             icon="exercise-weights"
             title="Exercise"
             subtitle="Manual entry"
-            onPress={() => navigation.navigate('ExerciseForm', { mode: 'create-exercise' })}
+            onPress={() =>
+              navigation.navigate('ExerciseForm', { mode: 'create-exercise' })
+            }
             className="w-[48%] mb-3"
           />
           <CreateTile
             icon="bookmark-filled"
             title="Workout preset"
             subtitle="Exercise routine"
-            onPress={() => navigation.navigate('WorkoutPresetForm', { mode: 'create-preset' })}
+            onPress={() =>
+              navigation.navigate('WorkoutPresetForm', {
+                mode: 'create-preset',
+              })
+            }
             className="w-[48%] mb-3"
           />
         </View>
 
         <View className="mb-3">
-          <Text className="text-lg font-semibold text-text-primary">Browse</Text>
+          <Text className="text-lg font-semibold text-text-primary">
+            Browse
+          </Text>
         </View>
 
         <View className="bg-surface rounded-xl mb-6 shadow-sm overflow-hidden">
@@ -240,9 +272,13 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
             onPress={() => navigation.navigate('FoodsLibrary')}
             style={({ pressed }) => (pressed ? { opacity: 0.7 } : null)}
           >
-            <Text className="text-base font-semibold text-text-primary">Foods</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Foods
+            </Text>
             <View className="flex-row items-center">
-              <Text className="text-text-secondary text-base mr-2">{foodsCount ?? '—'}</Text>
+              <Text className="text-text-secondary text-base mr-2">
+                {foodsCount ?? '—'}
+              </Text>
               <Icon name="chevron-forward" size={20} color="#999" />
             </View>
           </Pressable>
@@ -252,9 +288,13 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
             onPress={() => navigation.navigate('MealsLibrary')}
             style={({ pressed }) => (pressed ? { opacity: 0.7 } : null)}
           >
-            <Text className="text-base font-semibold text-text-primary">Meals</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Meals
+            </Text>
             <View className="flex-row items-center">
-              <Text className="text-text-secondary text-base mr-2">{meals.length}</Text>
+              <Text className="text-text-secondary text-base mr-2">
+                {meals.length}
+              </Text>
               <Icon name="chevron-forward" size={20} color="#999" />
             </View>
           </Pressable>
@@ -263,9 +303,13 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
             onPress={() => navigation.navigate('ExercisesLibrary')}
             style={({ pressed }) => (pressed ? { opacity: 0.7 } : null)}
           >
-            <Text className="text-base font-semibold text-text-primary">Exercises</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Exercises
+            </Text>
             <View className="flex-row items-center">
-              <Text className="text-text-secondary text-base mr-2">{exercisesCount ?? '—'}</Text>
+              <Text className="text-text-secondary text-base mr-2">
+                {exercisesCount ?? '—'}
+              </Text>
               <Icon name="chevron-forward" size={20} color="#999" />
             </View>
           </Pressable>
@@ -274,16 +318,22 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
             onPress={() => navigation.navigate('WorkoutPresetsLibrary')}
             style={({ pressed }) => (pressed ? { opacity: 0.7 } : null)}
           >
-            <Text className="text-base font-semibold text-text-primary">Workout presets</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Workout presets
+            </Text>
             <View className="flex-row items-center">
-              <Text className="text-text-secondary text-base mr-2">{presetsCount ?? '—'}</Text>
+              <Text className="text-text-secondary text-base mr-2">
+                {presetsCount ?? '—'}
+              </Text>
               <Icon name="chevron-forward" size={20} color="#999" />
             </View>
           </Pressable>
         </View>
 
         <View className="mb-3">
-          <Text className="text-lg font-semibold text-text-primary">Recently Logged</Text>
+          <Text className="text-lg font-semibold text-text-primary">
+            Recently Logged
+          </Text>
         </View>
 
         <View className="bg-surface rounded-xl overflow-hidden shadow-sm">
@@ -333,7 +383,9 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
                     food={item.data}
                     showDivider={showDivider}
                     onPress={() =>
-                      navigation.navigate('FoodDetail', { item: foodItemToFoodInfo(item.data) })
+                      navigation.navigate('FoodDetail', {
+                        item: foodItemToFoodInfo(item.data),
+                      })
                     }
                   />
                 );
@@ -342,10 +394,14 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
                 <Pressable
                   key={`exercise-${item.data.id}`}
                   className={`px-4 py-3 ${showDivider ? 'border-b border-border-subtle' : ''}`}
-                  onPress={() => navigation.navigate('ExerciseDetail', { item: item.data })}
+                  onPress={() =>
+                    navigation.navigate('ExerciseDetail', { item: item.data })
+                  }
                   style={({ pressed }) => (pressed ? { opacity: 0.7 } : null)}
                 >
-                  <Text className="text-text-primary text-base font-medium">{item.data.name}</Text>
+                  <Text className="text-text-primary text-base font-medium">
+                    {item.data.name}
+                  </Text>
                   {item.data.category ? (
                     <Text className="text-text-secondary text-sm mt-0.5">
                       {item.data.category}
@@ -360,7 +416,8 @@ const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
                 No recent items yet
               </Text>
               <Text className="text-text-secondary text-sm mt-1">
-                Foods, meals, and exercises you log will appear here for quick access.
+                Foods, meals, and exercises you log will appear here for quick
+                access.
               </Text>
             </View>
           )}

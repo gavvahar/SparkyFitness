@@ -15,13 +15,21 @@ jest.mock('../../src/components/ActiveWorkoutBar', () => ({
   useActiveWorkoutBarPadding: jest.fn(() => 0),
 }));
 
-const mockUseExercisesLibrary = useExercisesLibrary as jest.MockedFunction<typeof useExercisesLibrary>;
-const mockUseServerConnection = useServerConnection as jest.MockedFunction<typeof useServerConnection>;
+const mockUseExercisesLibrary = useExercisesLibrary as jest.MockedFunction<
+  typeof useExercisesLibrary
+>;
+const mockUseServerConnection = useServerConnection as jest.MockedFunction<
+  typeof useServerConnection
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
 
-function createExercise(id: string, name: string, category: string | null = 'strength'): Exercise {
+function createExercise(
+  id: string,
+  name: string,
+  category: string | null = 'strength',
+): Exercise {
   return {
     id,
     name,
@@ -38,7 +46,9 @@ function createExercise(id: string, name: string, category: string | null = 'str
 
 type LibraryHookReturn = ReturnType<typeof useExercisesLibrary>;
 
-const buildHookReturn = (overrides: Partial<LibraryHookReturn> = {}): LibraryHookReturn => ({
+const buildHookReturn = (
+  overrides: Partial<LibraryHookReturn> = {},
+): LibraryHookReturn => ({
   exercises: [],
   isLoading: false,
   isSearching: false,
@@ -116,10 +126,15 @@ describe('ExercisesLibraryScreen', () => {
     const screen = renderScreen();
 
     await act(async () => {
-      fireEvent.changeText(screen.getByPlaceholderText('Search exercises...'), 'sq');
+      fireEvent.changeText(
+        screen.getByPlaceholderText('Search exercises...'),
+        'sq',
+      );
     });
 
-    expect(mockUseExercisesLibrary).toHaveBeenLastCalledWith('sq', { enabled: true });
+    expect(mockUseExercisesLibrary).toHaveBeenLastCalledWith('sq', {
+      enabled: true,
+    });
   });
 
   it('renders the no-server state when disconnected', () => {
@@ -135,7 +150,9 @@ describe('ExercisesLibraryScreen', () => {
 
     expect(screen.getByText('No server configured')).toBeTruthy();
     fireEvent.press(screen.getByText('Go to Settings'));
-    expect(navigation.navigate).toHaveBeenCalledWith('Tabs', { screen: 'Settings' });
+    expect(navigation.navigate).toHaveBeenCalledWith('Tabs', {
+      screen: 'Settings',
+    });
   });
 
   it('renders an error state with a working Retry button', () => {

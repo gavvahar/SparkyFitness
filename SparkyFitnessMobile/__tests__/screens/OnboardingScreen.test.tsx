@@ -8,7 +8,11 @@ import { saveServerConfig } from '../../src/services/storage';
 // Mock navigation
 const mockReplace = jest.fn();
 const mockNavigation = { replace: mockReplace } as any;
-const mockRoute = { key: 'onboarding', name: 'Onboarding' as const, params: undefined };
+const mockRoute = {
+  key: 'onboarding',
+  name: 'Onboarding' as const,
+  params: undefined,
+};
 
 // Mock modules
 jest.mock('../../src/services/api/authService', () => ({
@@ -45,7 +49,9 @@ const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
 const mockLogin = login as jest.MockedFunction<typeof login>;
-const mockSaveServerConfig = saveServerConfig as jest.MockedFunction<typeof saveServerConfig>;
+const mockSaveServerConfig = saveServerConfig as jest.MockedFunction<
+  typeof saveServerConfig
+>;
 const mockVerifyTotp = verifyTotp as jest.MockedFunction<typeof verifyTotp>;
 
 describe('OnboardingScreen', () => {
@@ -80,15 +86,11 @@ describe('OnboardingScreen', () => {
     test('learn more section toggles on press', () => {
       const { getByText, queryByText } = renderScreen();
 
-      expect(
-        queryByText(/SparkyFitness helps you track/),
-      ).toBeNull();
+      expect(queryByText(/SparkyFitness helps you track/)).toBeNull();
 
       fireEvent.press(getByText('Learn more about SparkyFitness'));
 
-      expect(
-        getByText(/SparkyFitness helps you track/),
-      ).toBeTruthy();
+      expect(getByText(/SparkyFitness helps you track/)).toBeTruthy();
     });
 
     test('Next shows error when URL is empty', async () => {
@@ -246,7 +248,9 @@ describe('OnboardingScreen', () => {
             authType: 'apiKey',
           }),
         );
-        expect(mockReplace).toHaveBeenCalledWith('Tabs', { screen: 'Dashboard' });
+        expect(mockReplace).toHaveBeenCalledWith('Tabs', {
+          screen: 'Dashboard',
+        });
       });
     });
 
@@ -287,7 +291,9 @@ describe('OnboardingScreen', () => {
             sessionToken: 'tok-123',
           }),
         );
-        expect(mockReplace).toHaveBeenCalledWith('Tabs', { screen: 'Dashboard' });
+        expect(mockReplace).toHaveBeenCalledWith('Tabs', {
+          screen: 'Dashboard',
+        });
       });
     });
 

@@ -29,24 +29,21 @@ jest.mock('../../src/components/BottomSheetPicker', () => {
   const { Pressable, Text, View } = require('react-native');
   return {
     __esModule: true,
-    default: ({
-      options,
-      sections,
-      value,
-      onSelect,
-      renderTrigger,
-    }: any) => {
+    default: ({ options, sections, value, onSelect, renderTrigger }: any) => {
       const flat: { label: string; value: any }[] = sections
         ? sections.flatMap((s: any) => s.options)
-        : options ?? [];
+        : (options ?? []);
       return (
         <View>
           {renderTrigger?.({
             onPress: () => {},
-            selectedOption: flat.find((o) => o.value === value),
+            selectedOption: flat.find(o => o.value === value),
           })}
-          {flat.map((option) => (
-            <Pressable key={option.value} onPress={() => onSelect(option.value)}>
+          {flat.map(option => (
+            <Pressable
+              key={option.value}
+              onPress={() => onSelect(option.value)}
+            >
               <Text>{option.label}</Text>
             </Pressable>
           ))}

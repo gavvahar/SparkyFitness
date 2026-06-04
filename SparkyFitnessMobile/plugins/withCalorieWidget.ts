@@ -41,7 +41,10 @@ const RES_SUBDIR = 'res';
 async function copyTree(
   srcDir: string,
   destDir: string,
-  transform?: (srcPath: string, contents: Buffer) => { destName: string; contents: Buffer },
+  transform?: (
+    srcPath: string,
+    contents: Buffer,
+  ) => { destName: string; contents: Buffer },
 ): Promise<void> {
   const entries = await fs.promises.readdir(srcDir, { withFileTypes: true });
   await fs.promises.mkdir(destDir, { recursive: true });
@@ -59,10 +62,10 @@ async function copyTree(
   }
 }
 
-const withCalorieWidget: ConfigPlugin = (config) => {
+const withCalorieWidget: ConfigPlugin = config => {
   config = withDangerousMod(config, [
     'android',
-    async (config) => {
+    async config => {
       const applicationId = config.android?.package;
       if (!applicationId) {
         throw new Error(
@@ -100,7 +103,7 @@ const withCalorieWidget: ConfigPlugin = (config) => {
     },
   ]);
 
-  config = withAndroidManifest(config, (config) => {
+  config = withAndroidManifest(config, config => {
     const app = config.modResults.manifest.application?.[0];
     if (!app) return config;
 
@@ -152,7 +155,7 @@ const withCalorieWidget: ConfigPlugin = (config) => {
     return config;
   });
 
-  config = withMainApplication(config, (config) => {
+  config = withMainApplication(config, config => {
     let src = config.modResults.contents;
 
     if (!src.includes(WIDGET_PACKAGE_IMPORT)) {

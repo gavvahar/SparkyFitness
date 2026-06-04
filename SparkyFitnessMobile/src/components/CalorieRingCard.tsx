@@ -38,9 +38,10 @@ const CalorieRingCard: React.FC<CalorieRingCardProps> = ({
   ]) as [string, string];
 
   const displayRemaining = Math.round(remainingCalories);
-  const remainingText = displayRemaining >= 0
-    ? `${displayRemaining.toLocaleString()}`
-    : `+${Math.abs(displayRemaining).toLocaleString()}`;
+  const remainingText =
+    displayRemaining >= 0
+      ? `${displayRemaining.toLocaleString()}`
+      : `+${Math.abs(displayRemaining).toLocaleString()}`;
 
   return (
     <View className="bg-surface rounded-xl p-4 mb-4 shadow-sm">

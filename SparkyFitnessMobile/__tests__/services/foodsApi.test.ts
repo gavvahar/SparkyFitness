@@ -1,10 +1,20 @@
-import { fetchFoods, searchFoods, fetchFoodVariants, saveFood, deleteFood } from '../../src/services/api/foodsApi';
+import {
+  fetchFoods,
+  searchFoods,
+  fetchFoodVariants,
+  saveFood,
+  deleteFood,
+} from '../../src/services/api/foodsApi';
 import type { SaveFoodPayload } from '../../src/services/api/foodsApi';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({
@@ -40,7 +50,7 @@ describe('foodsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(fetchFoods()).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
 
@@ -62,7 +72,7 @@ describe('foodsApi', () => {
 
             'X-Meal-Model-Version': '2',
           },
-        })
+        }),
       );
     });
 
@@ -80,7 +90,7 @@ describe('foodsApi', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/foods',
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -140,7 +150,7 @@ describe('foodsApi', () => {
       });
 
       await expect(fetchFoods()).rejects.toThrow(
-        'Server error: 401 - Unauthorized'
+        'Server error: 401 - Unauthorized',
       );
     });
 
@@ -148,9 +158,7 @@ describe('foodsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockRejectedValue(new Error('Network request failed'));
 
-      await expect(fetchFoods()).rejects.toThrow(
-        'Network request failed'
-      );
+      await expect(fetchFoods()).rejects.toThrow('Network request failed');
     });
   });
 
@@ -179,7 +187,7 @@ describe('foodsApi', () => {
       expect(url.searchParams.get('sortBy')).toBe('name:asc');
       expect(mockFetch).toHaveBeenCalledWith(
         expect.any(String),
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
     });
 
@@ -191,7 +199,14 @@ describe('foodsApi', () => {
             name: 'Banana',
             brand: null,
             is_custom: false,
-            default_variant: { serving_size: 1, serving_unit: 'medium', calories: 105, protein: 1.3, carbs: 27, fat: 0.4 },
+            default_variant: {
+              serving_size: 1,
+              serving_unit: 'medium',
+              calories: 105,
+              protein: 1.3,
+              carbs: 27,
+              fat: 0.4,
+            },
           },
         ],
         totalCount: 1,
@@ -216,7 +231,7 @@ describe('foodsApi', () => {
       });
 
       await expect(searchFoods('banana')).rejects.toThrow(
-        'Server error: 500 - Internal Server Error'
+        'Server error: 500 - Internal Server Error',
       );
     });
 
@@ -224,7 +239,7 @@ describe('foodsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(searchFoods('banana')).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });
@@ -247,7 +262,7 @@ describe('foodsApi', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/foods/food-variants?food_id=food-abc',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
     });
 
@@ -284,7 +299,7 @@ describe('foodsApi', () => {
       });
 
       await expect(fetchFoodVariants('food-abc')).rejects.toThrow(
-        'Server error: 404 - Not Found'
+        'Server error: 404 - Not Found',
       );
     });
 
@@ -292,7 +307,7 @@ describe('foodsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(fetchFoodVariants('food-abc')).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });
@@ -375,7 +390,20 @@ describe('foodsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ id: 'new-food-1', ...testPayload, is_custom: true, default_variant: { serving_size: 40, serving_unit: 'g', calories: 150, protein: 5, carbs: 27, fat: 3 } }),
+        json: () =>
+          Promise.resolve({
+            id: 'new-food-1',
+            ...testPayload,
+            is_custom: true,
+            default_variant: {
+              serving_size: 40,
+              serving_unit: 'g',
+              calories: 150,
+              protein: 5,
+              carbs: 27,
+              fat: 3,
+            },
+          }),
       });
 
       await saveFood(testPayload);
@@ -388,7 +416,7 @@ describe('foodsApi', () => {
             'Content-Type': 'application/json',
           }),
           body: JSON.stringify(testPayload),
-        })
+        }),
       );
     });
 
@@ -398,7 +426,14 @@ describe('foodsApi', () => {
         name: 'Oats',
         brand: null,
         is_custom: true,
-        default_variant: { serving_size: 40, serving_unit: 'g', calories: 150, protein: 5, carbs: 27, fat: 3 },
+        default_variant: {
+          serving_size: 40,
+          serving_unit: 'g',
+          calories: 150,
+          protein: 5,
+          carbs: 27,
+          fat: 3,
+        },
       };
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockResolvedValue({
@@ -420,7 +455,7 @@ describe('foodsApi', () => {
       });
 
       await expect(saveFood(testPayload)).rejects.toThrow(
-        'Server error: 400 - Bad Request'
+        'Server error: 400 - Bad Request',
       );
     });
 
@@ -428,7 +463,7 @@ describe('foodsApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(saveFood(testPayload)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });

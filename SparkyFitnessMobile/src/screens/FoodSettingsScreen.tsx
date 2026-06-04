@@ -19,7 +19,9 @@ import type { RootStackScreenProps } from '../types/navigation';
 
 type FoodSettingsScreenProps = RootStackScreenProps<'FoodSettings'>;
 
-const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) => {
+const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({
+  navigation,
+}) => {
   const insets = useSafeAreaInsets();
   const activeWorkoutBarPadding = useActiveWorkoutBarPadding('stack');
   const [accentPrimary, formEnabled, formDisabled] = useCSSVariable([
@@ -36,12 +38,12 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
   });
 
   const providerOptions = useMemo(
-    () => providers.map((p) => ({ label: p.provider_name, value: p.id })),
+    () => providers.map(p => ({ label: p.provider_name, value: p.id })),
     [providers],
   );
 
   const barcodeProviderOptions = useMemo(
-    () => barcodeProviders.map((p) => ({ label: p.provider_name, value: p.id })),
+    () => barcodeProviders.map(p => ({ label: p.provider_name, value: p.id })),
     [barcodeProviders],
   );
 
@@ -53,10 +55,11 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
 
   const mutation = useMutation({
     mutationFn: (data: Partial<UserPreferences>) => updatePreferences(data),
-    onMutate: async (data) => {
+    onMutate: async data => {
       await queryClient.cancelQueries({ queryKey: preferencesQueryKey });
-      const previous = queryClient.getQueryData<UserPreferences>(preferencesQueryKey);
-      queryClient.setQueryData<UserPreferences>(preferencesQueryKey, (old) =>
+      const previous =
+        queryClient.getQueryData<UserPreferences>(preferencesQueryKey);
+      queryClient.setQueryData<UserPreferences>(preferencesQueryKey, old =>
         old ? { ...old, ...data } : (data as UserPreferences),
       );
       return { previous };
@@ -65,7 +68,11 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
       if (context?.previous) {
         queryClient.setQueryData(preferencesQueryKey, context.previous);
       }
-      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to update setting.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update setting.',
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: preferencesQueryKey });
@@ -78,17 +85,20 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
   );
 
   const handleFoodProviderChange = useCallback(
-    (value: string) => mutation.mutate({ default_food_data_provider_id: value }),
+    (value: string) =>
+      mutation.mutate({ default_food_data_provider_id: value }),
     [mutation],
   );
 
   const handleAutoScaleToggle = useCallback(
-    (value: boolean) => mutation.mutate({ auto_scale_open_food_facts_imports: value }),
+    (value: boolean) =>
+      mutation.mutate({ auto_scale_open_food_facts_imports: value }),
     [mutation],
   );
 
   const handleBarcodeFallbackToggle = useCallback(
-    (value: boolean) => mutation.mutate({ barcode_fallback_open_food_facts: value }),
+    (value: boolean) =>
+      mutation.mutate({ barcode_fallback_open_food_facts: value }),
     [mutation],
   );
 
@@ -100,7 +110,11 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingTop: 16, paddingBottom: insets.bottom + 80 + activeWorkoutBarPadding }}
+        contentContainerStyle={{
+          padding: 16,
+          paddingTop: 16,
+          paddingBottom: insets.bottom + 80 + activeWorkoutBarPadding,
+        }}
         contentInsetAdjustmentBehavior="never"
       >
         {/* Header */}
@@ -113,7 +127,9 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
           >
             <Icon name="chevron-back" size={22} color={accentPrimary} />
           </Button>
-          <Text className="text-2xl font-bold text-text-primary">Food Settings</Text>
+          <Text className="text-2xl font-bold text-text-primary">
+            Food Settings
+          </Text>
         </View>
 
         {/* Show Net Carbs */}
@@ -130,14 +146,17 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
             />
           </View>
           <Text className="text-text-secondary text-sm mt-4">
-            When enabled, carbohydrate summaries display net carbs (total carbs − fiber), and a Total Carbs row is added in nutrient breakdowns.
+            When enabled, carbohydrate summaries display net carbs (total carbs
+            − fiber), and a Total Carbs row is added in nutrient breakdowns.
           </Text>
         </View>
 
         {/* Default Online Search Provider */}
         <View className="bg-surface rounded-xl p-3 mb-4 shadow-sm">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-text-primary">Default Food Source</Text>
+            <Text className="text-base font-semibold text-text-primary">
+              Default Food Source
+            </Text>
             <BottomSheetPicker
               value={foodDataProviderId}
               options={providerOptions}
@@ -166,13 +185,16 @@ const FoodSettingsScreen: React.FC<FoodSettingsScreenProps> = ({ navigation }) =
             />
           </View>
           <Text className="text-text-secondary text-sm mt-4">
-            Open Food Facts uses values per 100g. This converts them to the product’s serving size.
+            Open Food Facts uses values per 100g. This converts them to the
+            product’s serving size.
           </Text>
         </View>
 
         {/* Barcode Scanning */}
         <View className="bg-surface rounded-xl p-3 mb-4 shadow-sm">
-          <Text className="text-base font-semibold text-text-primary mb-3">Barcode Scanning</Text>
+          <Text className="text-base font-semibold text-text-primary mb-3">
+            Barcode Scanning
+          </Text>
 
           <View className="flex-row items-center justify-between">
             <Text className="text-sm text-text-primary">Provider</Text>

@@ -3,38 +3,59 @@ import {
   disableBackgroundDelivery,
   disableAllBackgroundDelivery,
   subscribeToChanges,
-  UpdateFrequency
+  UpdateFrequency,
 } from '@kingstinct/react-native-healthkit';
-import type { ObjectTypeIdentifier, SampleTypeIdentifier } from '@kingstinct/react-native-healthkit';
+import type {
+  ObjectTypeIdentifier,
+  SampleTypeIdentifier,
+} from '@kingstinct/react-native-healthkit';
 import { addLog } from '../LogService';
 import { HEALTHKIT_TYPE_MAP } from './index';
 import { HEALTH_METRICS } from '../../HealthMetrics';
-import type { BackgroundDeliveryFrequency, HealthMetric } from '../../HealthMetrics';
+import type {
+  BackgroundDeliveryFrequency,
+  HealthMetric,
+} from '../../HealthMetrics';
 import { loadHealthPreference } from './preferences';
 
-function getBackgroundDeliveryFrequency(recordType: string): BackgroundDeliveryFrequency {
+function getBackgroundDeliveryFrequency(
+  recordType: string,
+): BackgroundDeliveryFrequency {
   const metric = HEALTH_METRICS.find(m => m.recordType === recordType);
   return metric?.backgroundDeliveryFrequency ?? 'daily';
 }
 
-type NativeUpdateFrequency = typeof UpdateFrequency[keyof typeof UpdateFrequency];
+type NativeUpdateFrequency =
+  (typeof UpdateFrequency)[keyof typeof UpdateFrequency];
 
-function toUpdateFrequency(frequency: BackgroundDeliveryFrequency): NativeUpdateFrequency | null {
+function toUpdateFrequency(
+  frequency: BackgroundDeliveryFrequency,
+): NativeUpdateFrequency | null {
   if (frequency === 'none') return null;
   // UpdateFrequency.hourly (2) < UpdateFrequency.daily (3) — lower = more aggressive
-  return frequency === 'hourly' ? UpdateFrequency.hourly : UpdateFrequency.daily;
+  return frequency === 'hourly'
+    ? UpdateFrequency.hourly
+    : UpdateFrequency.daily;
 }
 
 async function getEnabledIdentifierFrequencies(options?: {
   forceEnabledRecordTypes?: string[];
   forceDisabledRecordTypes?: string[];
 }): Promise<Map<string, NativeUpdateFrequency>> {
-  const forceEnabledRecordTypes = new Set(options?.forceEnabledRecordTypes ?? []);
-  const forceDisabledRecordTypes = new Set(options?.forceDisabledRecordTypes ?? []);
+  const forceEnabledRecordTypes = new Set(
+    options?.forceEnabledRecordTypes ?? [],
+  );
+  const forceDisabledRecordTypes = new Set(
+    options?.forceDisabledRecordTypes ?? [],
+  );
   const identifierFrequencies = new Map<string, NativeUpdateFrequency>();
 
   for (const metric of HEALTH_METRICS) {
-    const enabled = await isMetricEnabled(metric, forceEnabledRecordTypes, forceDisabledRecordTypes);
+    const enabled = await isMetricEnabled(
+      metric,
+      forceEnabledRecordTypes,
+      forceDisabledRecordTypes,
+    );
     if (!enabled) continue;
 
     const frequency = metric.backgroundDeliveryFrequency ?? 'daily';
@@ -101,10 +122,15 @@ function resolveHKIdentifiers(recordType: string): string[] {
   return [identifier];
 }
 
-export async function enableBackgroundDeliveryForMetric(recordType: string): Promise<void> {
+export async function enableBackgroundDeliveryForMetric(
+  recordType: string,
+): Promise<void> {
   const frequency = getBackgroundDeliveryFrequency(recordType);
   if (toUpdateFrequency(frequency) === null) {
-    addLog(`[BackgroundDelivery] Skipping background delivery for ${recordType} (foreground-only)`, 'DEBUG');
+    addLog(
+      `[BackgroundDelivery] Skipping background delivery for ${recordType} (foreground-only)`,
+      'DEBUG',
+    );
   }
 
   const desiredFrequencies = await getEnabledIdentifierFrequencies({
@@ -118,15 +144,23 @@ export async function enableBackgroundDeliveryForMetric(recordType: string): Pro
     }
 
     try {
-      await enableBackgroundDelivery(id as ObjectTypeIdentifier, desiredFrequency);
+      await enableBackgroundDelivery(
+        id as ObjectTypeIdentifier,
+        desiredFrequency,
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[BackgroundDelivery] Failed to enable for ${id}: ${message}`, 'ERROR');
+      addLog(
+        `[BackgroundDelivery] Failed to enable for ${id}: ${message}`,
+        'ERROR',
+      );
     }
   }
 }
 
-export async function disableBackgroundDeliveryForMetric(recordType: string): Promise<void> {
+export async function disableBackgroundDeliveryForMetric(
+  recordType: string,
+): Promise<void> {
   const identifiers = resolveHKIdentifiers(recordType);
   const desiredFrequencies = await getEnabledIdentifierFrequencies({
     forceDisabledRecordTypes: [recordType],
@@ -135,12 +169,21 @@ export async function disableBackgroundDeliveryForMetric(recordType: string): Pr
   for (const id of identifiers) {
     const desiredFrequency = desiredFrequencies.get(id);
     if (desiredFrequency !== undefined) {
-      addLog(`[BackgroundDelivery] Keeping delivery for ${id}: still needed by another enabled metric`, 'DEBUG');
+      addLog(
+        `[BackgroundDelivery] Keeping delivery for ${id}: still needed by another enabled metric`,
+        'DEBUG',
+      );
       try {
-        await enableBackgroundDelivery(id as ObjectTypeIdentifier, desiredFrequency);
+        await enableBackgroundDelivery(
+          id as ObjectTypeIdentifier,
+          desiredFrequency,
+        );
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        addLog(`[BackgroundDelivery] Failed to update frequency for ${id}: ${message}`, 'ERROR');
+        addLog(
+          `[BackgroundDelivery] Failed to update frequency for ${id}: ${message}`,
+          'ERROR',
+        );
       }
       continue;
     }
@@ -148,32 +191,49 @@ export async function disableBackgroundDeliveryForMetric(recordType: string): Pr
       await disableBackgroundDelivery(id as ObjectTypeIdentifier);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[BackgroundDelivery] Failed to disable for ${id}: ${message}`, 'ERROR');
+      addLog(
+        `[BackgroundDelivery] Failed to disable for ${id}: ${message}`,
+        'ERROR',
+      );
     }
   }
 }
 
-export async function setupBackgroundDeliveryForEnabledMetrics(generation?: number): Promise<void> {
+export async function setupBackgroundDeliveryForEnabledMetrics(
+  generation?: number,
+): Promise<void> {
   const gen = generation ?? deliveryGeneration;
   const identifierFrequencies = await getEnabledIdentifierFrequencies();
 
   if (gen !== deliveryGeneration) {
-    addLog(`[BackgroundDelivery] Discarding stale delivery setup (generation ${gen}, current ${deliveryGeneration})`, 'DEBUG');
+    addLog(
+      `[BackgroundDelivery] Discarding stale delivery setup (generation ${gen}, current ${deliveryGeneration})`,
+      'DEBUG',
+    );
     return;
   }
 
-  addLog(`[BackgroundDelivery] Registering background delivery for ${identifierFrequencies.size} HK types`, 'DEBUG');
+  addLog(
+    `[BackgroundDelivery] Registering background delivery for ${identifierFrequencies.size} HK types`,
+    'DEBUG',
+  );
 
   for (const [id, freq] of identifierFrequencies) {
     if (gen !== deliveryGeneration) {
-      addLog(`[BackgroundDelivery] Aborting delivery registration mid-loop (generation ${gen}, current ${deliveryGeneration})`, 'DEBUG');
+      addLog(
+        `[BackgroundDelivery] Aborting delivery registration mid-loop (generation ${gen}, current ${deliveryGeneration})`,
+        'DEBUG',
+      );
       return;
     }
     try {
       await enableBackgroundDelivery(id as ObjectTypeIdentifier, freq);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[BackgroundDelivery] Failed to enable for ${id}: ${message}`, 'ERROR');
+      addLog(
+        `[BackgroundDelivery] Failed to enable for ${id}: ${message}`,
+        'ERROR',
+      );
     }
   }
 }
@@ -197,7 +257,7 @@ function rebuildSubscriptions(): void {
 
   for (const metric of HEALTH_METRICS) {
     enabledChecks.push(
-      loadHealthPreference<boolean>(metric.preferenceKey).then((enabled) => {
+      loadHealthPreference<boolean>(metric.preferenceKey).then(enabled => {
         if (!enabled) return;
         for (const id of resolveHKIdentifiers(metric.recordType)) {
           identifiersToSubscribe.add(id);
@@ -219,11 +279,17 @@ function rebuildSubscriptions(): void {
       // A newer rebuild was started while we were loading preferences —
       // discard these results to avoid registering orphaned observers.
       if (generation !== rebuildGeneration) {
-        addLog(`[BackgroundDelivery] Discarding stale rebuild (generation ${generation}, current ${rebuildGeneration})`, 'DEBUG');
+        addLog(
+          `[BackgroundDelivery] Discarding stale rebuild (generation ${generation}, current ${rebuildGeneration})`,
+          'DEBUG',
+        );
         return;
       }
 
-      addLog(`[BackgroundDelivery] Subscribing to changes for ${identifiersToSubscribe.size} HK types`, 'DEBUG');
+      addLog(
+        `[BackgroundDelivery] Subscribing to changes for ${identifiersToSubscribe.size} HK types`,
+        'DEBUG',
+      );
       for (const id of identifiersToSubscribe) {
         try {
           const sub = subscribeToChanges(id as SampleTypeIdentifier, () => {
@@ -232,14 +298,21 @@ function rebuildSubscriptions(): void {
           });
           subscriptions.set(id, sub);
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          addLog(`[BackgroundDelivery] Failed to subscribe to ${id}: ${message}`, 'ERROR');
+          const message =
+            error instanceof Error ? error.message : String(error);
+          addLog(
+            `[BackgroundDelivery] Failed to subscribe to ${id}: ${message}`,
+            'ERROR',
+          );
         }
       }
     })
-    .catch((error) => {
+    .catch(error => {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[BackgroundDelivery] Failed to set up subscriptions: ${message}`, 'ERROR');
+      addLog(
+        `[BackgroundDelivery] Failed to set up subscriptions: ${message}`,
+        'ERROR',
+      );
     });
 }
 
@@ -284,7 +357,10 @@ export function startObservers(onDataAvailable: () => void): void {
   const generation = ++deliveryGeneration;
   setupBackgroundDeliveryForEnabledMetrics(generation).catch(error => {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[BackgroundDelivery] Failed to setup background delivery: ${message}`, 'ERROR');
+    addLog(
+      `[BackgroundDelivery] Failed to setup background delivery: ${message}`,
+      'ERROR',
+    );
   });
 
   // subscribeToEnabledMetricChanges cleans up any existing subscriptions
@@ -303,7 +379,10 @@ export function stopObservers(): void {
 
   disableAllBackgroundDelivery().catch(error => {
     const message = error instanceof Error ? error.message : String(error);
-    addLog(`[BackgroundDelivery] Failed to disable all background delivery: ${message}`, 'ERROR');
+    addLog(
+      `[BackgroundDelivery] Failed to disable all background delivery: ${message}`,
+      'ERROR',
+    );
   });
 }
 
@@ -313,7 +392,10 @@ export function cleanupAllSubscriptions(): void {
       sub.remove();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      addLog(`[BackgroundDelivery] Failed to remove subscription for ${id}: ${message}`, 'ERROR');
+      addLog(
+        `[BackgroundDelivery] Failed to remove subscription for ${id}: ${message}`,
+        'ERROR',
+      );
     }
   }
   subscriptions.clear();

@@ -1,5 +1,8 @@
 import { apiFetch } from './apiClient';
-import type { WorkoutPresetsResponse, WorkoutPreset } from '../../types/workoutPresets';
+import type {
+  WorkoutPresetsResponse,
+  WorkoutPreset,
+} from '../../types/workoutPresets';
 
 export interface WorkoutPresetSetPayload {
   set_number: number;
@@ -33,13 +36,14 @@ export interface WorkoutPresetUpdatePayload {
   exercises?: WorkoutPresetExercisePayload[];
 }
 
-export const fetchWorkoutPresets = async (): Promise<WorkoutPresetsResponse> => {
-  return apiFetch<WorkoutPresetsResponse>({
-    endpoint: '/api/workout-presets?limit=50',
-    serviceName: 'Workout Presets API',
-    operation: 'fetch workout presets',
-  });
-};
+export const fetchWorkoutPresets =
+  async (): Promise<WorkoutPresetsResponse> => {
+    return apiFetch<WorkoutPresetsResponse>({
+      endpoint: '/api/workout-presets?limit=50',
+      serviceName: 'Workout Presets API',
+      operation: 'fetch workout presets',
+    });
+  };
 
 export interface FetchWorkoutPresetsPageOptions {
   page?: number;
@@ -120,7 +124,9 @@ export const updateWorkoutPreset = async (
   });
 };
 
-export const deleteWorkoutPreset = async (id: string): Promise<{ message: string }> => {
+export const deleteWorkoutPreset = async (
+  id: string,
+): Promise<{ message: string }> => {
   return apiFetch<{ message: string }>({
     endpoint: `/api/workout-presets/${id}`,
     method: 'DELETE',

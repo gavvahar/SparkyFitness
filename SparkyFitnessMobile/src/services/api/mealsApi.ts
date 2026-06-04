@@ -1,5 +1,10 @@
 import { apiFetch } from './apiClient';
-import { CreateMealPayload, Meal, MealDeletionImpact, UpdateMealPayload } from '../../types/meals';
+import {
+  CreateMealPayload,
+  Meal,
+  MealDeletionImpact,
+  UpdateMealPayload,
+} from '../../types/meals';
 
 /**
  * Fetches all meals for the current user.
@@ -63,7 +68,10 @@ export const createMeal = async (payload: CreateMealPayload): Promise<Meal> => {
 /**
  * Updates a meal template and refetches the expanded meal detail.
  */
-export const updateMeal = async (id: string, payload: UpdateMealPayload): Promise<Meal> => {
+export const updateMeal = async (
+  id: string,
+  payload: UpdateMealPayload,
+): Promise<Meal> => {
   await apiFetch<Meal>({
     endpoint: `/api/meals/${id}`,
     serviceName: 'Meals API',
@@ -90,7 +98,9 @@ export const deleteMeal = async (id: string): Promise<void> => {
 /**
  * Fetches the server's deletion impact summary for a meal.
  */
-export const fetchMealDeletionImpact = async (id: string): Promise<MealDeletionImpact> => {
+export const fetchMealDeletionImpact = async (
+  id: string,
+): Promise<MealDeletionImpact> => {
   return apiFetch<MealDeletionImpact>({
     endpoint: `/api/meals/${id}/deletion-impact`,
     serviceName: 'Meals API',

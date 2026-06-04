@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {
@@ -49,16 +53,25 @@ export function useCreateWorkoutPreset() {
 export function useUpdateWorkoutPreset() {
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: WorkoutPresetUpdatePayload }) =>
-      updateWorkoutPreset(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: WorkoutPresetUpdatePayload;
+    }) => updateWorkoutPreset(id, payload),
     onSuccess: () => {
       invalidateWorkoutPresetCaches(queryClient);
     },
-    onError: (error) => {
+    onError: error => {
       const message = isAuthzError(error)
         ? "You don't have permission to edit this preset."
         : 'Please try again.';
-      Toast.show({ type: 'error', text1: 'Failed to update preset', text2: message });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to update preset',
+        text2: message,
+      });
     },
   });
 
@@ -76,7 +89,10 @@ interface UseDeleteWorkoutPresetOptions {
   onSuccess?: () => void;
 }
 
-export function useDeleteWorkoutPreset({ presetId, onSuccess }: UseDeleteWorkoutPresetOptions) {
+export function useDeleteWorkoutPreset({
+  presetId,
+  onSuccess,
+}: UseDeleteWorkoutPresetOptions) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: () => deleteWorkoutPreset(presetId),
@@ -84,11 +100,15 @@ export function useDeleteWorkoutPreset({ presetId, onSuccess }: UseDeleteWorkout
       invalidateWorkoutPresetCaches(queryClient);
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: error => {
       const message = isAuthzError(error)
         ? "You don't have permission to delete this preset."
         : 'Please try again.';
-      Toast.show({ type: 'error', text1: 'Failed to delete preset', text2: message });
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to delete preset',
+        text2: message,
+      });
     },
   });
 
@@ -98,7 +118,11 @@ export function useDeleteWorkoutPreset({ presetId, onSuccess }: UseDeleteWorkout
       'This preset will be permanently removed from your library.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => mutation.mutate() },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => mutation.mutate(),
+        },
       ],
     );
   };

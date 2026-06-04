@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import { Platform } from 'react-native';
 import {
   BottomSheetModal,
@@ -15,7 +20,9 @@ import { toLocalDateString } from '../utils/dateUtils';
 // presentation. No-op on Android.
 const sheetContainer =
   Platform.OS === 'ios'
-    ? ({ children }: React.PropsWithChildren) => <FullWindowOverlay>{children}</FullWindowOverlay>
+    ? ({ children }: React.PropsWithChildren) => (
+        <FullWindowOverlay>{children}</FullWindowOverlay>
+      )
     : undefined;
 
 export interface CalendarSheetRef {
@@ -34,19 +41,14 @@ const CalendarSheet = React.forwardRef<CalendarSheetRef, CalendarSheetProps>(
     const { theme } = useUniwind();
     const isDarkMode = theme === 'dark' || theme === 'amoled';
 
-    const [
-      surfaceBg,
-      textMuted,
-      accentPrimary,
-      textPrimary,
-      textSecondary,
-    ] = useCSSVariable([
-      '--color-surface',
-      '--color-text-muted',
-      '--color-accent-primary',
-      '--color-text-primary',
-      '--color-text-secondary',
-    ]) as [string, string, string, string, string];
+    const [surfaceBg, textMuted, accentPrimary, textPrimary, textSecondary] =
+      useCSSVariable([
+        '--color-surface',
+        '--color-text-muted',
+        '--color-accent-primary',
+        '--color-text-primary',
+        '--color-text-secondary',
+      ]) as [string, string, string, string, string];
 
     useImperativeHandle(ref, () => ({
       present: () => bottomSheetRef.current?.present(),
@@ -69,7 +71,7 @@ const CalendarSheet = React.forwardRef<CalendarSheetRef, CalendarSheetProps>(
           appearsOnIndex={0}
         />
       ),
-      [isDarkMode]
+      [isDarkMode],
     );
 
     // Parse YYYY-MM-DD without timezone shifting
@@ -79,11 +81,13 @@ const CalendarSheet = React.forwardRef<CalendarSheetRef, CalendarSheetProps>(
     const handleChange = useCallback(
       ({ date }: { date: DateType }) => {
         if (!date) return;
-        const dateStr = toLocalDateString(new Date(date as string | number | Date));
+        const dateStr = toLocalDateString(
+          new Date(date as string | number | Date),
+        );
         onSelectDate(dateStr);
         bottomSheetRef.current?.dismiss();
       },
-      [onSelectDate]
+      [onSelectDate],
     );
 
     return (
@@ -122,7 +126,7 @@ const CalendarSheet = React.forwardRef<CalendarSheetRef, CalendarSheetProps>(
         </BottomSheetView>
       </BottomSheetModal>
     );
-  }
+  },
 );
 
 CalendarSheet.displayName = 'CalendarSheet';

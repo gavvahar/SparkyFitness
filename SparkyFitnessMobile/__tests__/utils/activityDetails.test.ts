@@ -1,7 +1,9 @@
 import type { ActivityDetailResponse } from '@workspace/shared';
 import { extractActivitySummary } from '../../src/utils/activityDetails';
 
-function activityDetail(overrides: Partial<ActivityDetailResponse> = {}): ActivityDetailResponse {
+function activityDetail(
+  overrides: Partial<ActivityDetailResponse> = {},
+): ActivityDetailResponse {
   return {
     id: 'detail-1',
     exercise_entry_id: 'entry-1',
@@ -23,9 +25,7 @@ describe('extractActivitySummary', () => {
             totalElevationGainInMeters: 81,
             averageRunCadenceInStepsPerMinute: 164,
           },
-          hr_in_timezones: [
-            { zoneNumber: 3, secsInZone: 125 },
-          ],
+          hr_in_timezones: [{ zoneNumber: 3, secsInZone: 125 }],
         },
       }),
     ]);
@@ -48,9 +48,7 @@ describe('extractActivitySummary', () => {
       }),
     ]);
 
-    expect(items).toEqual([
-      { label: 'effort_note', value: 'steady effort' },
-    ]);
+    expect(items).toEqual([{ label: 'effort_note', value: 'steady effort' }]);
   });
 
   test('renders JSON-parsed primitive detail values', () => {
@@ -62,9 +60,7 @@ describe('extractActivitySummary', () => {
       }),
     ]);
 
-    expect(items).toEqual([
-      { label: 'effort_score', value: '7' },
-    ]);
+    expect(items).toEqual([{ label: 'effort_score', value: '7' }]);
   });
 
   test('skips raw-data blobs', () => {

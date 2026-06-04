@@ -48,7 +48,8 @@ export function mapEstimateError(
     case 'API_KEY_MISSING':
       return {
         title: 'AI not configured',
-        message: 'Configure an AI provider in the web app to use photo estimates.',
+        message:
+          'Configure an AI provider in the web app to use photo estimates.',
         stayOnForm: false,
         invalidateAiSettings: true,
       };
@@ -76,7 +77,8 @@ export function mapEstimateError(
     case 'TIMEOUT':
       return {
         title: 'AI provider timed out',
-        message: 'The estimate took too long. Try again, or log this food manually.',
+        message:
+          'The estimate took too long. Try again, or log this food manually.',
         stayOnForm: true,
         invalidateAiSettings: false,
       };

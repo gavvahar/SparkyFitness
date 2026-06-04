@@ -51,12 +51,8 @@
           }
         }
       ],
-      [
-        "expo-notifications"
-      ],
-      [
-        "@bacons/apple-targets"
-      ]
+      ["expo-notifications"],
+      ["@bacons/apple-targets"]
     ],
     "experiments": {
       "reactCompiler": true,

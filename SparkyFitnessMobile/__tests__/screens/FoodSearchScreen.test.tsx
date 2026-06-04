@@ -50,16 +50,31 @@ jest.mock('../../src/components/Icon', () => {
   };
 });
 
-const mockFetchExternalFoodDetails = fetchExternalFoodDetails as jest.MockedFunction<typeof fetchExternalFoodDetails>;
+const mockFetchExternalFoodDetails =
+  fetchExternalFoodDetails as jest.MockedFunction<
+    typeof fetchExternalFoodDetails
+  >;
 const mockToastShow = Toast.show as jest.MockedFunction<typeof Toast.show>;
-const mockUseExternalFoodSearch = useExternalFoodSearch as jest.MockedFunction<typeof useExternalFoodSearch>;
-const mockUseExternalProviders = useExternalProviders as jest.MockedFunction<typeof useExternalProviders>;
-const mockUseFoodSearch = useFoodSearch as jest.MockedFunction<typeof useFoodSearch>;
+const mockUseExternalFoodSearch = useExternalFoodSearch as jest.MockedFunction<
+  typeof useExternalFoodSearch
+>;
+const mockUseExternalProviders = useExternalProviders as jest.MockedFunction<
+  typeof useExternalProviders
+>;
+const mockUseFoodSearch = useFoodSearch as jest.MockedFunction<
+  typeof useFoodSearch
+>;
 const mockUseFoods = useFoods as jest.MockedFunction<typeof useFoods>;
-const mockUseMealSearch = useMealSearch as jest.MockedFunction<typeof useMealSearch>;
+const mockUseMealSearch = useMealSearch as jest.MockedFunction<
+  typeof useMealSearch
+>;
 const mockUseMeals = useMeals as jest.MockedFunction<typeof useMeals>;
-const mockUsePreferences = usePreferences as jest.MockedFunction<typeof usePreferences>;
-const mockUseServerConnection = useServerConnection as jest.MockedFunction<typeof useServerConnection>;
+const mockUsePreferences = usePreferences as jest.MockedFunction<
+  typeof usePreferences
+>;
+const mockUseServerConnection = useServerConnection as jest.MockedFunction<
+  typeof useServerConnection
+>;
 
 const insets = { top: 0, bottom: 0, left: 0, right: 0 };
 const frame = { x: 0, y: 0, width: 390, height: 844 };
@@ -238,7 +253,9 @@ describe('FoodSearchScreen', () => {
 
     const openOnlineTab = () => {
       mockUseExternalProviders.mockReturnValue({
-        providers: [{ id: 'p1', provider_type: 'fatsecret', provider_name: 'FatSecret' }],
+        providers: [
+          { id: 'p1', provider_type: 'fatsecret', provider_name: 'FatSecret' },
+        ],
         isLoading: false,
         isError: false,
         refetch: jest.fn(),
@@ -258,7 +275,8 @@ describe('FoodSearchScreen', () => {
         isSearching: false,
         isSearchActive: true,
         isSearchError: true,
-        searchErrorMessage: 'FatSecret API error (code 21): Invalid IP address detected',
+        searchErrorMessage:
+          'FatSecret API error (code 21): Invalid IP address detected',
         isProviderSupported: true,
         fetchNextPage: jest.fn(),
         hasNextPage: false,
@@ -269,7 +287,9 @@ describe('FoodSearchScreen', () => {
       const screen = openOnlineTab();
 
       expect(
-        screen.getByText('FatSecret API error (code 21): Invalid IP address detected'),
+        screen.getByText(
+          'FatSecret API error (code 21): Invalid IP address detected',
+        ),
       ).toBeTruthy();
       expect(screen.queryByText('Failed to search FatSecret')).toBeNull();
     });
@@ -307,7 +327,11 @@ describe('FoodSearchScreen', () => {
         isFetchNextPageError: false,
       } as any);
       mockFetchExternalFoodDetails.mockRejectedValue(
-        new ApiError('Bad Gateway', 502, JSON.stringify({ error: 'FatSecret down' })),
+        new ApiError(
+          'Bad Gateway',
+          502,
+          JSON.stringify({ error: 'FatSecret down' }),
+        ),
       );
 
       const screen = openOnlineTab();

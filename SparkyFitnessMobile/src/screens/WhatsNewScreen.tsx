@@ -40,7 +40,17 @@ const WidgetMockup: React.FC = () => {
     '--color-exercise',
     '--color-cat-pink',
     '--color-cat-orange',
-  ]) as [string, string, string, string, string, string, string, string, string];
+  ]) as [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
 
   const iconPositions: {
     top?: number;
@@ -90,18 +100,25 @@ const WidgetMockup: React.FC = () => {
         <Text className="text-[10px] font-semibold tracking-wider text-text-secondary mb-0.5">
           TODAY
         </Text>
-        <Text className="text-2xl font-bold text-text-primary" style={{ color: calorieColor }}>
+        <Text
+          className="text-2xl font-bold text-text-primary"
+          style={{ color: calorieColor }}
+        >
           1,515
         </Text>
         <Text className="text-[11px] text-text-secondary mb-2">kcal left</Text>
         <View className="flex-row">
           <View className="flex-1">
             <Text className="text-[9px] text-text-secondary">In</Text>
-            <Text className="text-[11px] font-medium text-text-primary">1,540</Text>
+            <Text className="text-[11px] font-medium text-text-primary">
+              1,540
+            </Text>
           </View>
           <View className="flex-1">
             <Text className="text-[9px] text-text-secondary">Out</Text>
-            <Text className="text-[11px] font-medium text-text-primary">255</Text>
+            <Text className="text-[11px] font-medium text-text-primary">
+              255
+            </Text>
           </View>
         </View>
       </View>
@@ -110,13 +127,14 @@ const WidgetMockup: React.FC = () => {
 };
 
 const PhotoMockup: React.FC = () => {
-  const [catOrange, macroProtein, macroCarbs, macroFat, textPrimary] = useCSSVariable([
-    '--color-cat-orange',
-    '--color-macro-protein',
-    '--color-macro-carbs',
-    '--color-macro-fat',
-    '--color-text-primary',
-  ]) as [string, string, string, string, string];
+  const [catOrange, macroProtein, macroCarbs, macroFat, textPrimary] =
+    useCSSVariable([
+      '--color-cat-orange',
+      '--color-macro-protein',
+      '--color-macro-carbs',
+      '--color-macro-fat',
+      '--color-text-primary',
+    ]) as [string, string, string, string, string];
 
   return (
     <View
@@ -203,7 +221,9 @@ const PhotoMockup: React.FC = () => {
             marginRight: 6,
           }}
         />
-        <Text className="text-xs font-semibold text-text-primary">~412 kcal</Text>
+        <Text className="text-xs font-semibold text-text-primary">
+          ~412 kcal
+        </Text>
       </View>
     </View>
   );
@@ -256,10 +276,12 @@ const WhatsNewScreen: React.FC<WhatsNewScreenProps> = ({ navigation }) => {
           >
             <Icon name="chevron-back" size={22} color={accentPrimary} />
           </Button>
-          <Text className="text-2xl font-bold text-text-primary">What&apos;s New</Text>
+          <Text className="text-2xl font-bold text-text-primary">
+            What&apos;s New
+          </Text>
         </View>
 
-        {features.map((feature) => (
+        {features.map(feature => (
           <View
             key={feature.headline}
             className="bg-surface rounded-xl mb-4 shadow-sm overflow-hidden"
@@ -278,7 +300,11 @@ const WhatsNewScreen: React.FC<WhatsNewScreenProps> = ({ navigation }) => {
               </Text>
 
               {feature.cta ? (
-                <Button variant="primary" onPress={feature.cta.onPress} className="self-start">
+                <Button
+                  variant="primary"
+                  onPress={feature.cta.onPress}
+                  className="self-start"
+                >
                   {feature.cta.label}
                 </Button>
               ) : null}

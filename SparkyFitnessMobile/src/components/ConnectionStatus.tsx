@@ -21,13 +21,14 @@ const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
   variant = 'inline',
   onRefresh,
 }) => {
-  const [success, successBackground, danger, warning, warningText] = useCSSVariable([
-    '--color-text-success',
-    '--color-bg-success',
-    '--color-bg-danger',
-    '--color-bg-warning',
-    '--color-bg-warning',
-  ]) as [string, string, string, string, string];
+  const [success, successBackground, danger, warning, warningText] =
+    useCSSVariable([
+      '--color-text-success',
+      '--color-bg-success',
+      '--color-bg-danger',
+      '--color-bg-warning',
+      '--color-bg-warning',
+    ]) as [string, string, string, string, string];
 
   const getConnectionState = (): ConnectionState => {
     if (!hasConfig) return 'unconfigured';
@@ -133,7 +134,10 @@ const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
         className="w-2.5 h-2.5 rounded-full"
         style={{ backgroundColor: getStatusColor() }}
       />
-      <Text className="ml-2 font-semibold text-sm" style={{ color: getTextColor() }}>
+      <Text
+        className="ml-2 font-semibold text-sm"
+        style={{ color: getTextColor() }}
+      >
         {getStatusText()}
       </Text>
     </>

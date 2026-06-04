@@ -9,13 +9,20 @@ import {
   calculateFat,
   calculateFiber,
 } from '../../src/services/api/foodEntriesApi';
-import type { CreateFoodEntryPayload, UpdateFoodEntryPayload } from '../../src/services/api/foodEntriesApi';
-import { getActiveServerConfig, ServerConfig } from '../../src/services/storage';
+import type {
+  CreateFoodEntryPayload,
+  UpdateFoodEntryPayload,
+} from '../../src/services/api/foodEntriesApi';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../src/services/storage';
 import type { FoodEntry } from '../../src/types/foodEntries';
 
 jest.mock('../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../src/services/LogService', () => ({
@@ -53,7 +60,7 @@ describe('foodEntriesApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(fetchFoodEntries(testDate)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
 
@@ -75,7 +82,7 @@ describe('foodEntriesApi', () => {
 
             'X-Meal-Model-Version': '2',
           },
-        })
+        }),
       );
     });
 
@@ -93,12 +100,14 @@ describe('foodEntriesApi', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/food-entries/by-date/2024-06-15',
-        expect.anything()
+        expect.anything(),
       );
     });
 
     test('returns parsed JSON response on success', async () => {
-      const responseData = [{ id: '1', calories: 500, quantity: 1, serving_size: 1 }];
+      const responseData = [
+        { id: '1', calories: 500, quantity: 1, serving_size: 1 },
+      ];
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -119,7 +128,7 @@ describe('foodEntriesApi', () => {
       });
 
       await expect(fetchFoodEntries(testDate)).rejects.toThrow(
-        'Server error: 404 - Not Found'
+        'Server error: 404 - Not Found',
       );
     });
   });
@@ -160,7 +169,7 @@ describe('foodEntriesApi', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(linkedPayload),
-        })
+        }),
       );
     });
 
@@ -186,7 +195,7 @@ describe('foodEntriesApi', () => {
       });
 
       await expect(createFoodEntry(linkedPayload)).rejects.toThrow(
-        'Server error: 400 - Bad Request'
+        'Server error: 400 - Bad Request',
       );
     });
 
@@ -194,7 +203,7 @@ describe('foodEntriesApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(createFoodEntry(linkedPayload)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });
@@ -206,30 +215,102 @@ describe('foodEntriesApi', () => {
 
     test('calculates calories with formula: (calories * quantity) / serving_size', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 20, fat: 5, dietary_fiber: 2, quantity: 2, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 2,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateCaloriesConsumed(entries)).toBe(400); // (200 * 2) / 1
     });
 
     test('handles fractional serving sizes', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 100, protein: 10, carbs: 20, fat: 5, dietary_fiber: 2, quantity: 1, serving_size: 2, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 100,
+          protein: 10,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 1,
+          serving_size: 2,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateCaloriesConsumed(entries)).toBe(50); // (100 * 1) / 2
     });
 
     test('sums multiple entries', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 20, fat: 5, dietary_fiber: 2, quantity: 1, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
-        { id: '2', calories: 300, protein: 15, carbs: 30, fat: 10, dietary_fiber: 3, quantity: 2, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 1,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
+        {
+          id: '2',
+          calories: 300,
+          protein: 15,
+          carbs: 30,
+          fat: 10,
+          dietary_fiber: 3,
+          quantity: 2,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateCaloriesConsumed(entries)).toBe(800); // 200 + 600
     });
 
     test('skips entries with serving_size of 0', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 20, fat: 5, dietary_fiber: 2, quantity: 1, serving_size: 0, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
-        { id: '2', calories: 100, protein: 5, carbs: 10, fat: 2, dietary_fiber: 1, quantity: 1, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 1,
+          serving_size: 0,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
+        {
+          id: '2',
+          calories: 100,
+          protein: 5,
+          carbs: 10,
+          fat: 2,
+          dietary_fiber: 1,
+          quantity: 1,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateCaloriesConsumed(entries)).toBe(100);
     });
@@ -242,15 +323,51 @@ describe('foodEntriesApi', () => {
 
     test('calculates protein with formula: (protein * quantity) / serving_size', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 25, carbs: 20, fat: 5, dietary_fiber: 2, quantity: 2, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 25,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 2,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateProtein(entries)).toBe(50); // (25 * 2) / 1
     });
 
     test('skips entries with serving_size of 0', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 25, carbs: 20, fat: 5, dietary_fiber: 2, quantity: 1, serving_size: 0, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
-        { id: '2', calories: 100, protein: 10, carbs: 10, fat: 2, dietary_fiber: 1, quantity: 1, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 25,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 1,
+          serving_size: 0,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
+        {
+          id: '2',
+          calories: 100,
+          protein: 10,
+          carbs: 10,
+          fat: 2,
+          dietary_fiber: 1,
+          quantity: 1,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateProtein(entries)).toBe(10);
     });
@@ -263,7 +380,19 @@ describe('foodEntriesApi', () => {
 
     test('calculates carbs with formula: (carbs * quantity) / serving_size', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 30, fat: 5, dietary_fiber: 2, quantity: 2, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 30,
+          fat: 5,
+          dietary_fiber: 2,
+          quantity: 2,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateCarbs(entries)).toBe(60); // (30 * 2) / 1
     });
@@ -276,7 +405,19 @@ describe('foodEntriesApi', () => {
 
     test('calculates fat with formula: (fat * quantity) / serving_size', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 20, fat: 15, dietary_fiber: 2, quantity: 2, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 20,
+          fat: 15,
+          dietary_fiber: 2,
+          quantity: 2,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateFat(entries)).toBe(30); // (15 * 2) / 1
     });
@@ -289,15 +430,51 @@ describe('foodEntriesApi', () => {
 
     test('calculates fiber with formula: (dietary_fiber * quantity) / serving_size', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 20, fat: 5, dietary_fiber: 8, quantity: 2, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: 8,
+          quantity: 2,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateFiber(entries)).toBe(16); // (8 * 2) / 1
     });
 
     test('skips entry when dietary_fiber is undefined', () => {
       const entries: FoodEntry[] = [
-        { id: '1', calories: 200, protein: 10, carbs: 20, fat: 5, dietary_fiber: undefined as any, quantity: 1, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
-        { id: '2', calories: 100, protein: 5, carbs: 10, fat: 2, dietary_fiber: 4, quantity: 1, serving_size: 1, meal_type: 'lunch', unit: 'g', entry_date: '2024-06-15' },
+        {
+          id: '1',
+          calories: 200,
+          protein: 10,
+          carbs: 20,
+          fat: 5,
+          dietary_fiber: undefined as any,
+          quantity: 1,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
+        {
+          id: '2',
+          calories: 100,
+          protein: 5,
+          carbs: 10,
+          fat: 2,
+          dietary_fiber: 4,
+          quantity: 1,
+          serving_size: 1,
+          meal_type: 'lunch',
+          unit: 'g',
+          entry_date: '2024-06-15',
+        },
       ];
       expect(calculateFiber(entries)).toBe(4);
     });
@@ -333,7 +510,7 @@ describe('foodEntriesApi', () => {
             'Content-Type': 'application/json',
           }),
           body: JSON.stringify(testPayload),
-        })
+        }),
       );
     });
 
@@ -371,7 +548,7 @@ describe('foodEntriesApi', () => {
       });
 
       await expect(updateFoodEntry('entry-1', testPayload)).rejects.toThrow(
-        'Server error: 404 - Not Found'
+        'Server error: 404 - Not Found',
       );
     });
 
@@ -379,7 +556,7 @@ describe('foodEntriesApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(updateFoodEntry('entry-1', testPayload)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });
@@ -403,7 +580,7 @@ describe('foodEntriesApi', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/food-entries/entry-1',
-        expect.objectContaining({ method: 'DELETE' })
+        expect.objectContaining({ method: 'DELETE' }),
       );
     });
 
@@ -427,7 +604,7 @@ describe('foodEntriesApi', () => {
       });
 
       await expect(deleteFoodEntry('entry-1')).rejects.toThrow(
-        'Server error: 403 - Forbidden'
+        'Server error: 403 - Forbidden',
       );
     });
 
@@ -435,7 +612,7 @@ describe('foodEntriesApi', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(deleteFoodEntry('entry-1')).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });

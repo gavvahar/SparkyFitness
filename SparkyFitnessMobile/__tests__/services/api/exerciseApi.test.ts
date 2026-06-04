@@ -12,11 +12,15 @@ import {
   deleteExerciseFromLibrary,
   type CreateExerciseEntryPayload,
 } from '../../../src/services/api/exerciseApi';
-import { getActiveServerConfig, ServerConfig } from '../../../src/services/storage';
+import {
+  getActiveServerConfig,
+  ServerConfig,
+} from '../../../src/services/storage';
 
 jest.mock('../../../src/services/storage', () => ({
   getActiveServerConfig: jest.fn(),
-  proxyHeadersToRecord: jest.requireActual('../../../src/services/storage').proxyHeadersToRecord,
+  proxyHeadersToRecord: jest.requireActual('../../../src/services/storage')
+    .proxyHeadersToRecord,
 }));
 
 jest.mock('../../../src/services/LogService', () => ({
@@ -77,7 +81,7 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(testPayload),
-        })
+        }),
       );
     });
 
@@ -103,7 +107,7 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
       });
 
       await expect(createExerciseEntry(testPayload)).rejects.toThrow(
-        'Server error: 400 - Bad Request'
+        'Server error: 400 - Bad Request',
       );
     });
 
@@ -111,7 +115,7 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(createExerciseEntry(testPayload)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });
@@ -137,7 +141,7 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(testPayload),
-        })
+        }),
       );
     });
 
@@ -163,7 +167,7 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
       });
 
       await expect(updateExerciseEntry('entry-1', testPayload)).rejects.toThrow(
-        'Server error: 500 - Internal Server Error'
+        'Server error: 500 - Internal Server Error',
       );
     });
 
@@ -171,7 +175,7 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
       mockGetActiveServerConfig.mockResolvedValue(null);
 
       await expect(updateExerciseEntry('entry-1', testPayload)).rejects.toThrow(
-        'Server configuration not found.'
+        'Server configuration not found.',
       );
     });
   });
@@ -385,7 +389,9 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
           }),
       });
 
-      const result = await updateExercise('ex-1', { name: 'Updated Bench Press' });
+      const result = await updateExercise('ex-1', {
+        name: 'Updated Bench Press',
+      });
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/exercises/ex-1',
@@ -395,7 +401,11 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
       expect((init.body as FormData).get('exerciseData')).toEqual(
         JSON.stringify({ name: 'Updated Bench Press' }),
       );
-      expect(result).toMatchObject({ id: 'ex-1', userId: 'user-1', isCustom: true });
+      expect(result).toMatchObject({
+        id: 'ex-1',
+        userId: 'user-1',
+        isCustom: true,
+      });
     });
 
     it('throws on non-OK response', async () => {
@@ -449,7 +459,11 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
         entry_date: '2026-03-20',
         exercises: [],
       };
-      const responseData = { id: 'session-1', type: 'preset', name: 'Push Day' };
+      const responseData = {
+        id: 'session-1',
+        type: 'preset',
+        name: 'Push Day',
+      };
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -472,7 +486,11 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
   describe('updateWorkout', () => {
     it('sends PUT request to /api/exercise-preset-entries/:id', async () => {
       const payload = { name: 'Updated Push Day', exercises: [] };
-      const responseData = { id: 'session-1', type: 'preset', name: 'Updated Push Day' };
+      const responseData = {
+        id: 'session-1',
+        type: 'preset',
+        name: 'Updated Push Day',
+      };
       mockGetActiveServerConfig.mockResolvedValue(testConfig);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -516,7 +534,9 @@ describe('exerciseApi - createExerciseEntry / updateExerciseEntry', () => {
         text: () => Promise.resolve('Not Found'),
       });
 
-      await expect(deleteWorkout('nonexistent')).rejects.toThrow('Server error: 404 - Not Found');
+      await expect(deleteWorkout('nonexistent')).rejects.toThrow(
+        'Server error: 404 - Not Found',
+      );
     });
   });
 

@@ -26,13 +26,19 @@ const LibrarySearchBar: React.FC<LibrarySearchBarProps> = ({
     <View className="px-4 pb-3">
       <View
         className="flex-row items-center bg-raised rounded-lg px-3"
-        style={{ borderWidth: 1, borderColor: isFocused ? accentColor : 'transparent' }}
+        style={{
+          borderWidth: 1,
+          borderColor: isFocused ? accentColor : 'transparent',
+        }}
       >
         <Icon name="search" size={18} color={textMuted} />
         <View className="flex-1 ml-2">
           <TextInput
             className="text-text-primary"
-            style={{ fontSize: 16, paddingVertical: Platform.OS === 'ios' ? 12 : 0 }}
+            style={{
+              fontSize: 16,
+              paddingVertical: Platform.OS === 'ios' ? 12 : 0,
+            }}
             placeholder={placeholder}
             placeholderTextColor={textMuted}
             value={value}
@@ -44,7 +50,9 @@ const LibrarySearchBar: React.FC<LibrarySearchBarProps> = ({
             returnKeyType="search"
           />
         </View>
-        {isSearching ? <ActivityIndicator size="small" color={accentColor} /> : null}
+        {isSearching ? (
+          <ActivityIndicator size="small" color={accentColor} />
+        ) : null}
       </View>
     </View>
   );

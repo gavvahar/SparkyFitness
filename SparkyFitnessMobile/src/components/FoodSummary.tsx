@@ -26,18 +26,30 @@ interface MealSectionProps {
   onPressMealType?: (mealType: MealTypeKey, entries: FoodEntry[]) => void;
 }
 
-const MealSection: React.FC<MealSectionProps> = ({ mealType, entries, onAdjustServing, onPressMealType }) => {
-  const config = MEAL_CONFIG[mealType] || { label: mealType, icon: 'meal-snack' as IconName };
+const MealSection: React.FC<MealSectionProps> = ({
+  mealType,
+  entries,
+  onAdjustServing,
+  onPressMealType,
+}) => {
+  const config = MEAL_CONFIG[mealType] || {
+    label: mealType,
+    icon: 'meal-snack' as IconName,
+  };
   const accentPrimary = useCSSVariable('--color-accent-primary') as string;
 
   const totalCalories = calculateMealNutrition(entries).calories;
   const headerContent = (
     <>
       <Icon name={config.icon} size={18} color={accentPrimary} />
-      <Text className="text-base font-bold text-text-secondary flex-1">{config.label}</Text>
+      <Text className="text-base font-bold text-text-secondary flex-1">
+        {config.label}
+      </Text>
       {totalCalories > 0 && (
         <View className="bg-accent-primary/5 rounded-full px-2.5 py-0.5">
-          <Text className="text-xs text-accent-primary font-semibold">{totalCalories} Cal</Text>
+          <Text className="text-xs text-accent-primary font-semibold">
+            {totalCalories} Cal
+          </Text>
         </View>
       )}
       {onPressMealType && (
@@ -77,22 +89,35 @@ const MealSection: React.FC<MealSectionProps> = ({ mealType, entries, onAdjustSe
   );
 };
 
-const FoodSummary: React.FC<FoodSummaryProps> = ({ foodEntries, onAddFood, onAdjustServing, onPressMealType }) => {
+const FoodSummary: React.FC<FoodSummaryProps> = ({
+  foodEntries,
+  onAddFood,
+  onAdjustServing,
+  onPressMealType,
+}) => {
   if (foodEntries.length === 0) {
     return (
-      <Pressable onPress={onAddFood} className="bg-surface rounded-xl p-4 mt-2 shadow-sm items-center py-6">
+      <Pressable
+        onPress={onAddFood}
+        className="bg-surface rounded-xl p-4 mt-2 shadow-sm items-center py-6"
+      >
         <Text className="text-text-muted text-base">Tap to add food</Text>
       </Pressable>
     );
   }
 
   const grouped = groupFoodEntriesByMealType(foodEntries);
-  const mealTypesWithEntries = MEAL_TYPES.filter((mealType) => grouped[mealType].length > 0);
+  const mealTypesWithEntries = MEAL_TYPES.filter(
+    mealType => grouped[mealType].length > 0,
+  );
   const hasOther = grouped.other.length > 0;
 
   if (mealTypesWithEntries.length === 0 && !hasOther) {
     return (
-      <Pressable onPress={onAddFood} className="bg-surface rounded-xl p-4 mt-2 shadow-sm items-center py-6">
+      <Pressable
+        onPress={onAddFood}
+        className="bg-surface rounded-xl p-4 mt-2 shadow-sm items-center py-6"
+      >
         <Text className="text-text-muted text-base">Tap to add food</Text>
       </Pressable>
     );
@@ -100,7 +125,7 @@ const FoodSummary: React.FC<FoodSummaryProps> = ({ foodEntries, onAddFood, onAdj
 
   return (
     <View className="gap-2 my-2">
-      {mealTypesWithEntries.map((mealType) => (
+      {mealTypesWithEntries.map(mealType => (
         <MealSection
           key={mealType}
           mealType={mealType}

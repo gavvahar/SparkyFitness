@@ -4,7 +4,11 @@ import Toast from 'react-native-toast-message';
 import { useDeleteFoodEntry } from '../../src/hooks/useDeleteFoodEntry';
 import { deleteFoodEntry } from '../../src/services/api/foodEntriesApi';
 import { dailySummaryQueryKey } from '../../src/hooks/queryKeys';
-import { createTestQueryClient, createQueryWrapper, type QueryClient } from './queryTestUtils';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  type QueryClient,
+} from './queryTestUtils';
 
 jest.mock('../../src/services/api/foodEntriesApi', () => ({
   deleteFoodEntry: jest.fn(),
@@ -16,7 +20,9 @@ jest.mock('../../src/services/LogService', () => ({
 
 jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
-const mockDeleteFoodEntry = deleteFoodEntry as jest.MockedFunction<typeof deleteFoodEntry>;
+const mockDeleteFoodEntry = deleteFoodEntry as jest.MockedFunction<
+  typeof deleteFoodEntry
+>;
 
 describe('useDeleteFoodEntry', () => {
   let queryClient: QueryClient;
@@ -34,10 +40,11 @@ describe('useDeleteFoodEntry', () => {
     mockDeleteFoodEntry.mockResolvedValue(undefined);
 
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-02-26T00:00:00.000Z',
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-02-26T00:00:00.000Z',
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -63,11 +70,12 @@ describe('useDeleteFoodEntry', () => {
     const onSuccess = jest.fn();
 
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-02-26T00:00:00.000Z',
-        onSuccess,
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-02-26T00:00:00.000Z',
+          onSuccess,
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -90,10 +98,11 @@ describe('useDeleteFoodEntry', () => {
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-02-26T00:00:00.000Z',
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-02-26T00:00:00.000Z',
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -112,10 +121,11 @@ describe('useDeleteFoodEntry', () => {
     mockDeleteFoodEntry.mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-02-26T00:00:00.000Z',
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-02-26T00:00:00.000Z',
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -140,10 +150,11 @@ describe('useDeleteFoodEntry', () => {
 
   test('confirmAndDelete shows confirmation dialog', () => {
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-02-26T00:00:00.000Z',
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-02-26T00:00:00.000Z',
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -163,10 +174,11 @@ describe('useDeleteFoodEntry', () => {
 
   test('cancel in confirmation dialog does not trigger mutation', () => {
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-02-26T00:00:00.000Z',
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-02-26T00:00:00.000Z',
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 
@@ -186,10 +198,11 @@ describe('useDeleteFoodEntry', () => {
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
     const { result } = renderHook(
-      () => useDeleteFoodEntry({
-        entryId: 'entry-123',
-        entryDate: '2026-03-15T14:30:00.000Z',
-      }),
+      () =>
+        useDeleteFoodEntry({
+          entryId: 'entry-123',
+          entryDate: '2026-03-15T14:30:00.000Z',
+        }),
       { wrapper: createQueryWrapper(queryClient) },
     );
 

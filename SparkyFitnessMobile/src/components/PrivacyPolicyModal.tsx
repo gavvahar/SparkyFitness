@@ -1,15 +1,11 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  Linking,
-} from 'react-native';
+import { View, Text, Modal, Linking } from 'react-native';
 import Button from './ui/Button';
 import { useCSSVariable } from 'uniwind';
 import Icon from './Icon';
 
-const PRIVACY_POLICY_URL = 'https://codewithcj.github.io/SparkyFitness/privacy_policy';
+const PRIVACY_POLICY_URL =
+  'https://codewithcj.github.io/SparkyFitness/privacy_policy';
 
 interface PrivacyPolicyModalProps {
   visible: boolean;
@@ -57,7 +53,8 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             </Text>
 
             <Text className="text-base leading-6 text-center mb-4 text-text-primary">
-              All HealthKit data stays on your device and is transmitted only to your own server.
+              All HealthKit data stays on your device and is transmitted only to
+              your own server.
             </Text>
 
             <Button
