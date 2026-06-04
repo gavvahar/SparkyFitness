@@ -1,7 +1,9 @@
 {
   "packageManager": "pnpm@10.33.4",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "format:check": "prettier --check \"SparkyFitnessFrontend/**/*.{js,ts,tsx,html,json,yml,yaml,md}\" \"SparkyFitnessServer/**/*.{js,ts,json,yml,yaml,md}\" \"SparkyFitnessMobile/**/*.{js,ts,tsx,json}\" \"*.{json,yml,yaml,md}\"",
+    "format": "prettier --write \"SparkyFitnessFrontend/**/*.{js,ts,tsx,html,json,yml,yaml,md}\" \"SparkyFitnessServer/**/*.{js,ts,json,yml,yaml,md}\" \"SparkyFitnessMobile/**/*.{js,ts,tsx,json}\" \"*.{json,yml,yaml,md}\""
   },
   "devDependencies": {
     "husky": "^9.0.0",
